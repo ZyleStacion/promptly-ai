@@ -46,15 +46,15 @@ const Hero = () => {
                 transition={{duration: 0.5}}
                  className='   flex space-x-10 text-white justify-center md:justify-start xl:jus' >
                     <div>
-                        <p className=' font-bold text-3xl'> <CountUp start={0} end={500} duration={2}  enableScrollSpy={true} scrollSpyOnce={true}  /> <p className='  inline-flex'>+</p></p>
+                        <p className=' font-bold text-3xl'> <CountUp start={0} end={500} duration={2}  enableScrollSpy={true} scrollSpyOnce={true}  /> <span className='  inline-flex'>+</span></p>
                         <p >Businesses</p>
                     </div>
                     <div>
-                        <p className=' font-bold text-3xl'><CountUp start={0} end={10000} duration={2}  enableScrollSpy={true} scrollSpyOnce={true}  /> <p className='  inline-flex'>+</p></p>
+                        <p className=' font-bold text-3xl'><CountUp start={0} end={10000} duration={2}  enableScrollSpy={true} scrollSpyOnce={true}  /> <span className='  inline-flex'>+</span></p>
                         <p>Models Trained</p>
                     </div>
                     <div>
-                        <p className=' font-bold text-3xl'><CountUp start={0} end={99} duration={2} enableScrollSpy={true} scrollSpyOnce={true}  /> <p className='  inline-flex'>%</p></p>
+                        <p className=' font-bold text-3xl'><CountUp start={0} end={99} duration={2} enableScrollSpy={true} scrollSpyOnce={true}  /> <span className='  inline-flex'>%</span></p>
                         <p>Satisfaction</p>
                     </div>
                 </motion.div>  
@@ -69,7 +69,7 @@ const Hero = () => {
             <motion.img  
             initial={{ opacity: 0, x:200}}
             animate={{ opacity: 1, x:0}}
-            transition={{ type: "string", stiffness: 100, delay:0.2}}
+            transition={{ type: "spring", stiffness: 100, delay:0.2}}
                 src={HeroImg} 
                 alt="Ai Related Image"
                 className=' w-[550px] md:w-[550px] xl:w-[700px]'
