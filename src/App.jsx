@@ -4,7 +4,7 @@ import Hero from './components/Hero/Hero';
 
 export const App = () => {
   return (
-  <main className='overflow-x-hidden' >
+  <main className='overflow-x-hidden bg-gray-900' >
       <Navbar/>
       <Hero/>
 

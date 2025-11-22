@@ -1,3 +1,12 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer components{
+    .primary-btn {
+        @apply  text-gray-900 bg-gradient-to-r from-blue-600 to-violet-600 p-2 font-bold
+         rounded-md hover:scale-110 hover:text-white transition-all !shadow-xl  duration-300 font-semibold 
+    }
+
+    
+}

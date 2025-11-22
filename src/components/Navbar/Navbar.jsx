@@ -10,7 +10,11 @@ const Navbar = () => {
   return (
     <>
     <nav>
-        <div className="containers flex justify-between items-center py-3 px-10 bg-neutral-900">
+        <motion.div
+        initial={{opacity: 0}}
+        animate={{opacity: 1}}
+        transition={{duration: 0.5}}
+         className="containers flex justify-between items-center py-3 px-10 bg-neutral-900">
 
             {/* logo section */}
             <a href="/">
@@ -42,7 +46,7 @@ const Navbar = () => {
             {/* login/logout buttons section  */}
             <div className="hidden lg:block space-x-6">
               <button className='font-semibold text-white'>Sign In</button>
-              <button className='text-white bg-secondary font-semibold rounded-full px-6 py-2'>Sign Up</button>
+              <button className='text-white bg-secondary font-semibold rounded-full px-6 py-2 hover:scale-110 duration-300'>Sign Up</button>
 
             </div>
 
@@ -50,7 +54,7 @@ const Navbar = () => {
             <div className='lg:hidden' onClick={() => setIsOpen(!isOpen)} >
               <MdMenu className='text-4xl text-white hover:font-bold'/>
             </div>
-        </div>
+        </motion.div>
     </nav>
 
     {/* Mobile dropdown menu  */}
