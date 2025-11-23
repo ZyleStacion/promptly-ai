@@ -2,6 +2,7 @@ import React from 'react'
 import Navbar from './components/Navbar/Navbar';
 import Hero from './components/Hero/Hero';
 import HowItWorks from './components/HowItWorks/HowItWorks';
+import WhyChooseOurPlatform from './components/WhyChooseOurPlatform/WhyChooseOurPlatform';
 
 export const App = () => {
   return (
@@ -9,6 +10,7 @@ export const App = () => {
       <Navbar/>
       <Hero/>
       <HowItWorks/>
+      <WhyChooseOurPlatform/>
 
     </main>
   );

@@ -5,11 +5,11 @@ import { motion } from 'framer-motion';
 import CountUp from 'react-countup';
 
 const Hero = () => {
-  return <>
+  return (
 
     <div className=' bg-gray-900 containers grid grid-cols-1 md:grid-cols-2 min-h-[650px] md:px-5 relative'>
         {/* brand infor */}
-        <div className=' flex flex-col mt-5 pt-24 px-8 pb-10 md:pr-10 xl:pr-30 '>
+        <div className=' flex flex-col mt-5 xl:pt-24 md:pt-24 px-8 pb-10 md:pr-10 xl:pr-30 '>
             <div className=' text-center md:text-left space-y-6'>
                 <motion.p
                 initial={{opacity: 0, x: -100}}
@@ -79,7 +79,7 @@ const Hero = () => {
 
     </div>
 
-  </>
+  )
 }
 
 export default Hero

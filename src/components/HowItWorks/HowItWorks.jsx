@@ -51,7 +51,7 @@ const HowItWorks = () => {
                           initial={{opacity: 0, x: -200}}
                           whileInView={{opacity: 1, x:0}}
                           transition={{delay: item.delay}}
-                          className=' bg-neutral-950 text-white space-y-4 p-6 rounded-xl shadow-[0_0_22px_rgba(0,0,0,0.15)] hover:shadow-[0_0_20px_rgba(59,130,246,0.7)] transition-all duration-300 text-center    '>
+                          className=' bg-neutral-950 mx-3 text-white space-y-4 p-6 rounded-xl shadow-[0_0_22px_rgba(0,0,0,0.15)] hover:shadow-[0_0_20px_rgba(59,130,246,0.7)] transition-all duration-300 text-center    '>
                             {/* icon section */}
                             <div>
                                 <div className=' bg-gray-900 w-12 h-12 rounded-lg flex items-center text-center'>{item.icon}</div>
