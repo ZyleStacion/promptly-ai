@@ -36,7 +36,7 @@ const Hero = () => {
                 transition={{duration: 0.8}}
                  className=' space-x-5'>
                     <button className='primary-btn'>Get Started</button>
-                    <button className=' text-white'>Learn More</button>
+                    <button className=' text-white underline'>Learn More</button>
                 </motion.div>
 
                 {/* yapping */}
