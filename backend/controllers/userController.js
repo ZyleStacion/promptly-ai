@@ -26,9 +26,11 @@ export const register = async (req, res) => {
       expiresIn: "1d",
     });
 
-    res.status(201).json({ message: "User created", token, user: {
-      id: user._id, username: user.username, email: user.email, createdAt: user.createdAt}
-     });
+    res.status(201).json({
+      message: "User created", token, user: {
+        id: user._id, username: user.username, email: user.email, createdAt: user.createdAt
+      }
+    });
   } catch (err) {
     res.status(400).json({ error: err.message });
   }
