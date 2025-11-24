@@ -11,4 +11,3 @@ Backend:
 - react-icons
 - react-router-dom (Zyle's note: NEW)
 or simply run `npm install`
-
