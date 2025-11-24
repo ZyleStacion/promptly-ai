@@ -5,12 +5,6 @@ import { IoShieldCheckmarkOutline } from "react-icons/io5";
 import { LiaIndustrySolid } from "react-icons/lia";
 import { LuMousePointerClick } from "react-icons/lu";
 
-
-
-
-
-
-
 const WhyChooseOurPlatformMenu =[
   {
     id: 1,
@@ -21,7 +15,7 @@ const WhyChooseOurPlatformMenu =[
   },
 {
     id: 2,
-    title: 'Insudtry Specific Models',
+    title: 'Industry Specific Models',
     description: 'Models trained on your business data perform better for your specific use case.',
     icon: <LiaIndustrySolid className="text-6xl p-2"/>,
     delay: 0.6,
