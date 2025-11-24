@@ -3,6 +3,7 @@ Promptly AI is a web platform that enables SMBs to upload private corporate data
 
 # Requirements
 Install the required dependencies:
+Backend:
 - framer-motion
 - react
 - react-countup
