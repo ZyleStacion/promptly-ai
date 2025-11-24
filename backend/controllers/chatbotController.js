@@ -1,13 +1,51 @@
-import mongoose from "mongoose";
+import Chatbot from "../models/chatbot.js";
 
-const ChatbotSchema = new mongoose.Schema({
-  userId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
-  businessName: { type: String, required: true },
-  businessDescription: { type: String, required: true },
-  personality: { type: String, default: "Friendly and helpful" },
-  modelName: { type: String, default: "llama3" }, // Ollama model
-  systemPrompt: { type: String, required: true },
-  createdAt: { type: Date, default: Date.now },
-});
+// CREATE CHATBOT
+export const createChatbot = async (req, res) => {
+  try {
+    // userId comes from JWT middleware
+    const userId = req.user?._id;
 
-export default mongoose.model("Chatbot", ChatbotSchema);
+    if (!userId) {
+      return res.status(401).json({ error: "User not authenticated" });
+    }
+
+    const {
+      businessName,
+      businessDescription,
+      systemPrompt,
+      personality,
+      modelName,
+    } = req.body;
+
+    // Validate required fields
+    if (!businessName || !businessDescription || !systemPrompt) {
+      return res.status(400).json({
+        error: "businessName, businessDescription, and systemPrompt are required.",
+      });
+    }
+
+    const chatbot = await Chatbot.create({
+      userId,
+      businessName,
+      businessDescription,
+      systemPrompt,
+      personality: personality || "Friendly and helpful",
+      modelName: modelName || "llama3",
+    });
+
+    return res.status(201).json({
+      message: "Chatbot created successfully",
+      chatbot,
+    });
+  } catch (err) {
+    console.error("Error creating chatbot:", err);
+
+    // Mongoose validation error
+    if (err.name === "ValidationError") {
+      return res.status(400).json({ error: err.message });
+    }
+
+    return res.status(500).json({ error: "Server error" });
+  }
+};
