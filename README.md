@@ -1,7 +1,12 @@
-# About this Project
+# 🙋 What is Promptly AI?
+
 Promptly AI is a web platform that enables SMBs to upload private corporate data to generate a custom AI model.
 
-## Requirements
+## 🧉 Key Features
+
+`TODO`
+
+## ⭕ Requirements
 
 Install the required dependencies:
 Frontend:
@@ -24,6 +29,6 @@ Backend:
 
 or simply change to the frontend or backend directly and run `npm install`.
 
-## Running
+## 🏃 Running
 
-Run `npm run dev` in the backend and frontend terminals.
+Run `npm run dev` seperately, for the backend and frontend in 2 different terminals.
