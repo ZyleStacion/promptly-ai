@@ -3,8 +3,8 @@ import connectDB from "./config/database.js";
 import dotenv from "dotenv";
 import authRoutes from "./routes/auth.js";
 import chatbotRoutes from "./routes/chatbot.js";
-import ollamaRoutes from "./routes/chat.js"
-const cors = require('cors');
+import ollamaRoutes from "./routes/chat.js";;
+import cors from 'cors';
 
 dotenv.config();
 
