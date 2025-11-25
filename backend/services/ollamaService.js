@@ -1,4 +1,4 @@
-const axios = require('axios');
+import axios from 'axios';
 
 // Use your EC2 public IP and port 11434
 const ollamaApi = axios.create({
@@ -19,4 +19,4 @@ async function sendMessage(model, prompt) {
   }
 }
 
-module.exports = { sendMessage };
+export { sendMessage };

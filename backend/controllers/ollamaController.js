@@ -1,4 +1,4 @@
-const { sendMessage } = require('../services/ollamaService');
+import { sendMessage } from '../services/ollamaService.js';
 
 async function chat(req, res) {
   try {
@@ -10,4 +10,4 @@ async function chat(req, res) {
   }
 }
 
-module.exports = { chat };
+export { chat };

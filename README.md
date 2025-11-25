@@ -29,6 +29,8 @@ Backend:
 - jsonwebtoken
 - mongodb
 - mongoose
+- axios
+- cors
 
 or simply change to the frontend or backend directly and run `npm install`.
 

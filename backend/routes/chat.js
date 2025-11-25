@@ -1,7 +1,7 @@
-const express = require('express');
+import express from 'express';
 const router = express.Router();
-const { chat } = require('../controllers/ollamaController');
+import { chat } from '../controllers/ollamaController.js';
 
 router.post('/chat', chat);
 
-module.exports = router;
+export default router;
