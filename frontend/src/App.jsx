@@ -11,6 +11,7 @@ export const App = () => {
       <Hero/>
       <HowItWorks/>
       <WhyChooseOurPlatform/>
+      
 
     </main>
   );
