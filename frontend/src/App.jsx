@@ -3,6 +3,7 @@ import Navbar from './components/Navbar/Navbar';
 import Hero from './components/Hero/Hero';
 import HowItWorks from './components/HowItWorks/HowItWorks';
 import WhyChooseOurPlatform from './components/WhyChooseOurPlatform/WhyChooseOurPlatform';
+import Footer from './components/Footer/Footer';
 
 export const App = () => {
   return (
@@ -11,6 +12,7 @@ export const App = () => {
       <Hero/>
       <HowItWorks/>
       <WhyChooseOurPlatform/>
+      <Footer/>
       
 
     </main>

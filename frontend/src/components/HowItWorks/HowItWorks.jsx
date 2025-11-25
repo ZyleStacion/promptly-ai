@@ -34,7 +34,7 @@ const HowItWorksMenu = [
 const HowItWorks = () => {
   return (
     <div className=" bg-gray-900">
-      <div className="containers py-24">
+      <div id="how-it-works" className="containers py-24">
         {/* header section */}
         <div className=" text-white space-y-4 p-6 text-center max-w-[500px] mx-auto mb-5">
           <h1 className=" text-5xl font-bold inline-block bg-gradient-to-r from-blue-600 to-violet-600 text-transparent bg-clip-text">
