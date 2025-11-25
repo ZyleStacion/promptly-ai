@@ -7,6 +7,18 @@ import ResponsiveMenu from "./ResponsiveMenu";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = React.useState(false);
+  const handleNavClick = (e, link) => {
+    if (!link) return;
+    if (link.startsWith("#")) {
+      e.preventDefault();
+      const el = document.querySelector(link);
+      if (el) {
+        el.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+      // close mobile menu if open
+      setIsOpen(false);
+    }
+  };
   return (
     <>
       <nav>
@@ -32,6 +44,7 @@ const Navbar = () => {
                   <li key={item.id}>
                     <a
                       href={item.link}
+                      onClick={(e) => handleNavClick(e, item.link)}
                       className="inline-block text-white text-sm xl:text-base py-1 px-2 xl:px-3
                              hover:text-secondary transition-all duration-300 font-semibold"
                     >
@@ -59,7 +72,7 @@ const Navbar = () => {
       </nav>
 
       {/* Mobile dropdown menu  */}
-      <ResponsiveMenu isOpen={isOpen} />
+      <ResponsiveMenu isOpen={isOpen} setIsOpen={setIsOpen} />
     </>
   );
 };
