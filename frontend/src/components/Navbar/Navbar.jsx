@@ -3,10 +3,13 @@ import { NavbarMenu } from "../../mockData/data";
 import { LuBrain } from "react-icons/lu";
 import { MdMenu } from "react-icons/md";
 import { motion } from "framer-motion";
+import { Link, useNavigate } from "react-router-dom";
 import ResponsiveMenu from "./ResponsiveMenu";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = React.useState(false);
+  const navigate = useNavigate();
+
   const handleNavClick = (e, link) => {
     if (!link) return;
     if (link.startsWith("#")) {
@@ -58,8 +61,18 @@ const Navbar = () => {
 
           {/* login/logout buttons section  */}
           <div className="hidden lg:block space-x-6">
-            <button className="font-semibold text-white">Sign In</button>
-            <button className="text-white bg-secondary font-semibold rounded-full px-6 py-2 hover:scale-110 duration-300">
+            <button
+              id="nav-signin-btn"
+              onClick={() => navigate("/signin")}
+              className="font-semibold text-white hover:text-secondary transition-all duration-300"
+            >
+              Sign In
+            </button>
+            <button
+              id="nav-signup-btn"
+              onClick={() => navigate("/signup")}
+              className="text-white bg-secondary font-semibold rounded-full px-6 py-2 hover:scale-110 duration-300"
+            >
               Sign Up
             </button>
           </div>

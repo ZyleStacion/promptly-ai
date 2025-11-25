@@ -3,8 +3,10 @@ import HeroImg from "../../assets/Hero.png";
 import { LuBrain } from "react-icons/lu";
 import { motion } from "framer-motion";
 import CountUp from "react-countup";
+import { useNavigate } from "react-router-dom";
 
 const Hero = () => {
+  const navigate = useNavigate();
   return (
     <div className=" bg-gray-900 containers grid grid-cols-1 md:grid-cols-2 min-h-[650px] md:px-5 relative">
       {/* brand infor */}
@@ -51,7 +53,9 @@ const Hero = () => {
             transition={{ duration: 0.8 }}
             className=" space-x-5"
           >
-            <button className="primary-btn">Get Started</button>
+            <button onClick={() => navigate("/signup")} className="primary-btn">
+              Get Started
+            </button>
             <button className=" text-white underline">Learn More</button>
           </motion.div>
 
