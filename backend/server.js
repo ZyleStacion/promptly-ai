@@ -5,6 +5,7 @@ import authRoutes from "./routes/auth.js";
 import chatbotRoutes from "./routes/chatbot.js";
 import ollamaRoutes from "./routes/chat.js";;
 import cors from 'cors';
+import googleAuthRoutes from "./routes/googleAuth.js";
 
 dotenv.config();
 
@@ -18,6 +19,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use("/auth", authRoutes);
 app.use("/chatbot", chatbotRoutes);
 app.use('/ollama', ollamaRoutes);
+app.use("/auth", googleAuthRoutes);
 
 
 // Connect to MongoDB
