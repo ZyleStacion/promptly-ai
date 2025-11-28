@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { LuBrain } from "react-icons/lu";
 import { useNavigate } from "react-router-dom";
@@ -15,6 +15,41 @@ const SignUp = () => {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+
+  // ⭐ GOOGLE SIGN UP
+  useEffect(() => {
+    if (!window.google) return;
+
+    window.google.accounts.id.initialize({
+      client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID,
+      callback: async (response) => {
+        const res = await fetch("http://localhost:3000/auth/google", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ credential: response.credential }),
+        });
+
+        const data = await res.json();
+
+        if (data.token) {
+          localStorage.setItem("token", data.token);
+          navigate("/dashboard");
+        }
+      },
+    });
+
+    // Render Google button in the sign-up page
+    window.google.accounts.id.renderButton(
+      document.getElementById("google-signup-btn"),
+      {
+        theme: "outline",
+        size: "large",
+        width: "350",
+        text: "signup_with", // 
+        shape: "rectangular",
+      }
+    );
+  }, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -232,9 +267,11 @@ const SignUp = () => {
           </div>
 
           {/* Social Sign Up */}
-          <button className="w-full bg-gray-800 border border-gray-700 text-white font-semibold py-3 rounded-lg hover:bg-gray-700 transition-colors duration-300">
-            Continue with Google
-          </button>
+          <div
+            id="google-signup-btn"
+            className="w-full flex justify-center"
+          ></div>
+        
         </div>
 
         {/* Sign In Link */}

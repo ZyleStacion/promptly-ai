@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react"; 
 import { motion } from "framer-motion";
 import { LuBrain } from "react-icons/lu";
 import { useNavigate } from "react-router-dom";
@@ -11,6 +11,34 @@ const SignIn = () => {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+
+  // ⭐ GOOGLE LOGIN INTEGRATION
+useEffect(() => {
+    if (!window.google) return;
+
+    window.google.accounts.id.initialize({
+      client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID,
+      callback: async (response) => {
+        const res = await fetch("http://localhost:3000/auth/google", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ credential: response.credential }),
+        });
+
+        const data = await res.json();
+
+        if (data.token) {
+          localStorage.setItem("token", data.token);
+          navigate("/dashboard");
+        }
+      },
+    });
+
+    window.google.accounts.id.renderButton(
+      document.getElementById("google-login-btn"),
+      { theme: "outline", size: "large", width: "350" }
+    );
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -157,9 +185,10 @@ const SignIn = () => {
           </div>
 
           {/* Social Sign In */}
-          <button className="w-full bg-gray-800 border border-gray-700 text-white font-semibold py-3 rounded-lg hover:bg-gray-700 transition-colors duration-300">
-            Continue with Google
-          </button>
+          <div
+            id="google-login-btn"
+            className="w-full flex justify-center"
+          ></div>
         </div>
 
         {/* Sign Up Link */}
