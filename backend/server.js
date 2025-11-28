@@ -23,7 +23,7 @@ app.use('/ollama', ollamaRoutes);
 // Connect to MongoDB
 connectDB();
 
-// Example route
+// route
 app.get("/", (req, res) => {
   res.send("Promptly AI Server Running...");
 });
@@ -31,6 +31,12 @@ app.get("/", (req, res) => {
 
 
 
-// Listen
+// Server Listener
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+app.listen(PORT, () => {
+  console.log("=======================================");
+  console.log("🚀 Promptly AI Backend Server Started!");
+  console.log(`🌐 URL: http://localhost:${PORT}`);
+  console.log(`📦 ENV: ${process.env.NODE_ENV || "development"}`);
+  console.log("=======================================");
+});
