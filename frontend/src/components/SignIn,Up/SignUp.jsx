@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import { LuBrain } from "react-icons/lu";
 import { useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
+import { registerUser } from "../../api/auth";
 
 const SignUp = () => {
   const [formData, setFormData] = useState({
@@ -53,20 +54,20 @@ const SignUp = () => {
     }
 
     try {
-      // TODO: Replace with actual API call
-      // const response = await fetch('/api/auth/signup', {
-      //   method: 'POST',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify(formData)
-      // });
-      // const data = await response.json();
-      // if (data.success) navigate('/dashboard');
+     const payload = {
+        username: formData.fullName,
+        email: formData.email,
+        password: formData.password
+      };
 
-      // Placeholder: redirect to signin on success
-      console.log("Sign Up attempt:", formData);
-      setTimeout(() => {
+      const data = await registerUser(payload);
+
+      if (data.error || data.message === "Email already exists") {
+        setError(data.message || "Signup failed");
+      } else {
+        // Redirect to login
         navigate("/signin");
-      }, 500);
+      }
     } catch (err) {
       setError("Sign up failed. Please try again.");
     } finally {

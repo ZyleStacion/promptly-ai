@@ -6,6 +6,7 @@ import bcrypt from "bcryptjs";
 export const register = async (req, res) => {
   try {
     const { username, email, password } = req.body;
+     console.log("🔥 REGISTER BODY RECEIVED:", req.body);
 
     // Validate input fields
     if (!username || !email || !password) {
@@ -32,6 +33,7 @@ export const register = async (req, res) => {
       }
     });
   } catch (err) {
+    console.error("REGISTER ERROR:", err);
     res.status(400).json({ error: err.message });
   }
 };
