@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import { LuBrain } from "react-icons/lu";
 import { useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
+import { loginUser } from "../../api/auth";
 
 const SignIn = () => {
   const [email, setEmail] = useState("");
@@ -16,7 +17,6 @@ const SignIn = () => {
     setError("");
     setLoading(true);
 
-    // Basic validation
     if (!email || !password) {
       setError("Please fill in all fields");
       setLoading(false);
@@ -24,19 +24,17 @@ const SignIn = () => {
     }
 
     try {
-      // TODO: Replace with actual API call
-      // const response = await fetch('/api/auth/signin', {
-      //   method: 'POST',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify({ email, password })
-      // });
-      // const data = await response.json();
-      // if (data.success) navigate('/dashboard');
-      // Placeholder: redirect to home on success
-      console.log("Sign In attempt:", { email, password });
-      setTimeout(() => {
-        navigate("/");
-      }, 500);
+      const data = await loginUser({ email, password });
+
+      if (data.error || !data.token) {
+        setError(data.message || "Invalid credentials");
+      } else {
+        // Save token
+        localStorage.setItem("token", data.token);
+
+        // Redirect to dashboard
+        navigate("/dashboard");
+      }
     } catch (err) {
       setError("Sign in failed. Please try again.");
     } finally {
