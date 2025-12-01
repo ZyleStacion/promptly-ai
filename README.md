@@ -31,6 +31,7 @@ Backend:
 - mongoose
 - axios
 - cors
+- google-auth-library
 
 or simply change to the frontend or backend directly and run `npm install`.
 
