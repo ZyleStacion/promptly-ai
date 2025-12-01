@@ -7,9 +7,9 @@ import { motion } from "framer-motion";
 const HowItWorksMenu = [
   {
     id: 1,
-    title: "1. Chat with our AI",
+    title: "1. Sign Up your Account",
     description:
-      "Start a conversation with our untrained AI model to understand your business needs how our AI-driven solutions can transform your business operations and enhance efficiency.",
+      "Create an account on our platform to get started with building your custom AI model.",
     icon: <FcAbout className="text-6xl p-2" />,
     delay: 0.3,
   },
