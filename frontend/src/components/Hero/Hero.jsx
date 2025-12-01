@@ -1,12 +1,31 @@
 import React from "react";
 import HeroImg from "../../assets/Hero.png";
 import { LuBrain } from "react-icons/lu";
+import { FiPlay, FiPause } from "react-icons/fi";
 import { motion } from "framer-motion";
 import CountUp from "react-countup";
 import { useNavigate } from "react-router-dom";
+import HeroVideo from "../../assets/hero-video.mp4";
 
 const Hero = () => {
   const navigate = useNavigate();
+  const videoRef = React.useRef(null);
+  const [isPlaying, setIsPlaying] = React.useState(true);
+
+  const togglePlay = () => {
+    const v = videoRef.current;
+    if (!v) return;
+    if (v.paused) {
+      v.play();
+      setIsPlaying(true);
+    } else {
+      v.pause();
+      setIsPlaying(false);
+    }
+  };
+
+  const handleEnded = () => setIsPlaying(false);
+
   return (
     <div className=" bg-gray-900 containers grid grid-cols-1 md:grid-cols-2 min-h-[650px] md:px-5 relative">
       {/* brand infor */}
@@ -112,15 +131,34 @@ const Hero = () => {
 
       {/* Hero image */}
 
-      <div className="flex justify-center items-center  ">
-        <motion.img
-          initial={{ opacity: 0, x: 200 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ type: "spring", stiffness: 100, delay: 0.2 }}
-          src={HeroImg}
-          alt="Ai Related Image"
-          className=" w-[550px] md:w-[550px] xl:w-[700px]"
+      <div className="relative h-full w-full justify-center flex items-center mt-10 md:mt-0">
+        <motion.video
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 1 }}
+          ref={videoRef}
+          className="h-full w-full rounded-lg object-cover p-3"
+          src={HeroVideo}
+          autoPlay
+          muted
+          loop
+          playsInline
+          preload="auto"
+          onEnded={handleEnded}
         />
+
+        {/* Play/Pause button bottom-left */}
+        <button
+          onClick={togglePlay}
+          aria-label={isPlaying ? "Pause video" : "Play video"}
+          className="absolute bottom-3 left-3 z-30 bg-black/50 hover:bg-black/60 text-white p-2 rounded-full flex items-center justify-center"
+        >
+          {isPlaying ? (
+            <FiPause className="w-5 h-5" />
+          ) : (
+            <FiPlay className="w-5 h-5" />
+          )}
+        </button>
       </div>
     </div>
   );
