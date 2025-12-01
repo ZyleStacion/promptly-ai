@@ -4,8 +4,24 @@ import React from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { NavbarMenu } from "../../mockData/data";
 
-const ResponsiveMenu = ({ isOpen }) => {
+const ResponsiveMenu = ({ isOpen, setIsOpen }) => {
   const navigate = useNavigate();
+
+  const handleMenuClick = (link) => {
+    setIsOpen(false);
+    if (link.startsWith("#")) {
+      const el = document.querySelector(link);
+      if (el) {
+        el.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+    }
+  };
+
+  const handleNavigation = (path) => {
+    setIsOpen(false);
+    navigate(path);
+  };
+
   return (
     <AnimatePresence mode="wait">
       {isOpen && (
@@ -14,7 +30,7 @@ const ResponsiveMenu = ({ isOpen }) => {
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -100 }}
           transition={{ duration: 0.3 }}
-          className="absolute top-20 left-0 w-full h-screen z-20 lg:hidden"
+          className="fixed top-16 left-0 w-full h-screen z-20 lg:hidden"
         >
           <div className="text-xl font-semibold uppercase bg-gradient-to-r from-blue-600 to-violet-600 text-white py-5  rounded-3xl justify-center items-center text-center">
             {NavbarMenu.map((item) => {
@@ -22,6 +38,10 @@ const ResponsiveMenu = ({ isOpen }) => {
                 <li key={item.id}>
                   <a
                     href={item.link}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      handleMenuClick(item.link);
+                    }}
                     className="inline-block text-white py-3 
                                 hover:text-secondary transition-all duration-300 font-semibold"
                   >
@@ -33,14 +53,14 @@ const ResponsiveMenu = ({ isOpen }) => {
             <div className=" inline-flex rounded-xl p-3 items-center justify-center text-center bg-gray-800  space-x-6">
               <button
                 id="nav-signin-btn"
-                onClick={() => navigate("/signin")}
+                onClick={() => handleNavigation("/signin")}
                 className="font-semibold"
               >
                 Sign In
               </button>
               <button
                 id="nav-signup-btn"
-                onClick={() => navigate("/signup")}
+                onClick={() => handleNavigation("/signup")}
                 className="text-white bg-secondary font-semibold rounded-full px-6 py-2 hover:scale-110 duration-300"
               >
                 Sign Up

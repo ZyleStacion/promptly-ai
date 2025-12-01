@@ -24,7 +24,7 @@ const Navbar = () => {
   };
   return (
     <>
-      <nav>
+      <nav className=" flex-nowrap top-0 w-full fixed z-10">
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
