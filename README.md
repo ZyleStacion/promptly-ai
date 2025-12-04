@@ -32,6 +32,7 @@ Backend:
 - axios
 - cors
 - google-auth-library
+- multer
 
 or simply change to the frontend or backend directly and run `npm install`.
 
