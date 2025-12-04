@@ -1,25 +1,24 @@
 import { motion, AnimatePresence } from "framer-motion";
-import { MdLightMode } from "react-icons/md";
 import React from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { NavbarMenu } from "../../mockData/data";
 
 const ResponsiveMenu = ({ isOpen, setIsOpen }) => {
   const navigate = useNavigate();
+  const isLoggedIn = !!localStorage.getItem("token");
 
   const handleMenuClick = (link) => {
     setIsOpen(false);
     if (link.startsWith("#")) {
       const el = document.querySelector(link);
-      if (el) {
-        el.scrollIntoView({ behavior: "smooth", block: "start" });
-      }
+      if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
     }
   };
 
-  const handleNavigation = (path) => {
+  const handleLogout = () => {
+    localStorage.removeItem("token");
     setIsOpen(false);
-    navigate(path);
+    navigate("/");
   };
 
   return (
@@ -32,39 +31,66 @@ const ResponsiveMenu = ({ isOpen, setIsOpen }) => {
           transition={{ duration: 0.3 }}
           className="fixed top-16 left-0 w-full h-screen z-20 lg:hidden"
         >
-          <div className="text-xl font-semibold uppercase bg-gradient-to-r from-blue-600 to-violet-600 text-white py-5  rounded-3xl justify-center items-center text-center">
-            {NavbarMenu.map((item) => {
-              return (
-                <li key={item.id}>
-                  <a
-                    href={item.link}
-                    onClick={(e) => {
-                      e.preventDefault();
-                      handleMenuClick(item.link);
+          <div className="text-xl font-semibold uppercase bg-gradient-to-r from-blue-600 to-violet-600 text-white py-5 rounded-3xl text-center">
+            {NavbarMenu.map((item) => (
+              <li key={item.id}>
+                <a
+                  href={item.link}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    handleMenuClick(item.link);
+                  }}
+                  className="inline-block text-white py-3 hover:text-secondary transition-all duration-300 font-semibold"
+                >
+                  {item.title}
+                </a>
+              </li>
+            ))}
+
+            {/* Auth Buttons Mobile */}
+            <div className="mt-4 bg-gray-800 rounded-xl p-4 inline-flex flex-col space-y-4">
+              {!isLoggedIn ? (
+                <>
+                  <button
+                    onClick={() => {
+                      setIsOpen(false);
+                      navigate("/signin");
                     }}
-                    className="inline-block text-white py-3 
-                                hover:text-secondary transition-all duration-300 font-semibold"
+                    className="font-semibold text-white"
                   >
-                    {item.title}
-                  </a>
-                </li>
-              );
-            })}
-            <div className=" inline-flex rounded-xl p-3 items-center justify-center text-center bg-gray-800  space-x-6">
-              <button
-                id="nav-signin-btn"
-                onClick={() => handleNavigation("/signin")}
-                className="font-semibold"
-              >
-                Sign In
-              </button>
-              <button
-                id="nav-signup-btn"
-                onClick={() => handleNavigation("/signup")}
-                className="text-white bg-secondary font-semibold rounded-full px-6 py-2 hover:scale-110 duration-300"
-              >
-                Sign Up
-              </button>
+                    Sign In
+                  </button>
+
+                  <button
+                    onClick={() => {
+                      setIsOpen(false);
+                      navigate("/signup");
+                    }}
+                    className="text-white bg-secondary font-semibold rounded-full px-6 py-2 hover:scale-110 duration-300"
+                  >
+                    Sign Up
+                  </button>
+                </>
+              ) : (
+                <>
+                  <button
+                    onClick={() => {
+                      setIsOpen(false);
+                      navigate("/dashboard");
+                    }}
+                    className="text-white bg-secondary font-semibold rounded-full px-6 py-2 hover:scale-110 duration-300"
+                  >
+                    Dashboard
+                  </button>
+
+                  <button
+                    onClick={handleLogout}
+                    className="font-semibold text-white"
+                  >
+                    Logout
+                  </button>
+                </>
+              )}
             </div>
           </div>
         </motion.div>
