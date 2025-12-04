@@ -10,11 +10,18 @@ const DashboardNavbar = () => {
 
   // Load user info from localStorage
   useEffect(() => {
+  const loadUser = () => {
     const storedUser = localStorage.getItem("user");
-    if (storedUser) {
-      setUser(JSON.parse(storedUser));
-    }
-  }, []);
+    if (storedUser) setUser(JSON.parse(storedUser));
+  };
+
+  loadUser();
+
+  // Listen for updates from AccountSettings
+  window.addEventListener("storage", loadUser);
+
+  return () => window.removeEventListener("storage", loadUser);
+}, []);
 
   const handleLogout = () => {
     localStorage.removeItem("token");
@@ -44,11 +51,20 @@ const DashboardNavbar = () => {
 
       {/* RIGHT — Profile Icon */}
       <div className="relative">
-        <FaUserCircle
-          className="text-3xl text-white cursor-pointer hover:text-gray-300 transition"
-          onClick={() => setDropdownOpen(!dropdownOpen)}
-          title="Profile Menu"
-        />
+  {user.profileImage ? (
+    <img
+      src={`http://localhost:3000${user.profileImage}`} 
+      alt="Profile"
+      className="w-10 h-10 rounded-full object-cover cursor-pointer border border-gray-700"
+      onClick={() => setDropdownOpen(!dropdownOpen)}
+    />
+  ) : (
+    <FaUserCircle
+      className="text-3xl text-white cursor-pointer hover:text-gray-300 transition"
+      onClick={() => setDropdownOpen(!dropdownOpen)}
+      title="Profile Menu"
+    />
+  )}
 
         {/* DROPDOWN MENU */}
         {dropdownOpen && (
