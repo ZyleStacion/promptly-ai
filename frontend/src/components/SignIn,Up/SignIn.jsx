@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react"; 
+import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { LuBrain } from "react-icons/lu";
 import { useNavigate } from "react-router-dom";
@@ -13,7 +13,7 @@ const SignIn = () => {
   const navigate = useNavigate();
 
   // ⭐ GOOGLE LOGIN INTEGRATION
-useEffect(() => {
+  useEffect(() => {
     if (!window.google) return;
 
     window.google.accounts.id.initialize({
@@ -63,6 +63,11 @@ useEffect(() => {
       } else {
         // Save token
         localStorage.setItem("token", data.token);
+
+        // Save user data for dashboard
+        if (data.user) {
+          localStorage.setItem("user", JSON.stringify(data.user));
+        }
 
         // Redirect to dashboard
         navigate("/dashboard");

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { mockApi, USE_MOCK_API } from "../../api/mockApi";
 
 const AccountSettings = () => {
   const navigate = useNavigate();
@@ -9,9 +10,9 @@ const AccountSettings = () => {
   const [email, setEmail] = useState("");
 
   // Profile image data
-  const [profileImage, setProfileImage] = useState("");   // URL from DB
-  const [profileFile, setProfileFile] = useState(null);   // selected image file
-  const [previewImage, setPreviewImage] = useState("");   // preview URL
+  const [profileImage, setProfileImage] = useState(""); // URL from DB
+  const [profileFile, setProfileFile] = useState(null); // selected image file
+  const [previewImage, setPreviewImage] = useState(""); // preview URL
 
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
@@ -21,25 +22,41 @@ const AccountSettings = () => {
   // LOAD USER ON PAGE LOAD
   // --------------------------------------------------
   useEffect(() => {
-    fetch("http://localhost:3000/user/me", {
-      headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        const u = data.user;
+    const loadUser = async () => {
+      try {
+        let data;
 
+        if (USE_MOCK_API) {
+          data = await mockApi.getUserProfile();
+        } else {
+          const res = await fetch("http://localhost:3000/user/me", {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+          });
+          data = await res.json();
+        }
+
+        const u = data.user;
         setUser(u);
         setUsername(u.username);
         setEmail(u.email);
 
         // existing db image
         const fullImg = u.profileImage
-          ? `http://localhost:3000${u.profileImage}`
+          ? USE_MOCK_API
+            ? u.profileImage
+            : `http://localhost:3000${u.profileImage}`
           : "";
 
         setProfileImage(fullImg);
         setPreviewImage(fullImg);
-      });
+      } catch (error) {
+        console.error("Error loading user:", error);
+      }
+    };
+
+    loadUser();
   }, []);
 
   // --------------------------------------------------
@@ -58,38 +75,51 @@ const AccountSettings = () => {
   // SAVE PROFILE CHANGES
   // --------------------------------------------------
   const handleUpdateProfile = async () => {
-    const formData = new FormData();
-    formData.append("username", username);
-    formData.append("email", email);
+    try {
+      const formData = new FormData();
+      formData.append("username", username);
+      formData.append("email", email);
 
-    if (profileFile) {
-      formData.append("profileImage", profileFile);
-    }
+      if (profileFile) {
+        formData.append("profileImage", profileFile);
+      }
 
-    const res = await fetch("http://localhost:3000/user/update-info", {
-      method: "PUT",
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("token")}`,
-      },
-      body: formData,
-    });
+      let data;
 
-    const data = await res.json();
-    setMessage(data.message);
+      if (USE_MOCK_API) {
+        data = await mockApi.updateUserProfile(formData);
+      } else {
+        const res = await fetch("http://localhost:3000/user/update-info", {
+          method: "PUT",
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+          body: formData,
+        });
+        data = await res.json();
+      }
 
-    if (data.user) {
-      const img = data.user.profileImage
-        ? `http://localhost:3000${data.user.profileImage}`
-        : "";
+      setMessage(data.message);
 
-      setUser(data.user);
-      setPreviewImage(img); // update live image
+      if (data.user) {
+        const img = data.user.profileImage
+          ? USE_MOCK_API
+            ? data.user.profileImage
+            : `http://localhost:3000${data.user.profileImage}`
+          : "";
 
-      // Save to localStorage so navbar updates
-      localStorage.setItem("user", JSON.stringify(data.user));
+        setUser(data.user);
+        setPreviewImage(img); // update live image
 
-      // Notify Navbar to refresh
-      window.dispatchEvent(new Event("storage"));
+        // Save to localStorage so navbar updates
+        localStorage.setItem("user", JSON.stringify(data.user));
+
+        // Notify Navbar to refresh
+        window.dispatchEvent(new Event("storage"));
+      }
+    } catch (error) {
+      console.error("Error updating profile:", error);
+      setMessage("Error updating profile");
     }
   };
 
@@ -97,17 +127,33 @@ const AccountSettings = () => {
   // CHANGE PASSWORD
   // --------------------------------------------------
   const handleChangePassword = async () => {
-    const res = await fetch("http://localhost:3000/user/change-password", {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${localStorage.getItem("token")}`,
-      },
-      body: JSON.stringify({ currentPassword, newPassword }),
-    });
+    try {
+      let data;
 
-    const data = await res.json();
-    setMessage(data.message);
+      if (USE_MOCK_API) {
+        data = await mockApi.changePassword({ currentPassword, newPassword });
+      } else {
+        const res = await fetch("http://localhost:3000/user/change-password", {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+          body: JSON.stringify({ currentPassword, newPassword }),
+        });
+        data = await res.json();
+      }
+
+      setMessage(data.message);
+
+      if (data.success) {
+        setCurrentPassword("");
+        setNewPassword("");
+      }
+    } catch (error) {
+      console.error("Error changing password:", error);
+      setMessage("Error changing password");
+    }
   };
 
   // --------------------------------------------------
@@ -116,14 +162,23 @@ const AccountSettings = () => {
   const handleDeleteAccount = async () => {
     if (!window.confirm("Are you sure? This action is permanent.")) return;
 
-    await fetch("http://localhost:3000/user/delete", {
-      method: "DELETE",
-      headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-    });
+    try {
+      if (USE_MOCK_API) {
+        await mockApi.deleteAccount();
+      } else {
+        await fetch("http://localhost:3000/user/delete", {
+          method: "DELETE",
+          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+        });
+      }
 
-    localStorage.removeItem("token");
-    localStorage.removeItem("user");
-    navigate("/signup");
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+      navigate("/signup");
+    } catch (error) {
+      console.error("Error deleting account:", error);
+      setMessage("Error deleting account");
+    }
   };
 
   if (!user) return <p className="text-white">Loading...</p>;
@@ -133,6 +188,27 @@ const AccountSettings = () => {
   // --------------------------------------------------
   return (
     <div className="min-h-screen bg-gray-900 text-white px-6 py-20">
+      {/* Back Button */}
+      <button
+        onClick={() => navigate("/dashboard")}
+        className="mb-6 flex items-center gap-2 text-gray-400 hover:text-white transition"
+      >
+        <svg
+          className="w-5 h-5"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M15 19l-7-7 7-7"
+          />
+        </svg>
+        Back to Dashboard
+      </button>
+
       <h1 className="text-3xl font-bold mb-6">Account Settings</h1>
 
       {message && (
@@ -142,7 +218,7 @@ const AccountSettings = () => {
       )}
 
       {/* Profile Image */}
-      <div className="mb-6">
+      <div className="mb-6 items-center justify-center w-full">
         <label className="block mb-2 text-gray-300">Profile Image</label>
 
         <img
