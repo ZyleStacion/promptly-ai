@@ -72,7 +72,14 @@ const Hero = () => {
             transition={{ duration: 0.8 }}
             className=" space-x-5"
           >
-            <button onClick={() => navigate("/signup")} className="primary-btn">
+            <button
+              onClick={() => {
+                const isLoggedIn = !!localStorage.getItem("token");
+                if (isLoggedIn) navigate("/dashboard");
+                else navigate("/signin");
+              }}
+              className="primary-btn"
+            >
               Get Started
             </button>
             <button className=" text-white underline">Learn More</button>
