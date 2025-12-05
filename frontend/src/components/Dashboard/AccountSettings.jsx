@@ -1,12 +1,15 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { motion } from "framer-motion";
 import { FaUser, FaLock, FaCreditCard, FaFileInvoice } from "react-icons/fa";
 import { mockApi, USE_MOCK_API } from "../../api/mockApi";
 
 const AccountSettings = () => {
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState("profile");
+  const location = useLocation();
+  const [activeTab, setActiveTab] = useState(
+    location.state?.activeTab || "profile"
+  );
 
   const [user, setUser] = useState(null);
   const [username, setUsername] = useState("");

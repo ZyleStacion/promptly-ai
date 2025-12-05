@@ -112,7 +112,15 @@ const DashboardNavbar = () => {
                 Documentation
               </button>
 
-              <button className="w-full text-center bg-gray-800 border border-gray-700 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition">
+              <button
+                onClick={() => {
+                  navigate("/dashboard/settings", {
+                    state: { activeTab: "subscription" },
+                  });
+                  setDropdownOpen(false);
+                }}
+                className="w-full text-center bg-gray-800 border border-gray-700 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition"
+              >
                 Account Plan
               </button>
 
