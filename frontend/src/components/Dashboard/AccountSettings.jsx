@@ -614,7 +614,9 @@ const AccountSettings = () => {
                       </li>
                       <li className="flex items-center gap-2">
                         <span className="text-violet-400">✓</span>
-                        <span>Dedicated support</span>
+                        <span>
+                          Dedicated support + 1 kiss from each of us developers
+                        </span>
                       </li>
                     </ul>
                     <button className="w-full bg-gradient-to-r from-blue-600 to-violet-600 hover:opacity-90 py-2 rounded-lg text-white font-semibold transition">
