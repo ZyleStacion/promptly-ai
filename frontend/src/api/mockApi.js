@@ -1,7 +1,7 @@
 // Mock API for frontend development without backend
 // Set USE_MOCK_API to true to use mock data instead of real API calls
 
-export const USE_MOCK_API = true; // Toggle this to switch between mock and real API
+export const USE_MOCK_API = false; // Toggle this to switch between mock and real API
 
 // Simulate network delay
 const delay = (ms = 300) => new Promise((resolve) => setTimeout(resolve, ms));
