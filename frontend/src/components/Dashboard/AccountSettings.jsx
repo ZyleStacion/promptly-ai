@@ -269,11 +269,10 @@ const AccountSettings = () => {
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
-                  className={`w-full text-left px-4 py-3 rounded-lg transition flex items-center gap-3 ${
-                    activeTab === tab.id
+                  className={`w-full text-left px-4 py-3 rounded-lg transition flex items-center gap-3 ${activeTab === tab.id
                       ? "bg-gradient-to-r from-blue-600 to-violet-600 text-white"
                       : "text-gray-400 hover:bg-neutral-700 hover:text-white"
-                  }`}
+                    }`}
                 >
                   <tab.icon className="text-xl" />
                   <span className="font-medium">{tab.label}</span>
@@ -289,13 +288,12 @@ const AccountSettings = () => {
             <motion.div
               initial={{ opacity: 0, y: -20 }}
               animate={{ opacity: 1, y: 0 }}
-              className={`mb-4 px-4 py-3 rounded-lg border ${
-                message.toLowerCase().includes("incorrect") ||
-                message.toLowerCase().includes("error") ||
-                message.toLowerCase().includes("failed")
+              className={`mb-4 px-4 py-3 rounded-lg border ${message.toLowerCase().includes("incorrect") ||
+                  message.toLowerCase().includes("error") ||
+                  message.toLowerCase().includes("failed")
                   ? "bg-red-600/20 text-red-400 border-red-600/50"
                   : "bg-green-600/20 text-green-400 border-green-600/50"
-              }`}
+                }`}
             >
               {message}
             </motion.div>
@@ -400,11 +398,10 @@ const AccountSettings = () => {
                 <button
                   onClick={handleUpdateProfile}
                   disabled={!hasChanges}
-                  className={`w-full py-3 rounded-lg font-semibold transition ${
-                    hasChanges
+                  className={`w-full py-3 rounded-lg font-semibold transition ${hasChanges
                       ? "bg-gradient-to-r from-blue-600 to-violet-600 hover:opacity-90 text-white cursor-pointer"
                       : "bg-gray-700 text-gray-500 cursor-not-allowed"
-                  }`}
+                    }`}
                 >
                   Save Changes
                 </button>
@@ -439,6 +436,14 @@ const AccountSettings = () => {
                       className="w-full bg-neutral-700 border border-gray-600 p-3 rounded-lg text-white focus:outline-none focus:border-blue-500"
                       placeholder="Enter current password"
                     />
+                  </div>
+                  <div className="text-right">
+                    <button
+                      onClick={() => navigate("/forgot-password")}
+                      className="text-blue-500 hover:text-blue-400 text-sm font-medium transition"
+                    >
+                      Forgot your password?
+                    </button>
                   </div>
 
                   <div>
@@ -494,14 +499,12 @@ const AccountSettings = () => {
                   </div>
                   <button
                     onClick={() => setTwoFactorEnabled(!twoFactorEnabled)}
-                    className={`relative inline-flex h-8 w-14 items-center rounded-full transition-colors ${
-                      twoFactorEnabled ? "bg-blue-600" : "bg-gray-600"
-                    }`}
+                    className={`relative inline-flex h-8 w-14 items-center rounded-full transition-colors ${twoFactorEnabled ? "bg-blue-600" : "bg-gray-600"
+                      }`}
                   >
                     <span
-                      className={`inline-block h-6 w-6 transform rounded-full bg-white transition-transform ${
-                        twoFactorEnabled ? "translate-x-7" : "translate-x-1"
-                      }`}
+                      className={`inline-block h-6 w-6 transform rounded-full bg-white transition-transform ${twoFactorEnabled ? "translate-x-7" : "translate-x-1"
+                        }`}
                     />
                   </button>
                 </div>
