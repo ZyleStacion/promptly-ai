@@ -32,7 +32,6 @@ const SignIn = () => {
           localStorage.setItem("user", JSON.stringify(data.user));
 
           window.dispatchEvent(new Event("storage"));
-
           navigate("/dashboard");
         }
       },
@@ -58,20 +57,28 @@ const SignIn = () => {
     try {
       const data = await loginUser({ email, password });
 
-      if (data.error || !data.token) {
-        setError(data.message || "Invalid credentials");
-      } else {
-        // Save token
-        localStorage.setItem("token", data.token);
-
-        // Save user data for dashboard
-        if (data.user) {
-          localStorage.setItem("user", JSON.stringify(data.user));
-        }
-
-        // Redirect to dashboard
-        navigate("/dashboard");
+      
+      // Any login failure = no token returned
+      if (!data.token) {
+        setError(data.error || data.message || "Invalid credentials");
+        setLoading(false);
+        return;
       }
+      // ⭐ END FIX ----------------------------------------------
+
+      // Save token
+      localStorage.setItem("token", data.token);
+
+      // Save user data
+      if (data.user) {
+        localStorage.setItem("user", JSON.stringify(data.user));
+      }
+
+      // Notify navbar to refresh
+      window.dispatchEvent(new Event("storage"));
+
+      // Redirect
+      navigate("/dashboard");
     } catch (err) {
       setError("Sign in failed. Please try again.");
     } finally {
@@ -79,7 +86,6 @@ const SignIn = () => {
     }
   };
 
-  //Everything above this "return" is suggested by GitHub Copilot
   return (
     <div className="min-h-screen bg-gray-900 flex items-center justify-center px-4 py-12">
       <motion.div
@@ -127,6 +133,16 @@ const SignIn = () => {
           </div>
 
           <h2 className="text-2xl font-bold text-white mb-6">Sign In</h2>
+
+          {error && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="bg-red-500/10 border border-red-500/50 text-red-400 px-4 py-3 rounded-lg mb-4 text-sm"
+            >
+              {error}
+            </motion.div>
+          )}
 
           <form onSubmit={handleSubmit} className="space-y-4">
             {/* Email Input */}
@@ -194,10 +210,7 @@ const SignIn = () => {
           </div>
 
           {/* Social Sign In */}
-          <div
-            id="google-login-btn"
-            className="w-full flex justify-center"
-          ></div>
+          <div id="google-login-btn" className="w-full flex justify-center"></div>
         </div>
 
         {/* Sign Up Link */}
