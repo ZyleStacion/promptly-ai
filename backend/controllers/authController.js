@@ -45,18 +45,20 @@ export const login = async (req, res) => {
 
     // Check missing fields
     if (!email || !password) {
-      return res.status(400).json({ message: "Email and password required." });
+      return res.status(400).json({ error: "Email and password are required." });
     }
 
     // Find user by email
     const user = await User.findOne({ email });
-    if (!user)
-      return res.status(400).json({ message: "Invalid email or password." });
+    if (!user) {
+      return res.status(400).json({ error: "Account does not exist." });
+    }
 
     // Compare password using bcrypt
     const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch)
-      return res.status(400).json({ message: "Invalid email or password." });
+    if (!isMatch) {
+      return res.status(400).json({ error: "Invalid email or password." });
+    }
 
     // Create JWT token
     const token = jwt.sign(
@@ -72,13 +74,14 @@ export const login = async (req, res) => {
         id: user._id,
         username: user.username,
         email: user.email,
+        profileImage: user.profileImage || null,
       },
     });
+
   } catch (err) {
-    return res.status(500).json({ error: err.message });
+    return res.status(500).json({ error: "Server error: " + err.message });
   }
 };
-
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 export const googleAuth = async (req, res) => {
