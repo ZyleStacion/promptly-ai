@@ -10,6 +10,8 @@ Promptly AI is a web platform that enables SMBs to upload private corporate data
 
 ### ⭕ 1. Requirements
 
+Simply change to the frontend or backend directly and run `npm install`.
+
 Install the required dependencies:
 Frontend:
 
@@ -33,8 +35,6 @@ Backend:
 - cors
 - google-auth-library
 - multer
-
-or simply change to the frontend or backend directly and run `npm install`.
 
 ### 🏃 2. Running
 
