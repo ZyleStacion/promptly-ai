@@ -28,6 +28,7 @@ const AccountSettings = () => {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [twoFactorEnabled, setTwoFactorEnabled] = useState(false);
   const [message, setMessage] = useState("");
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
 
   // Clear message when switching tabs
   useEffect(() => {
@@ -198,8 +199,6 @@ const AccountSettings = () => {
   // DELETE ACCOUNT
   // --------------------------------------------------
   const handleDeleteAccount = async () => {
-    if (!window.confirm("Are you sure? This action is permanent.")) return;
-
     try {
       if (USE_MOCK_API) {
         await mockApi.deleteAccount();
@@ -217,6 +216,7 @@ const AccountSettings = () => {
       console.error("Error deleting account:", error);
       setMessage("Error deleting account");
     }
+    setShowDeleteModal(false);
   };
 
   if (!user) return <p className="text-white">Loading...</p>;
@@ -506,6 +506,23 @@ const AccountSettings = () => {
                   </button>
                 </div>
               </div>
+
+              {/* Delete Account */}
+              <div className="bg-neutral-800 rounded-xl p-6 border border-red-700/50">
+                <h2 className="text-2xl font-bold mb-2 text-red-400">
+                  Delete Account
+                </h2>
+                <p className="text-gray-400 text-sm mb-4">
+                  Permanently delete your account and all associated data. This
+                  action cannot be undone.
+                </p>
+                <button
+                  onClick={() => setShowDeleteModal(true)}
+                  className="w-full bg-red-600 hover:bg-red-700 py-3 rounded-lg text-white font-semibold transition"
+                >
+                  Delete Account
+                </button>
+              </div>
             </motion.div>
           )}
 
@@ -663,6 +680,39 @@ const AccountSettings = () => {
           )}
         </div>
       </div>
+
+      {/* Delete Account Confirmation Modal */}
+      {showDeleteModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <motion.div
+            initial={{ scale: 0.8, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            className="bg-neutral-800 rounded-xl p-6 max-w-md w-full mx-4 border border-red-700/50"
+          >
+            <h2 className="text-2xl font-bold text-red-400 mb-4">
+              Delete Account?
+            </h2>
+            <p className="text-gray-300 mb-6">
+              Are you sure you want to delete your account? This action is
+              permanent and cannot be undone. All your data will be lost.
+            </p>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setShowDeleteModal(false)}
+                className="flex-1 px-4 py-3 bg-neutral-700 hover:bg-neutral-600 rounded-lg text-white font-semibold transition"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleDeleteAccount}
+                className="flex-1 px-4 py-3 bg-red-600 hover:bg-red-700 rounded-lg text-white font-semibold transition"
+              >
+                Yes, Delete
+              </button>
+            </div>
+          </motion.div>
+        </div>
+      )}
     </div>
   );
 };
