@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { LuBrain } from "react-icons/lu";
-import { useNavigate } from "react-router-dom";
-import { Link } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { loginUser } from "../../api/auth";
 
 const SignIn = () => {
@@ -12,7 +11,7 @@ const SignIn = () => {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  // ⭐ GOOGLE LOGIN INTEGRATION
+  // ---------------- GOOGLE LOGIN FIX ----------------
   useEffect(() => {
     if (!window.google) return;
 
@@ -32,17 +31,23 @@ const SignIn = () => {
           localStorage.setItem("user", JSON.stringify(data.user));
 
           window.dispatchEvent(new Event("storage"));
-
           navigate("/dashboard");
         }
       },
     });
 
+    // IMPORTANT → define height to prevent overlay
     window.google.accounts.id.renderButton(
       document.getElementById("google-login-btn"),
-      { theme: "outline", size: "large", width: "350" }
+      {
+        theme: "outline",
+        size: "large",
+        width: "350",
+      }
     );
   }, []);
+
+  // ----------------------------------------------------
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -58,20 +63,21 @@ const SignIn = () => {
     try {
       const data = await loginUser({ email, password });
 
-      if (data.error || !data.token) {
-        setError(data.message || "Invalid credentials");
-      } else {
-        // Save token
-        localStorage.setItem("token", data.token);
-
-        // Save user data for dashboard
-        if (data.user) {
-          localStorage.setItem("user", JSON.stringify(data.user));
-        }
-
-        // Redirect to dashboard
-        navigate("/dashboard");
+      if (!data.token) {
+        setError(data.error || data.message || "Invalid credentials");
+        setLoading(false);
+        return;
       }
+
+      localStorage.setItem("token", data.token);
+
+      if (data.user) {
+        localStorage.setItem("user", JSON.stringify(data.user));
+      }
+
+      window.dispatchEvent(new Event("storage"));
+      navigate("/dashboard");
+
     } catch (err) {
       setError("Sign in failed. Please try again.");
     } finally {
@@ -79,7 +85,6 @@ const SignIn = () => {
     }
   };
 
-  //Everything above this "return" is suggested by GitHub Copilot
   return (
     <div className="min-h-screen bg-gray-900 flex items-center justify-center px-4 py-12">
       <motion.div
@@ -100,8 +105,9 @@ const SignIn = () => {
         </div>
 
         {/* Form Card */}
-        <div className="bg-neutral-950 border border-gray-800 rounded-xl p-8 pt-14 shadow-lg relative">
-          {/* Back button - top left */}
+        <div className="bg-neutral-950 border border-gray-800 rounded-xl p-8 pt-14 shadow-lg relative z-10">
+
+          {/* Back button */}
           <button
             onClick={() => navigate("/")}
             aria-label="Go back to home"
@@ -110,12 +116,9 @@ const SignIn = () => {
             ← Back
           </button>
 
-          {/* Auth switch buttons - top right */}
+          {/* Auth switch buttons */}
           <div className="absolute top-3 right-3 flex items-center gap-2">
-            <button
-              aria-current="page"
-              className="px-3 py-1 rounded-md text-sm bg-white text-gray-900 font-semibold"
-            >
+            <button className="px-3 py-1 rounded-md text-sm bg-white text-gray-900 font-semibold">
               Sign In
             </button>
             <button
@@ -128,59 +131,67 @@ const SignIn = () => {
 
           <h2 className="text-2xl font-bold text-white mb-6">Sign In</h2>
 
+          {/* Error box */}
+          {error && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="bg-red-500/10 border border-red-500/50 text-red-400 px-4 py-3 rounded-lg mb-4 text-sm"
+            >
+              {error}
+            </motion.div>
+          )}
+
+          {/* FORM */}
           <form onSubmit={handleSubmit} className="space-y-4">
-            {/* Email Input */}
+
+            {/* Email */}
             <div>
-              <label className="block text-white font-semibold mb-2 text-sm">
-                Email
-              </label>
+              <label className="block text-white font-semibold mb-2 text-sm">Email</label>
               <input
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="your@email.com"
-                className="w-full bg-gray-800 border border-gray-700 text-white px-4 py-3 rounded-lg focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all duration-300"
+                className="w-full bg-gray-800 border border-gray-700 text-white px-4 py-3 rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-500"
               />
             </div>
 
-            {/* Password Input */}
+            {/* Password */}
             <div>
-              <label className="block text-white font-semibold mb-2 text-sm">
-                Password
-              </label>
+              <label className="block text-white font-semibold mb-2 text-sm">Password</label>
               <input
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
-                className="w-full bg-gray-800 border border-gray-700 text-white px-4 py-3 rounded-lg focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all duration-300"
+                className="w-full bg-gray-800 border border-gray-700 text-white px-4 py-3 rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-500"
               />
             </div>
 
-            {/* Remember Me & Forgot Password */}
-            <div className="flex items-center justify-between text-sm">
-              <label className="flex items-center gap-2 text-gray-400 cursor-pointer">
-                <input
-                  type="checkbox"
-                  className="w-4 h-4 bg-gray-800 border border-gray-700 rounded focus:ring-blue-500"
-                />
+            {/* Remember + Forgot */}
+            <div className="flex items-center justify-between text-sm relative z-50">
+              <label className="flex items-center gap-2 text-gray-400">
+                <input type="checkbox" className="w-4 h-4" />
                 Remember me
               </label>
-              <a
-                href="#"
-                className="text-blue-500 hover:text-blue-400 transition-colors"
+
+              {/* FIXED Forgot Password link */}
+              <Link
+                to="/forgot-password"
+                className="text-blue-500 hover:text-blue-400 font-semibold relative z-50"
               >
                 Forgot password?
-              </a>
+              </Link>
             </div>
 
-            {/* Submit Button */}
+            {/* Submit */}
             <motion.button
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
               type="submit"
               disabled={loading}
-              className="w-full bg-gradient-to-r from-blue-600 to-violet-600 text-white font-semibold py-3 rounded-lg hover:opacity-90 transition-opacity duration-300 disabled:opacity-50 mt-6"
+              className="w-full bg-gradient-to-r from-blue-600 to-violet-600 text-white font-semibold py-3 rounded-lg hover:opacity-90 disabled:opacity-50 mt-6"
             >
               {loading ? "Signing in..." : "Sign In"}
             </motion.button>
@@ -193,20 +204,18 @@ const SignIn = () => {
             <div className="flex-1 h-px bg-gray-700"></div>
           </div>
 
-          {/* Social Sign In */}
+          {/* Google Login Button */}
           <div
             id="google-login-btn"
-            className="w-full flex justify-center"
+            className="w-full flex justify-center relative"
+            style={{ height: "50px", zIndex: 0 }}
           ></div>
         </div>
 
         {/* Sign Up Link */}
         <p className="text-center text-gray-400 mt-6">
-          Don't have an account?{" "}
-          <Link
-            to="/signup"
-            className="text-blue-500 hover:text-blue-400 font-semibold transition-colors"
-          >
+          Don’t have an account?{" "}
+          <Link to="/signup" className="text-blue-500 hover:text-blue-400 font-semibold">
             Sign Up
           </Link>
         </p>

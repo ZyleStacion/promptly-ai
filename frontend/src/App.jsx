@@ -5,10 +5,12 @@ import HowItWorks from "./components/HowItWorks/HowItWorks";
 import WhyChooseOurPlatform from "./components/WhyChooseOurPlatform/WhyChooseOurPlatform";
 import Footer from "./components/Footer/Footer";
 import Navbar from "./components/Navbar/Navbar";
-import SignIn from "./components/SignIn,Up/SignIn";
-import SignUp from "./components/SignIn,Up/SignUp";
-import Dashboard from "./components/Dashboard/Dashboard"; 
+import SignIn from "./components/SignInUp/SignIn";
+import SignUp from "./components/SignInUp/SignUp";
+import Dashboard from "./components/Dashboard/Dashboard";
 import AccountSetting from "./components/Dashboard/AccountSettings";
+import ForgotPassword from "./components/auth/ForgotPassword";
+import ResetPassword from "./components/auth/ResetPassword";
 import Documentation from "./components/Documentation/Documentation"; 
 
 const HomePage = () => (
@@ -30,6 +32,9 @@ export const App = () => {
         <Route path="/signup" element={<SignUp />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/dashboard/settings" element={<AccountSetting />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/reset-password/:token" element={<ResetPassword />} />
+
         <Route path="/documentation" element={<Documentation />} />
       </Routes>
     </Router>

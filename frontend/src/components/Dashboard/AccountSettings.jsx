@@ -28,6 +28,7 @@ const AccountSettings = () => {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [twoFactorEnabled, setTwoFactorEnabled] = useState(false);
   const [message, setMessage] = useState("");
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
 
   // Clear message when switching tabs
   useEffect(() => {
@@ -198,8 +199,6 @@ const AccountSettings = () => {
   // DELETE ACCOUNT
   // --------------------------------------------------
   const handleDeleteAccount = async () => {
-    if (!window.confirm("Are you sure? This action is permanent.")) return;
-
     try {
       if (USE_MOCK_API) {
         await mockApi.deleteAccount();
@@ -217,6 +216,7 @@ const AccountSettings = () => {
       console.error("Error deleting account:", error);
       setMessage("Error deleting account");
     }
+    setShowDeleteModal(false);
   };
 
   if (!user) return <p className="text-white">Loading...</p>;
@@ -269,11 +269,10 @@ const AccountSettings = () => {
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
-                  className={`w-full text-left px-4 py-3 rounded-lg transition flex items-center gap-3 ${
-                    activeTab === tab.id
+                  className={`w-full text-left px-4 py-3 rounded-lg transition flex items-center gap-3 ${activeTab === tab.id
                       ? "bg-gradient-to-r from-blue-600 to-violet-600 text-white"
                       : "text-gray-400 hover:bg-neutral-700 hover:text-white"
-                  }`}
+                    }`}
                 >
                   <tab.icon className="text-xl" />
                   <span className="font-medium">{tab.label}</span>
@@ -289,13 +288,12 @@ const AccountSettings = () => {
             <motion.div
               initial={{ opacity: 0, y: -20 }}
               animate={{ opacity: 1, y: 0 }}
-              className={`mb-4 px-4 py-3 rounded-lg border ${
-                message.toLowerCase().includes("incorrect") ||
-                message.toLowerCase().includes("error") ||
-                message.toLowerCase().includes("failed")
+              className={`mb-4 px-4 py-3 rounded-lg border ${message.toLowerCase().includes("incorrect") ||
+                  message.toLowerCase().includes("error") ||
+                  message.toLowerCase().includes("failed")
                   ? "bg-red-600/20 text-red-400 border-red-600/50"
                   : "bg-green-600/20 text-green-400 border-green-600/50"
-              }`}
+                }`}
             >
               {message}
             </motion.div>
@@ -400,11 +398,10 @@ const AccountSettings = () => {
                 <button
                   onClick={handleUpdateProfile}
                   disabled={!hasChanges}
-                  className={`w-full py-3 rounded-lg font-semibold transition ${
-                    hasChanges
+                  className={`w-full py-3 rounded-lg font-semibold transition ${hasChanges
                       ? "bg-gradient-to-r from-blue-600 to-violet-600 hover:opacity-90 text-white cursor-pointer"
                       : "bg-gray-700 text-gray-500 cursor-not-allowed"
-                  }`}
+                    }`}
                 >
                   Save Changes
                 </button>
@@ -439,6 +436,14 @@ const AccountSettings = () => {
                       className="w-full bg-neutral-700 border border-gray-600 p-3 rounded-lg text-white focus:outline-none focus:border-blue-500"
                       placeholder="Enter current password"
                     />
+                  </div>
+                  <div className="text-right">
+                    <button
+                      onClick={() => navigate("/forgot-password")}
+                      className="text-blue-500 hover:text-blue-400 text-sm font-medium transition"
+                    >
+                      Forgot your password?
+                    </button>
                   </div>
 
                   <div>
@@ -494,17 +499,32 @@ const AccountSettings = () => {
                   </div>
                   <button
                     onClick={() => setTwoFactorEnabled(!twoFactorEnabled)}
-                    className={`relative inline-flex h-8 w-14 items-center rounded-full transition-colors ${
-                      twoFactorEnabled ? "bg-blue-600" : "bg-gray-600"
-                    }`}
+                    className={`relative inline-flex h-8 w-14 items-center rounded-full transition-colors ${twoFactorEnabled ? "bg-blue-600" : "bg-gray-600"
+                      }`}
                   >
                     <span
-                      className={`inline-block h-6 w-6 transform rounded-full bg-white transition-transform ${
-                        twoFactorEnabled ? "translate-x-7" : "translate-x-1"
-                      }`}
+                      className={`inline-block h-6 w-6 transform rounded-full bg-white transition-transform ${twoFactorEnabled ? "translate-x-7" : "translate-x-1"
+                        }`}
                     />
                   </button>
                 </div>
+              </div>
+
+              {/* Delete Account */}
+              <div className="bg-neutral-800 rounded-xl p-6 border border-red-700/50">
+                <h2 className="text-2xl font-bold mb-2 text-red-400">
+                  Delete Account
+                </h2>
+                <p className="text-gray-400 text-sm mb-4">
+                  Permanently delete your account and all associated data. This
+                  action cannot be undone.
+                </p>
+                <button
+                  onClick={() => setShowDeleteModal(true)}
+                  className="w-full bg-red-600 hover:bg-red-700 py-3 rounded-lg text-white font-semibold transition"
+                >
+                  Delete Account
+                </button>
               </div>
             </motion.div>
           )}
@@ -663,6 +683,39 @@ const AccountSettings = () => {
           )}
         </div>
       </div>
+
+      {/* Delete Account Confirmation Modal */}
+      {showDeleteModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <motion.div
+            initial={{ scale: 0.8, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            className="bg-neutral-800 rounded-xl p-6 max-w-md w-full mx-4 border border-red-700/50"
+          >
+            <h2 className="text-2xl font-bold text-red-400 mb-4">
+              Delete Account?
+            </h2>
+            <p className="text-gray-300 mb-6">
+              Are you sure you want to delete your account? This action is
+              permanent and cannot be undone. All your data will be lost.
+            </p>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setShowDeleteModal(false)}
+                className="flex-1 px-4 py-3 bg-neutral-700 hover:bg-neutral-600 rounded-lg text-white font-semibold transition"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleDeleteAccount}
+                className="flex-1 px-4 py-3 bg-red-600 hover:bg-red-700 rounded-lg text-white font-semibold transition"
+              >
+                Yes, Delete
+              </button>
+            </div>
+          </motion.div>
+        </div>
+      )}
     </div>
   );
 };
