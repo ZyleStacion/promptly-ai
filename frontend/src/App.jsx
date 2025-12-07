@@ -1,5 +1,5 @@
 import React from "react";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import Hero from "./components/Hero/Hero";
 import HowItWorks from "./components/HowItWorks/HowItWorks";
 import WhyChooseOurPlatform from "./components/WhyChooseOurPlatform/WhyChooseOurPlatform";
@@ -11,7 +11,6 @@ import Dashboard from "./components/Dashboard/Dashboard";
 import AccountSetting from "./components/Dashboard/AccountSettings";
 import ForgotPassword from "./components/auth/ForgotPassword";
 import ResetPassword from "./components/auth/ResetPassword";
-import Documentation from "./components/Documentation/Documentation"; 
 
 const HomePage = () => (
   <main className="overflow-x-hidden bg-gray-900">
@@ -34,8 +33,6 @@ export const App = () => {
         <Route path="/dashboard/settings" element={<AccountSetting />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/reset-password/:token" element={<ResetPassword />} />
-
-        <Route path="/documentation" element={<Documentation />} />
       </Routes>
     </Router>
   );

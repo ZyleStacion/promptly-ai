@@ -23,6 +23,13 @@ Frontend:
 - react-icons
 - react-router-dom
 
+Documentation:
+This project uses VitePress to host its documentation, install it with:
+`npm add -D vitepress@next`
+
+Then run it with:
+`npm run docs:dev`
+
 Backend:
 
 - bcryptjs
@@ -39,3 +46,5 @@ Backend:
 ### 🏃 2. Running
 
 Run `npm run dev` seperately, for the backend and frontend in 2 different terminals.
+
+To run the documentation site: navigate to the frontend directory and run `npm run docs:dev`.

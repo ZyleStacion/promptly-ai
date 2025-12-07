@@ -108,7 +108,8 @@ const DashboardNavbar = () => {
                 Account Settings
               </button>
 
-              <button className="w-full text-center bg-gray-800 border border-gray-700 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition">
+              <button className="w-full text-center bg-gray-800 border border-gray-700 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition"
+              href="/docs">
                 Documentation
               </button>
 
