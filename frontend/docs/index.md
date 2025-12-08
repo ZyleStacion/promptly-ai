@@ -33,6 +33,6 @@ Promptly currently offers three types of chatbots for your business:
 
 At Promptly, we belive that users are the ones who get to decide how their data is used. We are committed to providing local deployment solutions, and none of your business data is stored on our servers.
 
-We operate based on an <a href="#">opt-in</a> policy, so you can rest assured knowing that your business data is only used once during chatbot model training.
+We operate based on an <a href="https://bsg.world/glossary/opt-in" target="_blank">opt-in</a> policy, so you can rest assured knowing that your business data is only used once during chatbot model training.
 
 Any further concerns? Click <a href="#">here</a> for an in-depth look at our privacy measures.

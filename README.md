@@ -47,4 +47,6 @@ Backend:
 
 Run `npm run dev` seperately, for the backend and frontend in 2 different terminals.
 
-To run the documentation site: navigate to the frontend directory and run `npm run docs:dev`.
+To run the documentation site, move to the `/docs` directory and run the following: 
+1. add vitepress with `npm add -D vitepress@next`
+2. navigate to the frontend directory and run `npm run docs:dev`.
