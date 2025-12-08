@@ -33,7 +33,8 @@ Backend:
 - cors
 - google-auth-library
 - multer
-
+- nodemailer
+- crypto
 or simply change to the frontend or backend directly and run `npm install`.
 
 ### 🏃 2. Running
