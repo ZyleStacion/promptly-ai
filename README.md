@@ -36,8 +36,9 @@ Backend:
 - multer
 - nodemailer
 - crypto
-or simply change to the frontend or backend directly and run `npm install`.
+
 
 ### 🏃 2. Running
 
 Run `npm run dev` seperately, for the backend and frontend in 2 different terminals.
+or simply change to the frontend or backend directly and run `npm install`.
