@@ -2,7 +2,8 @@ import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { LuBrain } from "react-icons/lu";
 import { useNavigate, Link } from "react-router-dom";
-import { registerUser } from "../../api/auth";
+import { registerUser, loginUser } from "../../api/auth";
+import { FiEye, FiEyeOff } from "react-icons/fi";
 
 const SignUp = () => {
   const [formData, setFormData] = useState({
@@ -13,11 +14,14 @@ const SignUp = () => {
     acceptedTerms: false,
   });
 
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
+
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  // ---------------- GOOGLE SIGNUP ----------------
+  // ---------------- GOOGLE SIGN UP ----------------
   useEffect(() => {
     if (!window.google) return;
 
@@ -33,7 +37,12 @@ const SignUp = () => {
         const data = await res.json();
         if (data.token) {
           localStorage.setItem("token", data.token);
-          navigate("/dashboard");
+          localStorage.setItem("user", JSON.stringify(data.user));
+
+          window.dispatchEvent(new Event("storage"));
+
+          if (data.user?.isAdmin) navigate("/admin");
+          else navigate("/dashboard");
         }
       },
     });
@@ -44,7 +53,6 @@ const SignUp = () => {
         theme: "outline",
         size: "large",
         width: "350",
-        text: "signup_with",
       }
     );
   }, []);
@@ -74,6 +82,7 @@ const SignUp = () => {
     return Object.keys(newErrors).length === 0;
   };
 
+  // ---------------- SUBMIT ----------------
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validate()) return;
@@ -91,15 +100,34 @@ const SignUp = () => {
 
       if (data.error) {
         setErrors({ api: data.error });
-      } else {
-        navigate("/signin");
+        setLoading(false);
+        return;
       }
+
+      // AUTO LOGIN AFTER SIGNUP
+      const loginRes = await loginUser({
+        email: formData.email,
+        password: formData.password,
+      });
+
+      localStorage.setItem("token", loginRes.token);
+      localStorage.setItem("user", JSON.stringify(loginRes.user));
+
+      window.dispatchEvent(new Event("storage"));
+
+      if (loginRes.user?.isAdmin) navigate("/admin");
+      else navigate("/dashboard");
+
     } catch {
-      setErrors({ api: "Sign-up failed. Please try again." });
+      setErrors({ api: "Sign up failed. Please try again." });
     }
 
     setLoading(false);
   };
+  // ------------------------------------------------
+
+  const updateField = (e) =>
+    setFormData({ ...formData, [e.target.name]: e.target.value });
 
   return (
     <div className="min-h-screen bg-gray-900 flex items-center justify-center px-4 py-12">
@@ -109,6 +137,7 @@ const SignUp = () => {
         transition={{ duration: 0.5 }}
         className="w-full max-w-md"
       >
+        {/* Header */}
         <div className="text-center mb-8">
           <div className="flex items-center justify-center gap-2 mb-4">
             <LuBrain className="text-4xl bg-gradient-to-r from-blue-600 to-violet-600 text-white rounded-lg p-1" />
@@ -128,7 +157,7 @@ const SignUp = () => {
             ← Back
           </button>
 
-          {/* Auth Switch */}
+          {/* Switch */}
           <div className="absolute top-3 right-3 flex items-center gap-2">
             <button
               onClick={() => navigate("/signin")}
@@ -144,64 +173,58 @@ const SignUp = () => {
 
           <h2 className="text-2xl font-bold text-white mb-6">Create Account</h2>
 
-          {/* GLOBAL ERRORS */}
+          {/* Global API Error */}
           {errors.api && (
-            <div className="bg-red-600/20 border border-red-500 text-red-400 px-4 py-3 rounded-lg mb-4 text-sm">
+            <div className="bg-red-600/20 border border-red-500 text-red-400 px-4 py-3 rounded-lg mb-4">
               {errors.api}
             </div>
           )}
 
           <form onSubmit={handleSubmit} className="space-y-4">
-
             {/* Full Name */}
-            <InputField
+            <FormInput
               label="Full Name"
               name="fullName"
-              type="text"
               value={formData.fullName}
-              onChange={(e) =>
-                setFormData({ ...formData, fullName: e.target.value })
-              }
+              onChange={updateField}
               error={errors.fullName}
             />
 
             {/* Email */}
-            <InputField
+            <FormInput
               label="Email"
               name="email"
               type="email"
               value={formData.email}
-              onChange={(e) =>
-                setFormData({ ...formData, email: e.target.value })
-              }
+              onChange={updateField}
               error={errors.email}
             />
 
             {/* Password */}
-            <InputField
+            <FormInput
               label="Password"
               name="password"
-              type="password"
+              type={showPassword ? "text" : "password"}
               value={formData.password}
-              onChange={(e) =>
-                setFormData({ ...formData, password: e.target.value })
-              }
+              onChange={updateField}
               error={errors.password}
+              icon={showPassword ? <FiEyeOff /> : <FiEye />}
+              onIconClick={() => setShowPassword(!showPassword)}
             />
 
             {/* Confirm Password */}
-            <InputField
+            <FormInput
               label="Confirm Password"
               name="confirmPassword"
-              type="password"
+              type={showConfirm ? "text" : "password"}
               value={formData.confirmPassword}
-              onChange={(e) =>
-                setFormData({ ...formData, confirmPassword: e.target.value })
-              }
+              onChange={updateField}
               error={errors.confirmPassword}
+              icon={showConfirm ? <FiEyeOff /> : <FiEye />}
+              onIconClick={() => setShowConfirm(!showConfirm)}
             />
 
-            {/* Terms Checkbox */}
+            {/* Terms */}
             <label className="flex items-start gap-2 text-gray-400 text-sm">
               <input
                 type="checkbox"
@@ -219,9 +242,7 @@ const SignUp = () => {
             </label>
 
             {errors.acceptedTerms && (
-              <p className="text-red-400 text-sm -mt-2">
-                {errors.acceptedTerms}
-              </p>
+              <p className="text-red-400 text-sm">{errors.acceptedTerms}</p>
             )}
 
             {/* Submit */}
@@ -235,7 +256,6 @@ const SignUp = () => {
             </motion.button>
           </form>
 
-          {/* Divider */}
           <div className="flex items-center gap-4 my-6">
             <div className="flex-1 h-px bg-gray-700"></div>
             <span className="text-gray-500 text-sm">or</span>
@@ -247,7 +267,7 @@ const SignUp = () => {
 
         <p className="text-center text-gray-400 mt-6">
           Already have an account?{" "}
-          <Link to="/signin" className="text-blue-500">
+          <Link to="/signin" className="text-blue-500 font-semibold">
             Sign In
           </Link>
         </p>
@@ -258,9 +278,9 @@ const SignUp = () => {
 
 export default SignUp;
 
-/* ------------------ REUSABLE INPUT COMPONENT ------------------ */
-const InputField = ({ label, error, ...props }) => (
-  <div>
+/* ------------------ REUSABLE FORM INPUT ------------------ */
+const FormInput = ({ label, error, icon, onIconClick, ...props }) => (
+  <div className="relative">
     <label className="block text-white font-semibold mb-2 text-sm">{label}</label>
 
     <input
@@ -271,6 +291,16 @@ const InputField = ({ label, error, ...props }) => (
           : "border-gray-700 focus:ring-blue-500"
       }`}
     />
+
+    {icon && (
+      <button
+        type="button"
+        onClick={onIconClick}
+        className="absolute right-3 top-10 text-gray-400 hover:text-white"
+      >
+        {icon}
+      </button>
+    )}
 
     {error && <p className="text-red-400 text-sm mt-1">{error}</p>}
   </div>

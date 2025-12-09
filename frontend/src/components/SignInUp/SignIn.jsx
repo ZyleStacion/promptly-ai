@@ -1,12 +1,15 @@
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { LuBrain } from "react-icons/lu";
+import { FiEye, FiEyeOff } from "react-icons/fi";
 import { useNavigate, Link } from "react-router-dom";
 import { loginUser } from "../../api/auth";
 
 const SignIn = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPass, setShowPass] = useState(false);
+
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
@@ -32,7 +35,6 @@ const SignIn = () => {
 
           window.dispatchEvent(new Event("storage"));
 
-          // ⭐ REDIRECT BASED ON ROLE
           if (data.user?.isAdmin) navigate("/admin");
           else navigate("/dashboard");
         }
@@ -53,19 +55,19 @@ const SignIn = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
-    setLoading(true);
 
-    if (!email || !password) {
-      setError("Please fill in all fields");
-      setLoading(false);
+    if (!email.trim() || !password.trim()) {
+      setError("Please enter both email and password.");
       return;
     }
+
+    setLoading(true);
 
     try {
       const data = await loginUser({ email, password });
 
       if (!data.token) {
-        setError(data.error || data.message || "Invalid credentials");
+        setError(data.error || "Invalid email or password");
         setLoading(false);
         return;
       }
@@ -74,103 +76,101 @@ const SignIn = () => {
       localStorage.setItem("user", JSON.stringify(data.user));
       window.dispatchEvent(new Event("storage"));
 
-      // ⭐ ADMIN REDIRECT
       if (data.user?.isAdmin) navigate("/admin");
       else navigate("/dashboard");
 
     } catch (err) {
-      setError("Sign in failed. Please try again.");
-    } finally {
-      setLoading(false);
+      setError("Something went wrong. Try again.");
     }
+
+    setLoading(false);
   };
 
   return (
     <div className="min-h-screen bg-gray-900 flex items-center justify-center px-4 py-12">
       <motion.div
-        initial={{ opacity: 0, y: 50 }}
+        initial={{ opacity: 0, y: 40 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
+        transition={{ duration: 0.4 }}
         className="w-full max-w-md"
       >
-        {/* Header */}
+        {/* Logo */}
         <div className="text-center mb-8">
-          <div className="flex items-center justify-center gap-2 mb-4">
+          <div className="flex items-center justify-center gap-2 mb-2">
             <LuBrain className="text-4xl bg-gradient-to-r from-blue-600 to-violet-600 text-white rounded-lg p-1" />
-            <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-violet-600 text-transparent bg-clip-text">
+            <h1 className="text-4xl bg-gradient-to-r from-blue-600 to-violet-600 bg-clip-text text-transparent font-bold">
               Promptly AI
             </h1>
           </div>
-          <p className="text-gray-400">Welcome back</p>
+          <p className="text-gray-400">Welcome back!</p>
         </div>
 
-        {/* Form Card */}
+        {/* Card */}
         <div className="bg-neutral-950 border border-gray-800 rounded-xl p-8 pt-14 shadow-xl relative">
 
-          {/* Back Button */}
           <button
             onClick={() => navigate("/")}
-            aria-label="Go back to home"
             className="absolute top-3 left-3 bg-gray-800 hover:bg-gray-700 text-white rounded-md p-2 text-sm"
           >
             ← Back
           </button>
 
-          {/* Switch Auth Buttons */}
           <div className="absolute top-3 right-3 flex items-center gap-2">
-            <button className="px-3 py-1 rounded-md text-sm bg-white text-gray-900 font-semibold">
+            <button className="px-3 py-1 rounded-md bg-white text-gray-900 text-sm font-semibold">
               Sign In
             </button>
             <button
               onClick={() => navigate("/signup")}
-              className="px-3 py-1 rounded-md text-sm bg-transparent border border-gray-700 text-white hover:bg-gray-800"
+              className="px-3 py-1 rounded-md bg-transparent border border-gray-700 text-white text-sm hover:bg-gray-800"
             >
               Sign Up
             </button>
           </div>
 
-          <h2 className="text-2xl font-bold text-white mb-6">Sign In</h2>
+          <h2 className="text-2xl text-white font-bold mb-6">Sign In</h2>
 
-          {/* Error Box */}
+          {/* Error */}
           {error && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className="bg-red-500/10 border border-red-500/50 text-red-400 px-4 py-3 rounded-lg mb-4 text-sm"
-            >
+            <div className="bg-red-600/20 border border-red-500 text-red-400 px-4 py-3 rounded-lg mb-4 text-sm">
               {error}
-            </motion.div>
+            </div>
           )}
 
-          {/* FORM */}
           <form onSubmit={handleSubmit} className="space-y-4">
 
             {/* Email */}
             <div>
-              <label className="block text-white font-semibold mb-2 text-sm">Email</label>
+              <label className="text-white text-sm font-semibold">Email</label>
               <input
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="your@email.com"
-                className="w-full bg-gray-800 border border-gray-700 text-white px-4 py-3 rounded-lg focus:ring-1 focus:ring-blue-500"
+                className="w-full mt-2 bg-gray-800 border border-gray-700 text-white px-4 py-3 rounded-lg focus:ring-1 focus:ring-blue-500"
               />
             </div>
 
             {/* Password */}
-            <div>
-              <label className="block text-white font-semibold mb-2 text-sm">Password</label>
+            <div className="relative">
+              <label className="text-white text-sm font-semibold">Password</label>
               <input
-                type="password"
+                type={showPass ? "text" : "password"}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
-                className="w-full bg-gray-800 border border-gray-700 text-white px-4 py-3 rounded-lg focus:ring-1 focus:ring-blue-500"
+                className="w-full mt-2 bg-gray-800 border border-gray-700 text-white px-4 py-3 rounded-lg focus:ring-1 focus:ring-blue-500"
               />
+              <button
+                type="button"
+                onClick={() => setShowPass(!showPass)}
+                className="absolute right-3 top-11 text-gray-400 hover:text-white"
+              >
+                {showPass ? <FiEyeOff /> : <FiEye />}
+              </button>
             </div>
 
             {/* Remember + Forgot */}
-            <div className="flex items-center justify-between text-sm relative z-50">
+            <div className="flex items-center justify-between text-sm mt-2">
               <label className="flex items-center gap-2 text-gray-400">
                 <input type="checkbox" className="w-4 h-4" />
                 Remember me
@@ -187,10 +187,9 @@ const SignIn = () => {
             {/* Submit */}
             <motion.button
               whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              type="submit"
+              whileTap={{ scale: 0.97 }}
               disabled={loading}
-              className="w-full bg-gradient-to-r from-blue-600 to-violet-600 text-white font-semibold py-3 rounded-lg hover:opacity-90 disabled:opacity-50 mt-6"
+              className="w-full mt-6 bg-gradient-to-r from-blue-600 to-violet-600 text-white font-semibold py-3 rounded-lg hover:opacity-90 disabled:opacity-50"
             >
               {loading ? "Signing in..." : "Sign In"}
             </motion.button>
@@ -203,15 +202,9 @@ const SignIn = () => {
             <div className="flex-1 h-px bg-gray-700"></div>
           </div>
 
-          {/* Google Button */}
-          <div
-            id="google-login-btn"
-            className="w-full flex justify-center relative"
-            style={{ height: "50px", zIndex: 0 }}
-          ></div>
+          <div id="google-login-btn" className="w-full flex justify-center"></div>
         </div>
 
-        {/* Sign Up Link */}
         <p className="text-center text-gray-400 mt-6">
           Don’t have an account?{" "}
           <Link to="/signup" className="text-blue-500 hover:text-blue-400 font-semibold">
