@@ -11,7 +11,7 @@ const SignIn = () => {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  // ---------------- GOOGLE LOGIN FIX ----------------
+  // ---------------- GOOGLE LOGIN ----------------
   useEffect(() => {
     if (!window.google) return;
 
@@ -31,12 +31,14 @@ const SignIn = () => {
           localStorage.setItem("user", JSON.stringify(data.user));
 
           window.dispatchEvent(new Event("storage"));
-          navigate("/dashboard");
+
+          // ⭐ REDIRECT BASED ON ROLE
+          if (data.user?.isAdmin) navigate("/admin");
+          else navigate("/dashboard");
         }
       },
     });
 
-    // IMPORTANT → define height to prevent overlay
     window.google.accounts.id.renderButton(
       document.getElementById("google-login-btn"),
       {
@@ -46,7 +48,6 @@ const SignIn = () => {
       }
     );
   }, []);
-
   // ----------------------------------------------------
 
   const handleSubmit = async (e) => {
@@ -70,13 +71,12 @@ const SignIn = () => {
       }
 
       localStorage.setItem("token", data.token);
-
-      if (data.user) {
-        localStorage.setItem("user", JSON.stringify(data.user));
-      }
-
+      localStorage.setItem("user", JSON.stringify(data.user));
       window.dispatchEvent(new Event("storage"));
-      navigate("/dashboard");
+
+      // ⭐ ADMIN REDIRECT
+      if (data.user?.isAdmin) navigate("/admin");
+      else navigate("/dashboard");
 
     } catch (err) {
       setError("Sign in failed. Please try again.");
@@ -105,9 +105,9 @@ const SignIn = () => {
         </div>
 
         {/* Form Card */}
-        <div className="bg-neutral-950 border border-gray-800 rounded-xl p-8 pt-14 shadow-lg relative z-10">
+        <div className="bg-neutral-950 border border-gray-800 rounded-xl p-8 pt-14 shadow-xl relative">
 
-          {/* Back button */}
+          {/* Back Button */}
           <button
             onClick={() => navigate("/")}
             aria-label="Go back to home"
@@ -116,7 +116,7 @@ const SignIn = () => {
             ← Back
           </button>
 
-          {/* Auth switch buttons */}
+          {/* Switch Auth Buttons */}
           <div className="absolute top-3 right-3 flex items-center gap-2">
             <button className="px-3 py-1 rounded-md text-sm bg-white text-gray-900 font-semibold">
               Sign In
@@ -131,7 +131,7 @@ const SignIn = () => {
 
           <h2 className="text-2xl font-bold text-white mb-6">Sign In</h2>
 
-          {/* Error box */}
+          {/* Error Box */}
           {error && (
             <motion.div
               initial={{ opacity: 0 }}
@@ -153,7 +153,7 @@ const SignIn = () => {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="your@email.com"
-                className="w-full bg-gray-800 border border-gray-700 text-white px-4 py-3 rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-500"
+                className="w-full bg-gray-800 border border-gray-700 text-white px-4 py-3 rounded-lg focus:ring-1 focus:ring-blue-500"
               />
             </div>
 
@@ -165,7 +165,7 @@ const SignIn = () => {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
-                className="w-full bg-gray-800 border border-gray-700 text-white px-4 py-3 rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-500"
+                className="w-full bg-gray-800 border border-gray-700 text-white px-4 py-3 rounded-lg focus:ring-1 focus:ring-blue-500"
               />
             </div>
 
@@ -176,10 +176,9 @@ const SignIn = () => {
                 Remember me
               </label>
 
-              {/* FIXED Forgot Password link */}
               <Link
                 to="/forgot-password"
-                className="text-blue-500 hover:text-blue-400 font-semibold relative z-50"
+                className="text-blue-500 hover:text-blue-400 font-semibold"
               >
                 Forgot password?
               </Link>
@@ -204,7 +203,7 @@ const SignIn = () => {
             <div className="flex-1 h-px bg-gray-700"></div>
           </div>
 
-          {/* Google Login Button */}
+          {/* Google Button */}
           <div
             id="google-login-btn"
             className="w-full flex justify-center relative"

@@ -12,6 +12,11 @@ import AccountSetting from "./components/Dashboard/AccountSettings";
 import ForgotPassword from "./components/auth/ForgotPassword";
 import ResetPassword from "./components/auth/ResetPassword";
 
+// Admin pages
+import AdminLayout from "./components/Admin/AdminLayout";
+import AdminDashboard from "./components/Admin/AdminDashboard";
+import UserManagement from "./components/Admin/UseraManagement";
+import AdminRoute from "./components/Admin/AdminProtectedRoute";
 
 const HomePage = () => (
   <main className="overflow-x-hidden bg-gray-900">
@@ -34,6 +39,18 @@ export const App = () => {
         <Route path="/dashboard/settings" element={<AccountSetting />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/reset-password/:token" element={<ResetPassword />} />
+
+        <Route
+          path="/admin"
+          element={
+            <AdminRoute>
+              <AdminLayout />
+            </AdminRoute>
+          }
+        >
+          <Route index element={<AdminDashboard />} />
+          <Route path="users" element={<UserManagement />} />
+        </Route>
 
       </Routes>
     </Router>

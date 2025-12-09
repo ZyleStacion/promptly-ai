@@ -5,7 +5,10 @@ import { NavbarMenu } from "../../mockData/data";
 
 const ResponsiveMenu = ({ isOpen, setIsOpen }) => {
   const navigate = useNavigate();
-  const isLoggedIn = !!localStorage.getItem("token");
+
+  const token = localStorage.getItem("token");
+  const user = JSON.parse(localStorage.getItem("user"));
+  const isLoggedIn = !!token;
 
   const handleMenuClick = (link) => {
     setIsOpen(false);
@@ -17,6 +20,7 @@ const ResponsiveMenu = ({ isOpen, setIsOpen }) => {
 
   const handleLogout = () => {
     localStorage.removeItem("token");
+    localStorage.removeItem("user");
     setIsOpen(false);
     navigate("/");
   };
@@ -47,7 +51,7 @@ const ResponsiveMenu = ({ isOpen, setIsOpen }) => {
               </li>
             ))}
 
-            {/* Auth Buttons Mobile */}
+            {/* Mobile Auth Buttons */}
             <div className="mt-4 bg-gray-800 rounded-xl p-4 inline-flex flex-col space-y-4">
               {!isLoggedIn ? (
                 <>
@@ -73,6 +77,19 @@ const ResponsiveMenu = ({ isOpen, setIsOpen }) => {
                 </>
               ) : (
                 <>
+                  {/* Admin Panel Button (only for admins) */}
+                  {user?.isAdmin && (
+                    <button
+                      onClick={() => {
+                        setIsOpen(false);
+                        navigate("/admin");
+                      }}
+                      className="text-white bg-blue-600 font-semibold rounded-full px-6 py-2 hover:scale-110 duration-300"
+                    >
+                      Admin Panel
+                    </button>
+                  )}
+
                   <button
                     onClick={() => {
                       setIsOpen(false);
