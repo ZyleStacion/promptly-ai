@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { LuBrain } from "react-icons/lu";
-import { useNavigate } from "react-router-dom";
-import { Link } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { registerUser } from "../../api/auth";
 
 const SignUp = () => {
@@ -11,12 +10,14 @@ const SignUp = () => {
     email: "",
     password: "",
     confirmPassword: "",
+    acceptedTerms: false,
   });
-  const [error, setError] = useState("");
+
+  const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  // ⭐ GOOGLE SIGN UP
+  // ---------------- GOOGLE SIGNUP ----------------
   useEffect(() => {
     if (!window.google) return;
 
@@ -30,7 +31,6 @@ const SignUp = () => {
         });
 
         const data = await res.json();
-
         if (data.token) {
           localStorage.setItem("token", data.token);
           navigate("/dashboard");
@@ -38,76 +38,67 @@ const SignUp = () => {
       },
     });
 
-    // Render Google button in the sign-up page
     window.google.accounts.id.renderButton(
       document.getElementById("google-signup-btn"),
       {
         theme: "outline",
         size: "large",
         width: "350",
-        text: "signup_with", // 
-        shape: "rectangular",
+        text: "signup_with",
       }
     );
   }, []);
+  // ------------------------------------------------
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+  const validate = () => {
+    const newErrors = {};
+
+    if (!formData.fullName.trim())
+      newErrors.fullName = "Full name is required";
+
+    if (!formData.email.trim())
+      newErrors.email = "Email is required";
+    else if (!/^\S+@\S+\.\S+$/.test(formData.email))
+      newErrors.email = "Invalid email format";
+
+    if (formData.password.length < 6)
+      newErrors.password = "Password must be at least 6 characters";
+
+    if (formData.password !== formData.confirmPassword)
+      newErrors.confirmPassword = "Passwords do not match";
+
+    if (!formData.acceptedTerms)
+      newErrors.acceptedTerms = "You must accept Terms & Conditions";
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError("");
+    if (!validate()) return;
+
     setLoading(true);
 
-    // Basic validation
-    if (
-      !formData.fullName ||
-      !formData.email ||
-      !formData.password ||
-      !formData.confirmPassword
-    ) {
-      setError("Please fill in all fields");
-      setLoading(false);
-      return;
-    }
-
-    if (formData.password !== formData.confirmPassword) {
-      setError("Passwords do not match");
-      setLoading(false);
-      return;
-    }
-
-    if (formData.password.length < 6) {
-      setError("Password must be at least 6 characters");
-      setLoading(false);
-      return;
-    }
-
     try {
-     const payload = {
+      const payload = {
         username: formData.fullName,
         email: formData.email,
-        password: formData.password
+        password: formData.password,
       };
 
       const data = await registerUser(payload);
 
-      if (data.error || data.message === "Email already exists") {
-        setError(data.message || "Signup failed");
+      if (data.error) {
+        setErrors({ api: data.error });
       } else {
-        // Redirect to login
         navigate("/signin");
       }
-    } catch (err) {
-      setError("Sign up failed. Please try again.");
-    } finally {
-      setLoading(false);
+    } catch {
+      setErrors({ api: "Sign-up failed. Please try again." });
     }
+
+    setLoading(false);
   };
 
   return (
@@ -118,7 +109,6 @@ const SignUp = () => {
         transition={{ duration: 0.5 }}
         className="w-full max-w-md"
       >
-        {/* Header */}
         <div className="text-center mb-8">
           <div className="flex items-center justify-center gap-2 mb-4">
             <LuBrain className="text-4xl bg-gradient-to-r from-blue-600 to-violet-600 text-white rounded-lg p-1" />
@@ -126,21 +116,19 @@ const SignUp = () => {
               Promptly AI
             </h1>
           </div>
-          <p className="text-gray-400">Join us today</p>
+          <p className="text-gray-400">Create your account</p>
         </div>
 
-        {/* Form Card */}
-        <div className="bg-neutral-950 border border-gray-800 rounded-xl p-8 pt-14 shadow-lg relative">
-          {/* Back button - top left */}
+        <div className="bg-neutral-950 border border-gray-800 rounded-xl p-8 pt-14 shadow-xl relative">
+          {/* Back Button */}
           <button
             onClick={() => navigate("/")}
-            aria-label="Go back to home"
             className="absolute top-3 left-3 bg-gray-800 hover:bg-gray-700 text-white rounded-md p-2 text-sm"
           >
             ← Back
           </button>
 
-          {/* Auth switch buttons - top right */}
+          {/* Auth Switch */}
           <div className="absolute top-3 right-3 flex items-center gap-2">
             <button
               onClick={() => navigate("/signin")}
@@ -148,114 +136,102 @@ const SignUp = () => {
             >
               Sign In
             </button>
-            <button
-              aria-current="page"
-              className="px-3 py-1 rounded-md text-sm bg-white text-gray-900 font-semibold"
-            >
+
+            <button className="px-3 py-1 rounded-md text-sm bg-white text-gray-900 font-semibold">
               Sign Up
             </button>
           </div>
 
           <h2 className="text-2xl font-bold text-white mb-6">Create Account</h2>
 
-          {error && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className="bg-red-500/10 border border-red-500/50 text-red-400 px-4 py-3 rounded-lg mb-4 text-sm"
-            >
-              {error}
-            </motion.div>
+          {/* GLOBAL ERRORS */}
+          {errors.api && (
+            <div className="bg-red-600/20 border border-red-500 text-red-400 px-4 py-3 rounded-lg mb-4 text-sm">
+              {errors.api}
+            </div>
           )}
 
           <form onSubmit={handleSubmit} className="space-y-4">
-            {/* Full Name Input */}
-            <div>
-              <label className="block text-white font-semibold mb-2 text-sm">
-                Full Name
-              </label>
-              <input
-                type="text"
-                name="fullName"
-                value={formData.fullName}
-                onChange={handleChange}
-                placeholder="John Doe"
-                className="w-full bg-gray-800 border border-gray-700 text-white px-4 py-3 rounded-lg focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all duration-300"
-              />
-            </div>
 
-            {/* Email Input */}
-            <div>
-              <label className="block text-white font-semibold mb-2 text-sm">
-                Email
-              </label>
-              <input
-                type="email"
-                name="email"
-                value={formData.email}
-                onChange={handleChange}
-                placeholder="your@email.com"
-                className="w-full bg-gray-800 border border-gray-700 text-white px-4 py-3 rounded-lg focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all duration-300"
-              />
-            </div>
+            {/* Full Name */}
+            <InputField
+              label="Full Name"
+              name="fullName"
+              type="text"
+              value={formData.fullName}
+              onChange={(e) =>
+                setFormData({ ...formData, fullName: e.target.value })
+              }
+              error={errors.fullName}
+            />
 
-            {/* Password Input */}
-            <div>
-              <label className="block text-white font-semibold mb-2 text-sm">
-                Password
-              </label>
-              <input
-                type="password"
-                name="password"
-                value={formData.password}
-                onChange={handleChange}
-                placeholder="••••••••"
-                className="w-full bg-gray-800 border border-gray-700 text-white px-4 py-3 rounded-lg focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all duration-300"
-              />
-            </div>
+            {/* Email */}
+            <InputField
+              label="Email"
+              name="email"
+              type="email"
+              value={formData.email}
+              onChange={(e) =>
+                setFormData({ ...formData, email: e.target.value })
+              }
+              error={errors.email}
+            />
 
-            {/* Confirm Password Input */}
-            <div>
-              <label className="block text-white font-semibold mb-2 text-sm">
-                Confirm Password
-              </label>
-              <input
-                type="password"
-                name="confirmPassword"
-                value={formData.confirmPassword}
-                onChange={handleChange}
-                placeholder="••••••••"
-                className="w-full bg-gray-800 border border-gray-700 text-white px-4 py-3 rounded-lg focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all duration-300"
-              />
-            </div>
+            {/* Password */}
+            <InputField
+              label="Password"
+              name="password"
+              type="password"
+              value={formData.password}
+              onChange={(e) =>
+                setFormData({ ...formData, password: e.target.value })
+              }
+              error={errors.password}
+            />
 
-            {/* Terms & Conditions */}
-            <label className="flex items-start gap-2 text-gray-400 cursor-pointer text-sm">
+            {/* Confirm Password */}
+            <InputField
+              label="Confirm Password"
+              name="confirmPassword"
+              type="password"
+              value={formData.confirmPassword}
+              onChange={(e) =>
+                setFormData({ ...formData, confirmPassword: e.target.value })
+              }
+              error={errors.confirmPassword}
+            />
+
+            {/* Terms Checkbox */}
+            <label className="flex items-start gap-2 text-gray-400 text-sm">
               <input
                 type="checkbox"
-                className="w-4 h-4 bg-gray-800 border border-gray-700 rounded focus:ring-blue-500 mt-0.5"
+                checked={formData.acceptedTerms}
+                onChange={(e) =>
+                  setFormData({ ...formData, acceptedTerms: e.target.checked })
+                }
+                className="w-4 h-4 mt-1"
               />
               <span>
-                I agree to the{" "}
-                <a href="#" className="text-blue-500 hover:text-blue-400">
-                  Terms of Service
-                </a>{" "}
-                and{" "}
-                <a href="#" className="text-blue-500 hover:text-blue-400">
-                  Privacy Policy
-                </a>
+                I accept the{" "}
+                <a className="text-blue-400">Terms of Service</a> &{" "}
+                <a className="text-blue-400">Privacy Policy</a>
               </span>
             </label>
 
-            {/* Submit Button */}
+            {errors.acceptedTerms && (
+              <p className="text-red-400 text-sm -mt-2">
+                {errors.acceptedTerms}
+              </p>
+            )}
+
+            {/* Submit */}
             <motion.button
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
-              type="submit"
               disabled={loading}
-              className="w-full bg-gradient-to-r from-blue-600 to-violet-600 text-white font-semibold py-3 rounded-lg hover:opacity-90 transition-opacity duration-300 disabled:opacity-50 mt-6"
+              className="w-full bg-gradient-to-r from-blue-600 to-violet-600 text-white font-semibold py-3 rounded-lg hover:opacity-90 disabled:opacity-50 mt-6"
             >
-              {loading ? "Creating account..." : "Sign Up"}
+              {loading ? "Creating Account..." : "Sign Up"}
             </motion.button>
           </form>
 
@@ -266,21 +242,12 @@ const SignUp = () => {
             <div className="flex-1 h-px bg-gray-700"></div>
           </div>
 
-          {/* Social Sign Up */}
-          <div
-            id="google-signup-btn"
-            className="w-full flex justify-center"
-          ></div>
-        
+          <div id="google-signup-btn" className="w-full flex justify-center"></div>
         </div>
 
-        {/* Sign In Link */}
         <p className="text-center text-gray-400 mt-6">
           Already have an account?{" "}
-          <Link
-            to="/signin"
-            className="text-blue-500 hover:text-blue-400 font-semibold transition-colors"
-          >
+          <Link to="/signin" className="text-blue-500">
             Sign In
           </Link>
         </p>
@@ -290,3 +257,21 @@ const SignUp = () => {
 };
 
 export default SignUp;
+
+/* ------------------ REUSABLE INPUT COMPONENT ------------------ */
+const InputField = ({ label, error, ...props }) => (
+  <div>
+    <label className="block text-white font-semibold mb-2 text-sm">{label}</label>
+
+    <input
+      {...props}
+      className={`w-full bg-gray-800 border px-4 py-3 rounded-lg text-white focus:ring-1 ${
+        error
+          ? "border-red-500 focus:ring-red-500"
+          : "border-gray-700 focus:ring-blue-500"
+      }`}
+    />
+
+    {error && <p className="text-red-400 text-sm mt-1">{error}</p>}
+  </div>
+);
