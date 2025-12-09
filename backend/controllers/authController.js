@@ -20,12 +20,18 @@ export const register = async (req, res) => {
       return res.status(400).json({ error: "All fields are required" });
     }
 
-    const existing = await User.findOne({ email });
+    const normalizedEmail = email.toLowerCase().trim();
+
+    const existing = await User.findOne({ email: normalizedEmail });
     if (existing) {
       return res.status(400).json({ error: "Email already in use" });
     }
 
-    const user = await User.create({ username, email, password });
+    const user = await User.create({
+      username,
+      email: normalizedEmail,
+      password,
+    });
 
     const token = jwt.sign(
       { id: user._id, isAdmin: user.isAdmin },
@@ -34,20 +40,27 @@ export const register = async (req, res) => {
     );
 
     res.status(201).json({
-      message: "User created",
+      message: "User created successfully",
       token,
       user: {
         id: user._id,
         username: user.username,
         email: user.email,
-        createdAt: user.createdAt,
         isAdmin: user.isAdmin,
+        createdAt: user.createdAt,
       },
     });
+
   } catch (err) {
-    res.status(400).json({ error: err.message });
+    if (err.code === 11000) {
+      return res.status(400).json({ error: "Email already exists" });
+    }
+
+    console.error("Register error:", err);
+    res.status(500).json({ error: "Server error" });
   }
 };
+
 
 // ==============================
 // FORGOT PASSWORD
