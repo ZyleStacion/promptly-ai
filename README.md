@@ -20,6 +20,7 @@ Frontend:
 - react-dom
 - react-icons
 - react-router-dom
+- recharts
 
 Backend:
 
