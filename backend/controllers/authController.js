@@ -6,6 +6,8 @@ import { OAuth2Client } from "google-auth-library";
 import crypto from "crypto";
 import nodemailer from "nodemailer";
 
+// GOOGLE CLIENT
+const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 // ==============================
 // REGISTER
@@ -25,9 +27,11 @@ export const register = async (req, res) => {
 
     const user = await User.create({ username, email, password });
 
-    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
-      expiresIn: "1d",
-    });
+    const token = jwt.sign(
+      { id: user._id, isAdmin: user.isAdmin },
+      process.env.JWT_SECRET,
+      { expiresIn: "1d" }
+    );
 
     res.status(201).json({
       message: "User created",
@@ -37,13 +41,13 @@ export const register = async (req, res) => {
         username: user.username,
         email: user.email,
         createdAt: user.createdAt,
+        isAdmin: user.isAdmin,
       },
     });
   } catch (err) {
     res.status(400).json({ error: err.message });
   }
 };
-
 
 // ==============================
 // FORGOT PASSWORD
@@ -64,7 +68,6 @@ export const forgotPassword = async (req, res) => {
 
     const resetLink = `http://localhost:5173/reset-password/${token}`;
 
-    // Email transport
     const transporter = nodemailer.createTransport({
       service: "gmail",
       auth: {
@@ -91,7 +94,6 @@ export const forgotPassword = async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 };
-
 
 // ==============================
 // RESET PASSWORD
@@ -122,7 +124,6 @@ export const resetPassword = async (req, res) => {
   }
 };
 
-
 // ==============================
 // LOGIN
 // ==============================
@@ -142,7 +143,7 @@ export const login = async (req, res) => {
       return res.status(400).json({ error: "Invalid email or password." });
 
     const token = jwt.sign(
-      { id: user._id },
+      { id: user._id, isAdmin: user.isAdmin },
       process.env.JWT_SECRET,
       { expiresIn: "1d" }
     );
@@ -155,6 +156,7 @@ export const login = async (req, res) => {
         username: user.username,
         email: user.email,
         profileImage: user.profileImage || null,
+        isAdmin: user.isAdmin,
       },
     });
 
@@ -163,12 +165,9 @@ export const login = async (req, res) => {
   }
 };
 
-
 // ==============================
 // GOOGLE AUTH
 // ==============================
-const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
-
 export const googleAuth = async (req, res) => {
   try {
     const { credential } = req.body;
@@ -178,7 +177,7 @@ export const googleAuth = async (req, res) => {
 
     const ticket = await client.verifyIdToken({
       idToken: credential,
-      audience: process.env.Google_CLIENT_ID,
+      audience: process.env.GOOGLE_CLIENT_ID,
     });
 
     const payload = ticket.getPayload();
@@ -195,7 +194,7 @@ export const googleAuth = async (req, res) => {
     }
 
     const token = jwt.sign(
-      { id: user._id },
+      { id: user._id, isAdmin: user.isAdmin },
       process.env.JWT_SECRET,
       { expiresIn: "1d" }
     );
@@ -208,6 +207,7 @@ export const googleAuth = async (req, res) => {
         username: user.username,
         email: user.email,
         profileImage: user.profileImage || "/uploads/default-avatar.png",
+        isAdmin: user.isAdmin,
       },
     });
 

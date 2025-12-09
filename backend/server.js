@@ -9,6 +9,8 @@ import cors from 'cors';
 import googleAuthRoutes from "./routes/googleAuth.js";
 import path from "path";
 import { fileURLToPath } from "url";
+import adminRoutes from "./routes/admin.js";
+
 
 dotenv.config();
 
@@ -27,6 +29,7 @@ app.use('/ollama', ollamaRoutes);
 app.use("/auth", googleAuthRoutes);
 app.use("/user", userRoutes);
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+app.use("/admin", adminRoutes);
 
 
 // Connect to MongoDB

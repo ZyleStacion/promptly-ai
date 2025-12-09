@@ -10,10 +10,13 @@ const Navbar = () => {
   const [isOpen, setIsOpen] = React.useState(false);
   const navigate = useNavigate();
 
-  const isLoggedIn = !!localStorage.getItem("token");
+  const token = localStorage.getItem("token");
+  const user = JSON.parse(localStorage.getItem("user"));
+  const isLoggedIn = !!token;
 
   const handleLogout = () => {
     localStorage.removeItem("token");
+    localStorage.removeItem("user");
     navigate("/");
   };
 
@@ -63,7 +66,7 @@ const Navbar = () => {
             </ul>
           </div>
 
-          {/* AUTH Buttons (Change after Login) */}
+          {/* AUTH Buttons */}
           <div className="hidden lg:flex space-x-6">
             {!isLoggedIn ? (
               <>
@@ -73,6 +76,7 @@ const Navbar = () => {
                 >
                   Sign In
                 </button>
+
                 <button
                   onClick={() => navigate("/signup")}
                   className="text-white bg-secondary font-semibold rounded-full px-6 py-2 hover:scale-110 duration-300"
@@ -82,12 +86,23 @@ const Navbar = () => {
               </>
             ) : (
               <>
+                {/* Admin Panel button (only for admins) */}
+                {user?.isAdmin && (
+                  <button
+                    onClick={() => navigate("/admin")}
+                    className="text-white bg-blue-600 font-semibold rounded-full px-6 py-2 hover:scale-110 duration-300"
+                  >
+                    Admin Panel
+                  </button>
+                )}
+
                 <button
                   onClick={() => navigate("/dashboard")}
                   className="text-white bg-secondary font-semibold rounded-full px-6 py-2 hover:scale-110 duration-300"
                 >
                   Dashboard
                 </button>
+
                 <button
                   onClick={handleLogout}
                   className="font-semibold text-white hover:text-secondary transition-all duration-300"
@@ -98,7 +113,7 @@ const Navbar = () => {
             )}
           </div>
 
-          {/* Mobile menu toggle */}
+          {/* Mobile Toggle */}
           <div className="lg:hidden" onClick={() => setIsOpen(!isOpen)}>
             <MdMenu className="text-4xl text-white" />
           </div>
