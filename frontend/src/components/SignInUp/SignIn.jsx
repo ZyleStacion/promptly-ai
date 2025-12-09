@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { LuBrain } from "react-icons/lu";
-import { FiEye, FiEyeOff } from "react-icons/fi";
 import { useNavigate, Link } from "react-router-dom";
 import { loginUser } from "../../api/auth";
 
@@ -12,6 +11,8 @@ const SignIn = () => {
 
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState(false);
+
   const navigate = useNavigate();
 
   // ---------------- GOOGLE LOGIN ----------------
@@ -29,45 +30,43 @@ const SignIn = () => {
 
         const data = await res.json();
 
-        if (data.token) {
-          localStorage.setItem("token", data.token);
-          localStorage.setItem("user", JSON.stringify(data.user));
+        if (!data.token) return;
 
-          window.dispatchEvent(new Event("storage"));
+        localStorage.setItem("token", data.token);
+        localStorage.setItem("user", JSON.stringify(data.user));
 
+        setSuccess(true);
+
+        setTimeout(() => {
           if (data.user?.isAdmin) navigate("/admin");
           else navigate("/dashboard");
-        }
+        }, 1200);
       },
     });
 
     window.google.accounts.id.renderButton(
       document.getElementById("google-login-btn"),
-      {
-        theme: "outline",
-        size: "large",
-        width: "350",
-      }
+      { theme: "outline", size: "large", width: "350" }
     );
   }, []);
-  // ----------------------------------------------------
 
+  // ---------------- HANDLE SUBMIT ----------------
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
+    setLoading(true);
 
-    if (!email.trim() || !password.trim()) {
-      setError("Please enter both email and password.");
+    if (!email || !password) {
+      setError("Please enter email & password");
+      setLoading(false);
       return;
     }
-
-    setLoading(true);
 
     try {
       const data = await loginUser({ email, password });
 
       if (!data.token) {
-        setError(data.error || "Invalid email or password");
+        setError(data.error || "Invalid credentials");
         setLoading(false);
         return;
       }
@@ -76,14 +75,17 @@ const SignIn = () => {
       localStorage.setItem("user", JSON.stringify(data.user));
       window.dispatchEvent(new Event("storage"));
 
-      if (data.user?.isAdmin) navigate("/admin");
-      else navigate("/dashboard");
+      setSuccess(true);
 
-    } catch (err) {
-      setError("Something went wrong. Try again.");
+      setTimeout(() => {
+        if (data.user?.isAdmin) navigate("/admin");
+        else navigate("/dashboard");
+      }, 1200);
+    } catch {
+      setError("Sign in failed. Try again later.");
+    } finally {
+      setLoading(false);
     }
-
-    setLoading(false);
   };
 
   return (
@@ -91,86 +93,117 @@ const SignIn = () => {
       <motion.div
         initial={{ opacity: 0, y: 40 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4 }}
         className="w-full max-w-md"
       >
-        {/* Logo */}
+        {/* HEADER */}
         <div className="text-center mb-8">
-          <div className="flex items-center justify-center gap-2 mb-2">
+          <div className="flex items-center justify-center gap-2 mb-4">
             <LuBrain className="text-4xl bg-gradient-to-r from-blue-600 to-violet-600 text-white rounded-lg p-1" />
-            <h1 className="text-4xl bg-gradient-to-r from-blue-600 to-violet-600 bg-clip-text text-transparent font-bold">
+            <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-violet-600 text-transparent bg-clip-text">
               Promptly AI
             </h1>
           </div>
-          <p className="text-gray-400">Welcome back!</p>
+
+          <p className="text-gray-400">Welcome back</p>
         </div>
 
-        {/* Card */}
-        <div className="bg-neutral-950 border border-gray-800 rounded-xl p-8 pt-14 shadow-xl relative">
+        {/* CARD */}
+        <div className="bg-neutral-950 border border-gray-800 rounded-xl p-8 pt-14 relative">
 
+          {/* SUCCESS OVERLAY */}
+          {success && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="absolute inset-0 bg-black/70 backdrop-blur-md flex items-center justify-center rounded-xl z-50"
+            >
+              <motion.div
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                transition={{ type: "spring", stiffness: 150 }}
+                className="bg-green-600 rounded-full p-6"
+              >
+                <motion.span
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.3 }}
+                  className="text-white text-4xl font-bold"
+                >
+                  ✓
+                </motion.span>
+              </motion.div>
+            </motion.div>
+          )}
+
+          {/* BACK BUTTON */}
           <button
             onClick={() => navigate("/")}
-            className="absolute top-3 left-3 bg-gray-800 hover:bg-gray-700 text-white rounded-md p-2 text-sm"
+            className="absolute top-3 left-3 bg-gray-800 hover:bg-gray-700 text-white rounded-lg px-3 py-1 text-sm"
           >
             ← Back
           </button>
 
-          <div className="absolute top-3 right-3 flex items-center gap-2">
-            <button className="px-3 py-1 rounded-md bg-white text-gray-900 text-sm font-semibold">
+          {/* SWITCH */}
+          <div className="absolute top-3 right-3 flex gap-2">
+            <button className="px-3 py-1 bg-white text-gray-900 rounded-md text-sm font-semibold">
               Sign In
             </button>
             <button
               onClick={() => navigate("/signup")}
-              className="px-3 py-1 rounded-md bg-transparent border border-gray-700 text-white text-sm hover:bg-gray-800"
+              className="px-3 py-1 bg-transparent border border-gray-700 text-white rounded-md text-sm hover:bg-gray-800"
             >
               Sign Up
             </button>
           </div>
 
-          <h2 className="text-2xl text-white font-bold mb-6">Sign In</h2>
+          <h2 className="text-2xl font-bold text-white mb-6">Sign In</h2>
 
-          {/* Error */}
           {error && (
-            <div className="bg-red-600/20 border border-red-500 text-red-400 px-4 py-3 rounded-lg mb-4 text-sm">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="bg-red-500/10 border border-red-500/50 text-red-400 px-4 py-3 rounded-lg mb-4 text-sm"
+            >
               {error}
-            </div>
+            </motion.div>
           )}
 
           <form onSubmit={handleSubmit} className="space-y-4">
 
-            {/* Email */}
+            {/* EMAIL */}
             <div>
-              <label className="text-white text-sm font-semibold">Email</label>
+              <label className="block text-white mb-2">Email</label>
               <input
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="your@email.com"
-                className="w-full mt-2 bg-gray-800 border border-gray-700 text-white px-4 py-3 rounded-lg focus:ring-1 focus:ring-blue-500"
+                placeholder="email@example.com"
+                className="w-full bg-gray-800 border border-gray-700 text-white px-4 py-3 rounded-lg"
               />
             </div>
 
-            {/* Password */}
-            <div className="relative">
-              <label className="text-white text-sm font-semibold">Password</label>
-              <input
-                type={showPass ? "text" : "password"}
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="••••••••"
-                className="w-full mt-2 bg-gray-800 border border-gray-700 text-white px-4 py-3 rounded-lg focus:ring-1 focus:ring-blue-500"
-              />
-              <button
-                type="button"
-                onClick={() => setShowPass(!showPass)}
-                className="absolute right-3 top-11 text-gray-400 hover:text-white"
-              >
-                {showPass ? <FiEyeOff /> : <FiEye />}
-              </button>
+            {/* PASSWORD */}
+            <div>
+              <label className="block text-white mb-2">Password</label>
+              <div className="relative">
+                <input
+                  type={showPass ? "text" : "password"}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="••••••••"
+                  className="w-full bg-gray-800 border border-gray-700 text-white px-4 py-3 rounded-lg"
+                />
+                <span
+                  onClick={() => setShowPass(!showPass)}
+                  className="absolute right-3 top-3 text-gray-400 cursor-pointer"
+                >
+                  {showPass ? "Hide" : "Show"}
+                </span>
+              </div>
             </div>
 
-            {/* Remember + Forgot */}
-            <div className="flex items-center justify-between text-sm mt-2">
+            {/* REMEMBER + FORGOT */}
+            <div className="flex items-center justify-between text-sm">
               <label className="flex items-center gap-2 text-gray-400">
                 <input type="checkbox" className="w-4 h-4" />
                 Remember me
@@ -178,39 +211,41 @@ const SignIn = () => {
 
               <Link
                 to="/forgot-password"
-                className="text-blue-500 hover:text-blue-400 font-semibold"
+                className="text-blue-500 hover:text-blue-400"
               >
                 Forgot password?
               </Link>
             </div>
 
-            {/* Submit */}
             <motion.button
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.97 }}
+              type="submit"
               disabled={loading}
-              className="w-full mt-6 bg-gradient-to-r from-blue-600 to-violet-600 text-white font-semibold py-3 rounded-lg hover:opacity-90 disabled:opacity-50"
+              className="w-full bg-gradient-to-r from-blue-600 to-violet-600 text-white font-semibold py-3 rounded-lg disabled:opacity-50 mt-6"
             >
               {loading ? "Signing in..." : "Sign In"}
             </motion.button>
           </form>
 
-          {/* Divider */}
+          {/* DIVIDER */}
           <div className="flex items-center gap-4 my-6">
-            <div className="flex-1 h-px bg-gray-700"></div>
+            <div className="h-px flex-1 bg-gray-700"></div>
             <span className="text-gray-500 text-sm">or</span>
-            <div className="flex-1 h-px bg-gray-700"></div>
+            <div className="h-px flex-1 bg-gray-700"></div>
           </div>
 
+          {/* GOOGLE BUTTON */}
           <div id="google-login-btn" className="w-full flex justify-center"></div>
         </div>
 
         <p className="text-center text-gray-400 mt-6">
           Don’t have an account?{" "}
-          <Link to="/signup" className="text-blue-500 hover:text-blue-400 font-semibold">
+          <Link to="/signup" className="text-blue-500">
             Sign Up
           </Link>
         </p>
+
       </motion.div>
     </div>
   );
