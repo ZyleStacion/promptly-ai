@@ -7,7 +7,7 @@ Promptly AI is a web platform that enables SMBs to upload private corporate data
 `TODO`
 
 ## Self Deployment Guide
-
+simply change to the frontend or backend directly and run `npm install`.
 ### ⭕ 1. Requirements
 
 Install the required dependencies:
@@ -41,4 +41,3 @@ Backend:
 ### 🏃 2. Running
 
 Run `npm run dev` seperately, for the backend and frontend in 2 different terminals.
-or simply change to the frontend or backend directly and run `npm install`.
