@@ -7,7 +7,7 @@ const ChatbotSchema = new mongoose.Schema({
 
   messages: [
     {
-      role: { type: String, enum: ["user", "assistant"], required: true },
+      role: { type: String, enum: ["General AI Chatbot", "Sale Assistant Chatbot","Customer Support Chatbot"], required: true },
       content: { type: String, required: true },
       timestamp: { type: Date, default: Date.now }
     }
