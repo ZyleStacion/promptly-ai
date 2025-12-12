@@ -9,6 +9,13 @@ const TextSnippetModal = ({ isOpen, onClose, onAddSnippet }) => {
   const [showLinkModal, setShowLinkModal] = useState(false);
   const [linkText, setLinkText] = useState("");
   const [linkUrl, setLinkUrl] = useState("");
+  const [activeFormats, setActiveFormats] = useState({
+    bold: false,
+    italic: false,
+    underline: false,
+    orderedList: false,
+    bulletList: false,
+  });
   const textareaRef = useRef(null);
 
   const formatOptions = [
@@ -17,6 +24,19 @@ const TextSnippetModal = ({ isOpen, onClose, onAddSnippet }) => {
     { value: "h2", label: "Heading 2" },
     { value: "h3", label: "Heading 3" },
   ];
+
+  const updateActiveFormats = () => {
+    const editor = textareaRef.current;
+    if (!editor) return;
+
+    setActiveFormats({
+      bold: document.queryCommandState("bold"),
+      italic: document.queryCommandState("italic"),
+      underline: document.queryCommandState("underline"),
+      orderedList: document.queryCommandState("insertOrderedList"),
+      bulletList: document.queryCommandState("insertUnorderedList"),
+    });
+  };
 
   const applyFormat = (format) => {
     const editor = textareaRef.current;
@@ -46,6 +66,8 @@ const TextSnippetModal = ({ isOpen, onClose, onAddSnippet }) => {
       }
       // Update content state
       setContent(editor.innerHTML);
+      // Update active format states
+      setTimeout(updateActiveFormats, 10);
     } catch (error) {
       console.error("Format command failed:", error);
     }
@@ -192,7 +214,11 @@ const TextSnippetModal = ({ isOpen, onClose, onAddSnippet }) => {
                 <div className="flex items-center gap-1 border-l border-gray-600 pl-2">
                   <button
                     onClick={() => applyFormat("bold")}
-                    className="px-3 py-1.5 bg-neutral-700 hover:bg-neutral-600 rounded border border-gray-600 font-bold text-sm"
+                    className={`px-3 py-1.5 rounded border font-bold text-sm transition-all ${
+                      activeFormats.bold
+                        ? "bg-blue-600 border-blue-500 text-white shadow-lg shadow-blue-500/30"
+                        : "bg-neutral-700 hover:bg-neutral-600 border-gray-600"
+                    }`}
                     title="Bold"
                     type="button"
                   >
@@ -200,7 +226,11 @@ const TextSnippetModal = ({ isOpen, onClose, onAddSnippet }) => {
                   </button>
                   <button
                     onClick={() => applyFormat("italic")}
-                    className="px-3 py-1.5 bg-neutral-700 hover:bg-neutral-600 rounded border border-gray-600 italic text-sm"
+                    className={`px-3 py-1.5 rounded border italic text-sm transition-all ${
+                      activeFormats.italic
+                        ? "bg-blue-600 border-blue-500 text-white shadow-lg shadow-blue-500/30"
+                        : "bg-neutral-700 hover:bg-neutral-600 border-gray-600"
+                    }`}
                     title="Italic"
                     type="button"
                   >
@@ -208,7 +238,11 @@ const TextSnippetModal = ({ isOpen, onClose, onAddSnippet }) => {
                   </button>
                   <button
                     onClick={() => applyFormat("underline")}
-                    className="px-3 py-1.5 bg-neutral-700 hover:bg-neutral-600 rounded border border-gray-600 underline text-sm"
+                    className={`px-3 py-1.5 rounded border underline text-sm transition-all ${
+                      activeFormats.underline
+                        ? "bg-blue-600 border-blue-500 text-white shadow-lg shadow-blue-500/30"
+                        : "bg-neutral-700 hover:bg-neutral-600 border-gray-600"
+                    }`}
                     title="Underline"
                     type="button"
                   >
@@ -220,7 +254,11 @@ const TextSnippetModal = ({ isOpen, onClose, onAddSnippet }) => {
                 <div className="flex items-center gap-1 border-l border-gray-600 pl-2">
                   <button
                     onClick={() => applyFormat("orderedList")}
-                    className="px-3 py-1.5 bg-neutral-700 hover:bg-neutral-600 rounded border border-gray-600 text-sm"
+                    className={`px-3 py-1.5 rounded border text-sm transition-all ${
+                      activeFormats.orderedList
+                        ? "bg-blue-600 border-blue-500 text-white shadow-lg shadow-blue-500/30"
+                        : "bg-neutral-700 hover:bg-neutral-600 border-gray-600"
+                    }`}
                     title="Ordered List"
                     type="button"
                   >
@@ -228,7 +266,11 @@ const TextSnippetModal = ({ isOpen, onClose, onAddSnippet }) => {
                   </button>
                   <button
                     onClick={() => applyFormat("bulletList")}
-                    className="px-3 py-1.5 bg-neutral-700 hover:bg-neutral-600 rounded border border-gray-600 text-sm"
+                    className={`px-3 py-1.5 rounded border text-sm transition-all ${
+                      activeFormats.bulletList
+                        ? "bg-blue-600 border-blue-500 text-white shadow-lg shadow-blue-500/30"
+                        : "bg-neutral-700 hover:bg-neutral-600 border-gray-600"
+                    }`}
                     title="Bullet List"
                     type="button"
                   >
@@ -255,6 +297,9 @@ const TextSnippetModal = ({ isOpen, onClose, onAddSnippet }) => {
                   ref={textareaRef}
                   contentEditable
                   onInput={(e) => setContent(e.currentTarget.innerHTML)}
+                  onClick={updateActiveFormats}
+                  onKeyUp={updateActiveFormats}
+                  onMouseUp={updateActiveFormats}
                   placeholder="Enter your text here..."
                   className="w-full bg-neutral-700 border border-gray-600 rounded-lg p-3 text-white placeholder-gray-500 focus:outline-none focus:border-blue-500 min-h-[300px] text-sm resize-none overflow-y-auto"
                   style={{

@@ -24,12 +24,12 @@ const AdminDashboard = () => {
 
   if (!stats) return <p className="text-white">Loading...</p>;
 
-  const hasSignupData = stats.dailySignups && stats.dailySignups.some(d => d.count > 0);
+  const hasSignupData =
+    stats.dailySignups && stats.dailySignups.some((d) => d.count > 0);
   const hasChatbotData = stats.totalChatbots > 0;
 
   return (
     <div className="text-white">
-
       <h1 className="text-3xl font-bold mb-6">Admin Dashboard</h1>
 
       {/* Stats Cards */}
@@ -52,7 +52,12 @@ const AdminDashboard = () => {
               <XAxis dataKey="date" stroke="#ccc" />
               <YAxis stroke="#ccc" />
               <Tooltip />
-              <Line type="monotone" dataKey="count" stroke="#4f46e5" strokeWidth={3} />
+              <Line
+                type="monotone"
+                dataKey="count"
+                stroke="#4f46e5"
+                strokeWidth={3}
+              />
             </LineChart>
           </ResponsiveContainer>
         ) : (
@@ -86,7 +91,11 @@ const Card = ({ label, value, positive }) => (
     <h2 className="text-lg text-gray-300">{label}</h2>
     <p
       className={`text-4xl font-bold ${
-        positive === undefined ? "" : positive ? "text-green-400" : "text-red-400"
+        positive === undefined
+          ? ""
+          : positive
+          ? "text-green-400"
+          : "text-red-400"
       }`}
     >
       {value}
@@ -102,9 +111,7 @@ const Section = ({ title, children }) => (
 );
 
 const Placeholder = ({ message }) => (
-  <div className="py-10 text-center text-gray-400 text-lg">
-    {message}
-  </div>
+  <div className="py-10 text-center text-gray-400 text-lg">{message}</div>
 );
 
 export default AdminDashboard;
