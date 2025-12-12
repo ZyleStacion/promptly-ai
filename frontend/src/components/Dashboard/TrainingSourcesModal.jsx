@@ -1,5 +1,6 @@
-import React from "react";
+import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import TextSnippetModal from "./TextSnippetModal";
 
 const TrainingSourcesModal = ({
   showTrainingModal,
@@ -18,6 +19,16 @@ const TrainingSourcesModal = ({
   setChatbotPersonality,
   handleTrainContinue,
 }) => {
+  const [showTextSnippetModal, setShowTextSnippetModal] = useState(false);
+  const [textSnippets, setTextSnippets] = useState([]);
+
+  const handleAddSnippet = (snippet) => {
+    setTextSnippets([...textSnippets, snippet]);
+  };
+
+  const handleRemoveSnippet = (index) => {
+    setTextSnippets(textSnippets.filter((_, i) => i !== index));
+  };
   return (
     <AnimatePresence>
       {showTrainingModal && (
@@ -62,16 +73,16 @@ const TrainingSourcesModal = ({
 
                 {/* Text Input */}
                 <div className="mb-4">
-                  <label className="block mb-2 text-sm text-gray-300">
-                    Text
+                  <label
+                    className="flex items-center justify-between p-4 bg-neutral-700 rounded-lg border border-gray-600 cursor-pointer hover:bg-neutral-600 transition"
+                    onClick={() => setShowTextSnippetModal(true)}
+                  >
+                    <span className="flex items-center gap-2">
+                      <span className="text-lg">📝</span>
+                      <span>Text</span>
+                    </span>
+                    <span className="text-2xl text-gray-400">+</span>
                   </label>
-                  <textarea
-                    value={trainingText}
-                    onChange={(e) => setTrainingText(e.target.value)}
-                    placeholder="Enter training text..."
-                    className="w-full bg-neutral-700 border border-gray-600 rounded-lg p-3 text-white placeholder-gray-500 focus:outline-none focus:border-blue-500"
-                    rows="2"
-                  />
                 </div>
 
                 {/* Select Model Dropdown */}
@@ -79,18 +90,23 @@ const TrainingSourcesModal = ({
                   <label className="block mb-2 text-sm text-gray-300">
                     Select Model
                   </label>
-                  <select
-                    value={selectedModel}
-                    onChange={(e) => setSelectedModel(e.target.value)}
-                    className="w-full bg-neutral-700 border border-gray-600 rounded-lg p-3 text-white focus:outline-none focus:border-blue-500"
-                  >
-                    <option value="" disabled hidden>
-                      Select a model...
-                    </option>
-                    <option value="gpt-3.5">GPT-3.5</option>
-                    <option value="gpt-4">GPT-4</option>
-                    <option value="claude">Claude</option>
-                  </select>
+                  <div className="relative">
+                    <select
+                      value={selectedModel}
+                      onChange={(e) => setSelectedModel(e.target.value)}
+                      className="w-full appearance-none bg-neutral-700 border border-gray-600 rounded-lg p-3 pr-10 text-white focus:outline-none focus:border-blue-500"
+                    >
+                      <option value="" disabled hidden>
+                        Select a model...
+                      </option>
+                      <option value="gpt-3.5">GPT-3.5</option>
+                      <option value="gpt-4">GPT-4</option>
+                      <option value="claude">Claude</option>
+                    </select>
+                    <span className="absolute right-4 top-1/2 -translate-y-1/2 text-2xl text-gray-400 pointer-events-none">
+                      ▼
+                    </span>
+                  </div>
                 </div>
 
                 {/* Type of Chatbot's personalities Dropdown */}
@@ -98,17 +114,22 @@ const TrainingSourcesModal = ({
                   <label className="block mb-2 text-sm text-gray-300">
                     Personality
                   </label>
-                  <select
-                    value={chatbotPersonality}
-                    onChange={(e) => setChatbotPersonality(e.target.value)}
-                    className="w-full bg-neutral-700 border border-gray-600 rounded-lg p-3 text-white focus:outline-none focus:border-blue-500"
-                  >
-                    <option value="" disabled hidden>
-                      Select Personality
-                    </option>
-                    <option value="support">Warm and Concise</option>
-                    <option value="sales">Short and Direct</option>
-                  </select>
+                  <div className="relative">
+                    <select
+                      value={chatbotPersonality}
+                      onChange={(e) => setChatbotPersonality(e.target.value)}
+                      className="w-full appearance-none bg-neutral-700 border border-gray-600 rounded-lg p-3 pr-10 text-white focus:outline-none focus:border-blue-500"
+                    >
+                      <option value="" disabled hidden>
+                        Select Personality
+                      </option>
+                      <option value="support">Warm and Concise</option>
+                      <option value="sales">Short and Direct</option>
+                    </select>
+                    <span className="absolute right-4 top-1/2 -translate-y-1/2 text-2xl text-gray-400 pointer-events-none">
+                      ▼
+                    </span>
+                  </div>
                 </div>
 
                 {/* Type of Chatbot Dropdown */}
@@ -116,18 +137,23 @@ const TrainingSourcesModal = ({
                   <label className="block mb-2 text-sm text-gray-300">
                     Use-case
                   </label>
-                  <select
-                    value={chatbotType}
-                    onChange={(e) => setChatbotType(e.target.value)}
-                    className="w-full bg-neutral-700 border border-gray-600 rounded-lg p-3 text-white focus:outline-none focus:border-blue-500"
-                  >
-                    <option value="" disabled hidden>
-                      Select Use-case
-                    </option>
-                    <option value="support">Customer Support</option>
-                    <option value="sales">Sales Assistant</option>
-                    <option value="general">General Purpose</option>
-                  </select>
+                  <div className="relative">
+                    <select
+                      value={chatbotType}
+                      onChange={(e) => setChatbotType(e.target.value)}
+                      className="w-full appearance-none bg-neutral-700 border border-gray-600 rounded-lg p-3 pr-10 text-white focus:outline-none focus:border-blue-500"
+                    >
+                      <option value="" disabled hidden>
+                        Select Use-case
+                      </option>
+                      <option value="support">Customer Support</option>
+                      <option value="sales">Sales Assistant</option>
+                      <option value="general">General Purpose</option>
+                    </select>
+                    <span className="absolute right-4 top-1/2 -translate-y-1/2 text-2xl text-gray-400 pointer-events-none">
+                      ▼
+                    </span>
+                  </div>
                 </div>
               </div>
 
@@ -135,11 +161,11 @@ const TrainingSourcesModal = ({
               <div className="bg-neutral-900 rounded-lg p-4 border border-gray-700 flex flex-col">
                 <div className="flex items-center justify-between mb-4">
                   <h3 className="text-lg font-semibold">Sources</h3>
-                  {(trainingFiles.length > 0 || trainingText) && (
+                  {(trainingFiles.length > 0 || textSnippets.length > 0) && (
                     <button
                       onClick={() => {
                         setTrainingFiles([]);
-                        setTrainingText("");
+                        setTextSnippets([]);
                       }}
                       className="text-xs text-red-400 hover:text-red-300 font-semibold px-3 py-1 bg-red-500/10 hover:bg-red-500/20 rounded transition"
                     >
@@ -148,7 +174,7 @@ const TrainingSourcesModal = ({
                   )}
                 </div>
                 <div className="space-y-2 flex-1 overflow-y-auto">
-                  {trainingFiles.length === 0 && !trainingText ? (
+                  {trainingFiles.length === 0 && textSnippets.length === 0 ? (
                     <p className="text-gray-500 text-sm text-center py-8">
                       No sources added yet
                     </p>
@@ -183,14 +209,27 @@ const TrainingSourcesModal = ({
                           </div>
                         );
                       })}
-                      {trainingText && (
-                        <div className="bg-neutral-800 p-3 rounded border border-gray-600">
-                          <p className="text-sm text-white">📝 Text Input</p>
-                          <p className="text-xs text-gray-400 mt-1">
-                            {trainingText.length} characters
-                          </p>
+                      {textSnippets.map((snippet, index) => (
+                        <div
+                          key={`snippet-${index}`}
+                          className="flex items-start justify-between bg-neutral-800 p-3 rounded border border-gray-600"
+                        >
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm text-white truncate">
+                              📝 {snippet.title}
+                            </p>
+                            <p className="text-xs text-gray-400 mt-1">
+                              {snippet.content.length} characters
+                            </p>
+                          </div>
+                          <button
+                            onClick={() => handleRemoveSnippet(index)}
+                            className="ml-2 text-red-400 hover:text-red-300 text-sm font-semibold flex-shrink-0"
+                          >
+                            ✕
+                          </button>
                         </div>
-                      )}
+                      ))}
                     </>
                   )}
                 </div>
@@ -228,6 +267,13 @@ const TrainingSourcesModal = ({
               </button>
             </div>
           </motion.div>
+
+          {/* Text Snippet Modal */}
+          <TextSnippetModal
+            isOpen={showTextSnippetModal}
+            onClose={() => setShowTextSnippetModal(false)}
+            onAddSnippet={handleAddSnippet}
+          />
         </motion.div>
       )}
     </AnimatePresence>

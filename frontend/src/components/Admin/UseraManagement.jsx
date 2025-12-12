@@ -1,7 +1,10 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 
 const UserManagement = () => {
   const [users, setUsers] = useState([]);
+  const [openMenuId, setOpenMenuId] = useState(null);
+  const menuRefs = useRef({});
 
   const loadUsers = () => {
     fetch("http://localhost:3000/admin/users", {
@@ -14,6 +17,22 @@ const UserManagement = () => {
   useEffect(() => {
     loadUsers();
   }, []);
+
+  // Click outside to close menu
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (
+        openMenuId &&
+        menuRefs.current[openMenuId] &&
+        !menuRefs.current[openMenuId].contains(event.target)
+      ) {
+        setOpenMenuId(null);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [openMenuId]);
 
   const toggleAdmin = (id) => {
     fetch(`http://localhost:3000/admin/toggle-role/${id}`, {
@@ -33,7 +52,7 @@ const UserManagement = () => {
     <div>
       <h1 className="text-3xl font-bold mb-6">User Management</h1>
 
-      <div className="bg-neutral-800 border border-gray-700 rounded-xl overflow-hidden">
+      <div className="bg-neutral-800 border border-gray-700 rounded-xl overflow-visible">
         <table className="w-full text-left">
           <thead className="bg-neutral-900">
             <tr>
@@ -51,34 +70,62 @@ const UserManagement = () => {
                 <td className="p-3">{u.email}</td>
                 <td className="p-3">
                   {u.isAdmin ? (
-                    <span className="text-blue-400 font-semibold">Admin</span>
+                    <span className=" bg-gradient-to-r from-blue-600 to-violet-600 text-transparent bg-clip-text font-bold">
+                      Admin
+                    </span>
                   ) : (
-                    <span className="text-gray-400">User</span>
+                    <span className="text-blue-300">User</span>
                   )}
                 </td>
 
-                <td className="p-3 space-x-3">
+                <td className="p-3 relative">
                   <button
-                    onClick={() => toggleAdmin(u._id)}
-                    className="px-3 py-1 bg-blue-600 hover:bg-blue-700 rounded-md"
+                    onClick={() =>
+                      setOpenMenuId(openMenuId === u._id ? null : u._id)
+                    }
+                    className="text-gray-400 hover:text-white text-xl"
                   >
-                    {u.isAdmin ? "Remove Admin" : "Make Admin"}
+                    ⋮
                   </button>
 
-                  <button
-                    onClick={() => deleteUser(u._id)}
-                    className="px-3 py-1 bg-red-600 hover:bg-red-700 rounded-md"
-                  >
-                    Delete
-                  </button>
+                  <AnimatePresence>
+                    {openMenuId === u._id && (
+                      <motion.div
+                        ref={(el) => (menuRefs.current[u._id] = el)}
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: 10 }}
+                        transition={{ duration: 0.2 }}
+                        className="absolute right-0 top-full mt-2 bg-neutral-700 border border-gray-600 rounded-lg shadow-lg z-50 min-w-[150px]"
+                      >
+                        <button
+                          onClick={() => {
+                            toggleAdmin(u._id);
+                            setOpenMenuId(null);
+                          }}
+                          className="w-full text-left px-4 py-2 hover:bg-neutral-600 rounded-t-lg"
+                        >
+                          {u.isAdmin ? "Remove Admin" : "Make Admin"}
+                        </button>
+
+                        <button
+                          onClick={() => {
+                            deleteUser(u._id);
+                            setOpenMenuId(null);
+                          }}
+                          className="w-full text-left px-4 py-2 hover:bg-neutral-600 rounded-b-lg text-red-400"
+                        >
+                          Delete
+                        </button>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
                 </td>
-
               </tr>
             ))}
           </tbody>
         </table>
       </div>
-
     </div>
   );
 };
