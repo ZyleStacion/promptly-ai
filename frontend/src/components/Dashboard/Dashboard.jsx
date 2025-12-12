@@ -17,6 +17,7 @@ const Dashboard = () => {
   const [activeSection, setActiveSection] = useState("models"); // models, usage, settings
   const [showTrainingModal, setShowTrainingModal] = useState(false);
   const [showChatbotUIModal, setShowChatbotUIModal] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
 
   // Training form state
   const [trainingFiles, setTrainingFiles] = useState([]);
@@ -32,6 +33,11 @@ const Dashboard = () => {
 
   useEffect(() => {
     if (!isAuthenticated()) navigate("/signin");
+
+    // Check if user is admin
+    const user = JSON.parse(localStorage.getItem("user") || "{}");
+    setIsAdmin(user.isAdmin || false);
+
     loadChatbots();
   }, []);
 
@@ -143,6 +149,18 @@ const Dashboard = () => {
             >
               Workspace setting
             </motion.button>
+
+            {/* Admin Panel Button - Only visible for admins */}
+            {isAdmin && (
+              <motion.button
+                whileHover={{ scale: 1.03, x: 5 }}
+                whileTap={{ scale: 0.98 }}
+                onClick={() => navigate("/admin")}
+                className="w-full text-left px-4 py-3 rounded-lg transition bg-amber-600 hover:bg-amber-700 font-semibold"
+              >
+                Admin Panel
+              </motion.button>
+            )}
           </nav>
         </motion.div>
 
