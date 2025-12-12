@@ -5,7 +5,7 @@ import { FiPlay, FiPause } from "react-icons/fi";
 import { motion } from "framer-motion";
 import CountUp from "react-countup";
 import { useNavigate } from "react-router-dom";
-import HeroVideo from "../../assets/hero-video.mp4";
+import HeroVideo from "../../assets/herovideo.mp4";
 
 const Hero = () => {
   const navigate = useNavigate();
@@ -136,15 +136,15 @@ const Hero = () => {
         </div>
       </div>
 
-      {/* Hero image */}
+      {/* Hero video */}
 
-      <div className="relative h-full w-full justify-center flex items-center mt-10 md:mt-0">
+      <div className="relative h-full w-full justify-center flex items-center mt-10 md:mt-5 ">
         <motion.video
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 1 }}
           ref={videoRef}
-          className="h-full w-full rounded-lg object-cover p-3"
+          className="h-full w-full md:h-[650px] md:w-full rounded-lg object-cover p-3"
           src={HeroVideo}
           autoPlay
           muted
