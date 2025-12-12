@@ -1,7 +1,9 @@
 import React, { useState, useEffect, useRef } from "react";
 import { LuBrain } from "react-icons/lu";
 import { FaUserCircle } from "react-icons/fa";
+import { FiSettings, FiBook, FiCreditCard, FiLogOut } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
+import { motion, AnimatePresence } from "framer-motion";
 import { USE_MOCK_API } from "../../api/mockApi";
 
 const DashboardNavbar = () => {
@@ -91,49 +93,94 @@ const DashboardNavbar = () => {
         )}
 
         {/* DROPDOWN MENU */}
-        {dropdownOpen && (
-          <div className="absolute right-0 mt-3 w-56 bg-neutral-900 border border-gray-700 rounded-xl shadow-lg p-4 z-30">
-            {/* Username + Email */}
-            <div className="pb-3 border-b border-gray-700">
-              <p className="text-white font-semibold">{user.username}</p>
-              <p className="text-gray-400 text-sm">{user.email}</p>
-            </div>
+        <AnimatePresence>
+          {dropdownOpen && (
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.2 }}
+              className="absolute right-0 mt-3 w-64 bg-neutral-800 border border-gray-700 rounded-xl shadow-2xl overflow-hidden z-30"
+            >
+              {/* User Info Section */}
+              <div className="px-4 py-4 bg-gradient-to-r from-blue-600/10 to-violet-600/10 border-b border-gray-700">
+                <div className="flex items-center gap-3">
+                  {user.profileImage ? (
+                    <img
+                      src={
+                        USE_MOCK_API
+                          ? user.profileImage
+                          : `http://localhost:3000${user.profileImage}`
+                      }
+                      alt="Profile"
+                      className="w-12 h-12 rounded-full object-cover border-2 border-blue-500"
+                    />
+                  ) : (
+                    <div className="w-12 h-12 rounded-full bg-gradient-to-r from-blue-600 to-violet-600 flex items-center justify-center text-white text-lg font-bold">
+                      {user.username
+                        ? user.username.charAt(0).toUpperCase()
+                        : "U"}
+                    </div>
+                  )}
+                  <div className="flex-1 min-w-0">
+                    <p className="text-white font-semibold truncate">
+                      {user.username || "User"}
+                    </p>
+                    <p className="text-gray-400 text-xs truncate">
+                      {user.email || "email@example.com"}
+                    </p>
+                  </div>
+                </div>
+              </div>
 
-            {/* Menu Items */}
-            <div className="flex flex-col gap-3 mt-3">
-              <button
-                onClick={() => navigate("/dashboard/settings")}
-                className="w-full text-center bg-gray-800 border border-gray-700 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition"
-              >
-                Account Settings
-              </button>
+              {/* Menu Items */}
+              <div className="py-2">
+                <button
+                  onClick={() => {
+                    navigate("/dashboard/settings");
+                    setDropdownOpen(false);
+                  }}
+                  className="w-full flex items-center gap-3 px-4 py-3 text-gray-300 hover:bg-neutral-700 hover:text-white transition"
+                >
+                  <FiSettings className="text-lg" />
+                  <span>Account Settings</span>
+                </button>
 
-              <button className="w-full text-center bg-gray-800 border border-gray-700 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition">
-                Documentation
-              </button>
+                <button
+                  onClick={() => setDropdownOpen(false)}
+                  className="w-full flex items-center gap-3 px-4 py-3 text-gray-300 hover:bg-neutral-700 hover:text-white transition"
+                >
+                  <FiBook className="text-lg" />
+                  <span>Documentation</span>
+                </button>
 
-              <button
-                onClick={() => {
-                  navigate("/dashboard/settings", {
-                    state: { activeTab: "subscription" },
-                  });
-                  setDropdownOpen(false);
-                }}
-                className="w-full text-center bg-gray-800 border border-gray-700 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition"
-              >
-                Account Plan
-              </button>
+                <button
+                  onClick={() => {
+                    navigate("/dashboard/settings", {
+                      state: { activeTab: "subscription" },
+                    });
+                    setDropdownOpen(false);
+                  }}
+                  className="w-full flex items-center gap-3 px-4 py-3 text-gray-300 hover:bg-neutral-700 hover:text-white transition"
+                >
+                  <FiCreditCard className="text-lg" />
+                  <span>Account Plan</span>
+                </button>
+              </div>
 
-              {/* Logout */}
-              <button
-                onClick={handleLogout}
-                className="w-full text-center bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition mt-2"
-              >
-                Log Out
-              </button>
-            </div>
-          </div>
-        )}
+              {/* Logout Section */}
+              <div className="border-t border-gray-700 py-2">
+                <button
+                  onClick={handleLogout}
+                  className="w-full flex items-center gap-3 px-4 py-3 text-red-400 hover:bg-red-500/10 hover:text-red-300 transition"
+                >
+                  <FiLogOut className="text-lg" />
+                  <span>Log Out</span>
+                </button>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     </nav>
   );
