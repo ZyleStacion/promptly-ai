@@ -4,6 +4,8 @@ Promptly AI is a web platform that enables SMBs to upload private corporate data
 
 ## 🧉 Key Features
 
+Hello World!
+
 `TODO`
 
 ## Self Deployment Guide
