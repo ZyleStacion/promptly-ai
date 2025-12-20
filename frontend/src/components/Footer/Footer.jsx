@@ -47,7 +47,7 @@ const Footer = () => {
                 </li>
                 <li>
                   <a
-                    href="/"
+                    href="/documentation"
                     className="hover:text-secondary transition-colors duration-300"
                   >
                     Documentation

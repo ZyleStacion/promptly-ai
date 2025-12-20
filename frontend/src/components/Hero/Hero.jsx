@@ -82,7 +82,12 @@ const Hero = () => {
             >
               Get Started
             </button>
-            <button className=" text-white underline">Learn More</button>
+            <button
+              onClick={() => navigate("/documentation")}
+              className="text-white underline"
+            >
+              Learn More
+            </button>
           </motion.div>
 
           {/* yapping */}

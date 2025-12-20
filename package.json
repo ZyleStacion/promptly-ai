@@ -1,0 +1,8 @@
+{
+  "dependencies": {
+    "flowbite": "^4.0.1",
+    "jodit": "^4.7.9",
+    "jodit-react": "^5.2.38",
+    "recharts": "^3.5.1"
+  }
+}

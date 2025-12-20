@@ -11,6 +11,7 @@ import Dashboard from "./components/Dashboard/Dashboard";
 import AccountSetting from "./components/Dashboard/AccountSettings";
 import ForgotPassword from "./components/auth/ForgotPassword";
 import ResetPassword from "./components/auth/ResetPassword";
+import Documentation from "./components/Documentation/Documentation";
 
 // Admin pages
 import AdminLayout from "./components/Admin/AdminLayout";
@@ -39,6 +40,7 @@ export const App = () => {
         <Route path="/dashboard/settings" element={<AccountSetting />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/reset-password/:token" element={<ResetPassword />} />
+        <Route path="/documentation" element={<Documentation />} />
 
         <Route
           path="/admin"
@@ -51,7 +53,6 @@ export const App = () => {
           <Route index element={<AdminDashboard />} />
           <Route path="users" element={<UserManagement />} />
         </Route>
-
       </Routes>
     </Router>
   );
