@@ -194,10 +194,15 @@ const Documentation = () => {
               className="text-center"
             >
               <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">
-                Promptly AI Documentation
+                What is Promptly AI?
               </h1>
               <p className="text-xl text-gray-400 max-w-3xl mx-auto">
-                Learn how to train custom AI models with your business data
+                Simple, efficient AI provisioning. No code required.
+              </p>
+              <p className="text-lg text-gray-500 mt-4 max-w-3xl mx-auto">
+                Our mission is to provide a no-code solution for small to medium
+                businesses with the power to seamlessly implement AI tools in
+                their online platforms.
               </p>
             </motion.div>
 
@@ -207,10 +212,75 @@ const Documentation = () => {
               title="Getting Started"
               activeSection={activeSection}
             >
+              <h3 className="text-white font-semibold text-xl mb-4">
+                Use Cases
+              </h3>
+              <p className="text-gray-300 mb-6">
+                Promptly currently offers three types of chatbots for your
+                business:
+              </p>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <div className="bg-neutral-700/50 rounded-lg p-5 border border-gray-600">
+                  <h4 className="text-white font-semibold mb-2">
+                    Customer Support
+                  </h4>
+                  <p className="text-gray-400 text-sm">
+                    Give customers instant feedback. Our AI models can function
+                    as a customer service agent or help them streamline support.
+                  </p>
+                </div>
+                <div className="bg-neutral-700/50 rounded-lg p-5 border border-gray-600">
+                  <h4 className="text-white font-semibold mb-2">
+                    Sales Assistant
+                  </h4>
+                  <p className="text-gray-400 text-sm">
+                    Help your customers choose the perfect product for their
+                    needs. Our sales assistant agents replace in-house sales
+                    staff in your virtual platforms.
+                  </p>
+                </div>
+                <div className="bg-neutral-700/50 rounded-lg p-5 border border-gray-600">
+                  <h4 className="text-white font-semibold mb-2">
+                    General Purpose
+                  </h4>
+                  <p className="text-gray-400 text-sm">
+                    Not sure what exactly you need from our model? General
+                    purpose fits any type of generic scenario and can be fine
+                    tuned later on in the creation stage!
+                  </p>
+                </div>
+              </div>
+
+              <h3 className="text-white font-semibold text-xl mb-4">
+                Why not Use ChatGPT?
+              </h3>
               <p className="text-gray-300 mb-4">
-                Welcome to Promptly AI! This platform enables you to create
-                custom AI models trained on your own business data. Follow these
-                steps to get started:
+                At Promptly, we believe that users are the ones who get to
+                decide how their data is used. We are committed to providing
+                local deployment solutions, and none of your business data is
+                stored on our servers.
+              </p>
+              <p className="text-gray-300 mb-6">
+                We operate based on an{" "}
+                <a
+                  href="https://bsg.world/glossary/opt-in"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-blue-400 hover:text-blue-300 underline"
+                >
+                  opt-in
+                </a>{" "}
+                policy, so you can rest assured knowing that your business data
+                is only used once during chatbot model training.
+              </p>
+
+              <h3 className="text-white font-semibold text-xl mb-4 mt-8">
+                Prerequisites
+              </h3>
+              <p className="text-gray-300 mb-4">
+                Promptly AI users are required to create an account before model
+                creation. Promptly recommends at least 50 rows of data to ensure
+                accurate chatbot responses.
               </p>
               <div className="space-y-4">
                 <Step number="1" title="Create an Account">
