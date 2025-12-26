@@ -260,16 +260,6 @@ const Documentation = () => {
                   title="Local Deployment"
                   description="Download your trained model and deploy it on your own infrastructure."
                 />
-                <FeatureCard
-                  icon={<FiMessageSquare />}
-                  title="Interactive Chat"
-                  description="Test your model in real-time with an intuitive chat interface."
-                />
-                <FeatureCard
-                  icon={<FiCode />}
-                  title="API Access"
-                  description="Integrate your model into applications via our REST API."
-                />
               </div>
             </Section>
 
