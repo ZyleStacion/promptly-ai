@@ -1,4 +1,4 @@
-import { sendMessage } from '../services/ollamaService.js';
+import { sendMessage, listModels } from '../services/ollamaService.js';
 
 async function chat(req, res) {
   try {
@@ -10,4 +10,14 @@ async function chat(req, res) {
   }
 }
 
-export { chat };
+async function getModels(req, res) {
+  try {
+    const models = await listModels();
+    res.json({ success: true, models });
+  } catch (err) {
+    console.error('Error fetching models:', err);
+    res.status(500).json({ success: false, error: 'Failed to fetch models from Ollama' });
+  }
+}
+
+export { chat, getModels };

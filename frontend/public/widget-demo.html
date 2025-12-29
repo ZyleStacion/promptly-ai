@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Promptly Widget Demo</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 800px;
+      margin: 50px auto;
+      padding: 20px;
+      background: #f3f4f6;
+    }
+    .demo-content {
+      background: white;
+      padding: 40px;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    h1 { color: #1f2937; }
+    p { color: #6b7280; line-height: 1.6; }
+    code {
+      background: #f3f4f6;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-family: monospace;
+    }
+  </style>
+</head>
+<body>
+  <div class="demo-content">
+    <h1>Welcome to Promptly Widget Demo</h1>
+    <p>This is a demo page showing how the Promptly chatbot widget appears on any website.</p>
+    <p>Look for the chat button in the bottom-right corner! 💬</p>
+    <p>The widget is embedded with just two lines of code:</p>
+    <pre><code>&lt;div data-promptly-chatbot-id="YOUR_CHATBOT_ID"&gt;&lt;/div&gt;
+&lt;script src="http://localhost:5173/promptly-widget.js"&gt;&lt;/script&gt;</code></pre>
+  </div>
+
+  <!-- Promptly Chatbot Widget -->
+<div data-promptly-chatbot-id="6951990e789df77773a7dca7"></div>
+<script>
+  window.PROMPTLY_API_URL = 'http://localhost:3000';
+</script>
+<script src="http://localhost:5173/promptly-widget.js"></script>
+</body>
+</html>
