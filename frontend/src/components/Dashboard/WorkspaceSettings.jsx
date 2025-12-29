@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 
 const WorkspaceSettings = () => {
   const settingsOptions = [
-    { title: "General", description: "Placeholder for general settings" },
+    { title: "Plans", description: "View your Promptly plan" },
     { title: "General", description: "Placeholder for second option" },
     { title: "General", description: "Placeholder for third option" },
   ];

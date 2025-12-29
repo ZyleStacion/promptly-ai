@@ -1,4 +1,5 @@
 import React from "react";
+
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Hero from "./components/Hero/Hero";
 import HowItWorks from "./components/HowItWorks/HowItWorks";
@@ -18,6 +19,12 @@ import AdminLayout from "./components/Admin/AdminLayout";
 import AdminDashboard from "./components/Admin/AdminDashboard";
 import UserManagement from "./components/Admin/UseraManagement";
 import AdminRoute from "./components/Admin/AdminProtectedRoute";
+
+// Stripe
+import { loadStripe } from "@stripe/stripe-js";
+
+// TODO: replace with key from Stripe
+const stripePromise = loadStripe("pk_test_placeholder");
 
 const HomePage = () => (
   <main className="overflow-x-hidden bg-gray-900">
