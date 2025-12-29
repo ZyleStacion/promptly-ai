@@ -72,6 +72,14 @@ const Dashboard = () => {
     loadOllamaModels();
   }, []);
 
+  // Prefill from workspace settings
+  useEffect(() => {
+    const saved = JSON.parse(localStorage.getItem("workspaceSettings") || "{}");
+    if (saved.welcomeMessage && !welcomeMessage) {
+      setWelcomeMessage(saved.welcomeMessage);
+    }
+  }, []);
+
   const loadOllamaModels = async () => {
     try {
       setLoadingModels(true);
@@ -81,8 +89,11 @@ const Dashboard = () => {
       
       if (data.success && data.models) {
         setAvailableModels(data.models);
-        // Set first model as default if available
-        if (data.models.length > 0 && !selectedModel) {
+        const saved = JSON.parse(localStorage.getItem("workspaceSettings") || "{}");
+        const savedDefault = saved.defaultModel;
+        if (savedDefault && data.models.some((m) => m.name === savedDefault)) {
+          setSelectedModel(savedDefault);
+        } else if (data.models.length > 0 && !selectedModel) {
           setSelectedModel(data.models[0].name);
         }
       }
@@ -182,15 +193,17 @@ const Dashboard = () => {
       }
 
       // Create chatbot payload
+      const ws = JSON.parse(localStorage.getItem("workspaceSettings") || "{}");
+      const systemPromptStr = ws.systemPrompt || `You are ${chatbotName}, a helpful AI assistant. Answer questions based on the provided information.`;
       const payload = {
         name: chatbotName,
         description: description || chatbotName,
-        welcomeMessage: welcomeMessage || `Hi! I'm ${chatbotName}. How can I help you today?`,
+        welcomeMessage: welcomeMessage || ws.welcomeMessage || `Hi! I'm ${chatbotName}. How can I help you today?`,
         businessName: chatbotName,
         businessDescription: description,
         chatbotType: chatbotType,
         modelName: selectedModel,
-        systemPrompt: `You are ${chatbotName}, a helpful AI assistant. Answer questions based on the provided information.`,
+        systemPrompt: systemPromptStr,
         primaryColor,
         profilePicture: profilePreview || null,
         trainingData,
@@ -659,15 +672,17 @@ const Dashboard = () => {
             if (!chatbotName.trim()) return;
             try {
               setCreating(true);
+              const ws = JSON.parse(localStorage.getItem("workspaceSettings") || "{}");
+              const systemPromptStr = ws.systemPrompt || `You are ${chatbotName}, a helpful AI assistant. Answer questions based on the provided information.`;
               const payload = {
                 name: chatbotName,
                 description: description || chatbotName,
-                welcomeMessage: welcomeMessage || `Hi! I'm ${chatbotName}. How can I help you today?`,
+                welcomeMessage: welcomeMessage || ws.welcomeMessage || `Hi! I'm ${chatbotName}. How can I help you today?`,
                 businessName: chatbotName,
                 businessDescription: description,
                 chatbotType: chatbotType,
                 modelName: selectedModel,
-                systemPrompt: `You are ${chatbotName}, a helpful AI assistant. Answer questions based on the provided information.`,
+                systemPrompt: systemPromptStr,
                 primaryColor,
                 profilePicture: profileDeleted ? null : (profilePreview || null),
                 trainingData: editingTrainingData,

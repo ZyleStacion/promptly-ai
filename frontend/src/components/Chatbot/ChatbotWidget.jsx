@@ -14,7 +14,7 @@ import { useEffect, useRef } from 'react';
  * - widgetScript: string (optional) - Widget script URL (default: http://localhost:5173/promptly-widget.js)
  */
 const ChatbotWidget = ({ 
-  chatbotId = '6951a785dbc5cfa144130018',
+  chatbotId = '6951ca5594649fca1064b26e',
   apiUrl = 'http://localhost:3000',
   widgetScript = 'http://localhost:5173/promptly-widget.js'
 }) => {

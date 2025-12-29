@@ -29,7 +29,7 @@ const HomePage = () => (
     <WhyChooseOurPlatform />
     <Footer />
     {/* Promptly Chatbot Widget - Shows how to integrate on React sites */}
-    <ChatbotWidget chatbotId="6951a785dbc5cfa144130018" />
+    <ChatbotWidget chatbotId="6951ca5594649fca1064b26e" />
   </main>
 );
 

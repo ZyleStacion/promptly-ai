@@ -18,8 +18,8 @@
       border-radius: 12px;
       box-shadow: 0 2px 8px rgba(0,0,0,0.1);
     }
-    h1 { color: #1f2937; }
-    p { color: #6b7280; line-height: 1.6; }
+    h1.title { color: #1f2937; }
+    p.p { color: #6b7280; line-height: 1.6; }
     code {
       background: #f3f4f6;
       padding: 2px 6px;
@@ -30,18 +30,20 @@
 </head>
 <body>
   <div class="demo-content">
-    <h1>Welcome to Promptly Widget Demo</h1>
-    <p>This is a demo page showing how the Promptly chatbot widget appears on any website.</p>
-    <p>Look for the chat button in the bottom-right corner! 💬</p>
-    <p>The widget is embedded with just two lines of code:</p>
+    <h1 class="title">Welcome to Promptly Widget Demo</h1>
+    <p class="p">This is a demo page showing how the Promptly chatbot widget appears on any website.</p>
+    <p class="p">Look for the chat button in the bottom-right copner! 💬</p>
+    <p class="p">The widget is embedded with just two lines of code:</p>
     <pre><code>&lt;div data-promptly-chatbot-id="YOUR_CHATBOT_ID"&gt;&lt;/div&gt;
 &lt;script src="http://localhost:5173/promptly-widget.js"&gt;&lt;/script&gt;</code></pre>
   </div>
 
   <!-- Promptly Chatbot Widget -->
-<div data-promptly-chatbot-id="6951990e789df77773a7dca7"></div>
+<!-- Promptly Chatbot Widget -->
+<div data-promptly-chatbot-id="6951d71394649fca1064b30e"></div>
 <script>
-  window.PROMPTLY_API_URL = 'http://localhost:3000';
+  globalThis.PROMPTLY_API_URL = 'http://localhost:3000';
+  // Adjust :3000 to your backend port if different
 </script>
 <script src="http://localhost:5173/promptly-widget.js"></script>
 </body>
