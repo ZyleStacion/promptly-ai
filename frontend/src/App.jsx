@@ -12,6 +12,8 @@ import AccountSetting from "./components/Dashboard/AccountSettings";
 import ForgotPassword from "./components/auth/ForgotPassword";
 import ResetPassword from "./components/auth/ResetPassword";
 import Documentation from "./components/Documentation/Documentation";
+import IntegrationDemo from "./components/IntegrationDemo/IntegrationDemo";
+import ChatbotWidget from "./components/Chatbot/ChatbotWidget";
 
 // Admin pages
 import AdminLayout from "./components/Admin/AdminLayout";
@@ -26,6 +28,8 @@ const HomePage = () => (
     <HowItWorks />
     <WhyChooseOurPlatform />
     <Footer />
+    {/* Promptly Chatbot Widget - Shows how to integrate on React sites */}
+    <ChatbotWidget chatbotId="6951ca5594649fca1064b26e" />
   </main>
 );
 
@@ -41,6 +45,7 @@ export const App = () => {
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/reset-password/:token" element={<ResetPassword />} />
         <Route path="/documentation" element={<Documentation />} />
+        <Route path="/integration-demo" element={<IntegrationDemo />} />
 
         <Route
           path="/admin"

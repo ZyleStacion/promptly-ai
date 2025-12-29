@@ -1,4 +1,5 @@
 import { motion, AnimatePresence } from "framer-motion";
+import { Link as LinkIcon } from "lucide-react";
 import React, { useState, useRef } from "react";
 
 const TextSnippetModal = ({ isOpen, onClose, onAddSnippet }) => {
@@ -286,7 +287,7 @@ const TextSnippetModal = ({ isOpen, onClose, onAddSnippet }) => {
                     title="Add Link"
                     type="button"
                   >
-                    🔗
+                    <LinkIcon className="w-4 h-4" />
                   </button>
                 </div>
               </div>

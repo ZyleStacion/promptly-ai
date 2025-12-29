@@ -1,4 +1,6 @@
+/* eslint-disable no-unused-vars */
 import React, { useState } from "react";
+import { FileText, Edit3, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import TextSnippetModal from "./TextSnippetModal";
 
@@ -9,6 +11,8 @@ const TrainingSourcesModal = ({
   setTrainingFiles,
   trainingText,
   selectedModel,
+  availableModels,
+  loadingModels,
   chatbotType,
   chatbotPersonality,
   handleFileChange,
@@ -58,7 +62,7 @@ const TrainingSourcesModal = ({
                 <div className="mb-4">
                   <label className="flex items-center justify-between p-4 bg-neutral-700 rounded-lg border border-gray-600 cursor-pointer hover:bg-neutral-600 transition">
                     <span className="flex items-center gap-2">
-                      <span className="text-lg">📄</span>
+                      <FileText className="w-5 h-5" />
                       <span>File</span>
                     </span>
                     <span className="text-2xl text-gray-400">+</span>
@@ -78,7 +82,7 @@ const TrainingSourcesModal = ({
                     onClick={() => setShowTextSnippetModal(true)}
                   >
                     <span className="flex items-center gap-2">
-                      <span className="text-lg">📝</span>
+                      <Edit3 className="w-5 h-5" />
                       <span>Text</span>
                     </span>
                     <span className="text-2xl text-gray-400">+</span>
@@ -94,19 +98,28 @@ const TrainingSourcesModal = ({
                     <select
                       value={selectedModel}
                       onChange={(e) => setSelectedModel(e.target.value)}
-                      className="w-full appearance-none bg-neutral-700 border border-gray-600 rounded-lg p-3 pr-10 text-white focus:outline-none focus:border-blue-500"
+                      disabled={loadingModels}
+                      className="w-full appearance-none bg-neutral-700 border border-gray-600 rounded-lg p-3 pr-10 text-white focus:outline-none focus:border-blue-500 disabled:opacity-50"
                     >
-                      <option value="" disabled hidden>
-                        Select a model...
+                      <option value="" disabled>
+                        {loadingModels ? "Loading models..." : "Select a model..."}
                       </option>
-                      <option value="gpt-3.5">GPT-3.5</option>
-                      <option value="gpt-4">GPT-4</option>
-                      <option value="claude">Claude</option>
+                      {availableModels.map((model) => (
+                        <option key={model.name} value={model.name}>
+                          {model.name}
+                          {model.size ? ` (${(model.size / 1e9).toFixed(1)}GB)` : ""}
+                        </option>
+                      ))}
                     </select>
                     <span className="absolute right-4 top-1/2 -translate-y-1/2 text-2xl text-gray-400 pointer-events-none">
                       ▼
                     </span>
                   </div>
+                  {availableModels.length === 0 && !loadingModels && (
+                    <p className="text-xs text-yellow-500 mt-1">
+                      ⚠️ No models available. Make sure Ollama is running.
+                    </p>
+                  )}
                 </div>
 
                 {/* Type of Chatbot's personalities Dropdown */}
@@ -123,6 +136,8 @@ const TrainingSourcesModal = ({
                       <option value="" disabled hidden>
                         Select Personality
                       </option>
+                      <option value="friendly">Warm and Friendly</option>
+                      <option value="professional">Professional</option>
                       <option value="support">Warm and Concise</option>
                       <option value="sales">Short and Direct</option>
                     </select>
@@ -146,15 +161,18 @@ const TrainingSourcesModal = ({
                       <option value="" disabled hidden>
                         Select Use-case
                       </option>
+                      <option value="general">General Purpose</option>
                       <option value="support">Customer Support</option>
                       <option value="sales">Sales Assistant</option>
-                      <option value="general">General Purpose</option>
+                      <option value="custom">Custom</option>
                     </select>
                     <span className="absolute right-4 top-1/2 -translate-y-1/2 text-2xl text-gray-400 pointer-events-none">
                       ▼
                     </span>
                   </div>
                 </div>
+
+                
               </div>
 
               {/* Right Column - Sources Preview */}
@@ -193,8 +211,8 @@ const TrainingSourcesModal = ({
                             className="flex items-start justify-between bg-neutral-800 p-3 rounded border border-gray-600"
                           >
                             <div className="flex-1 min-w-0">
-                              <p className="text-sm text-white truncate">
-                                📄 {file.name}
+                              <p className="text-sm text-white truncate inline-flex items-center gap-2">
+                                <FileText className="w-4 h-4" /> {file.name}
                               </p>
                               <p className="text-xs text-gray-400 mt-1">
                                 {displaySize}
@@ -204,7 +222,7 @@ const TrainingSourcesModal = ({
                               onClick={() => handleRemoveFile(index)}
                               className="ml-2 text-red-400 hover:text-red-300 text-sm font-semibold flex-shrink-0"
                             >
-                              ✕
+                              <X className="w-4 h-4" />
                             </button>
                           </div>
                         );
@@ -215,8 +233,8 @@ const TrainingSourcesModal = ({
                           className="flex items-start justify-between bg-neutral-800 p-3 rounded border border-gray-600"
                         >
                           <div className="flex-1 min-w-0">
-                            <p className="text-sm text-white truncate">
-                              📝 {snippet.title}
+                            <p className="text-sm text-white truncate inline-flex items-center gap-2">
+                              <Edit3 className="w-4 h-4" /> {snippet.title}
                             </p>
                             <p className="text-xs text-gray-400 mt-1">
                               {snippet.content.length} characters
@@ -226,7 +244,7 @@ const TrainingSourcesModal = ({
                             onClick={() => handleRemoveSnippet(index)}
                             className="ml-2 text-red-400 hover:text-red-300 text-sm font-semibold flex-shrink-0"
                           >
-                            ✕
+                            <X className="w-4 h-4" />
                           </button>
                         </div>
                       ))}
@@ -254,7 +272,9 @@ const TrainingSourcesModal = ({
             {/* Buttons */}
             <div className="flex gap-3 mt-6">
               <button
-                onClick={() => setShowTrainingModal(false)}
+                onClick={() => {
+                  setShowTrainingModal(false);
+                }}
                 className="flex-1 px-4 py-3 bg-neutral-700 rounded-lg hover:bg-neutral-600 transition"
               >
                 Cancel
