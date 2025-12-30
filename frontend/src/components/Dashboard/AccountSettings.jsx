@@ -3,6 +3,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { motion } from "framer-motion";
 import { FaUser, FaLock, FaCreditCard, FaFileInvoice } from "react-icons/fa";
 import { mockApi, USE_MOCK_API } from "../../api/mockApi";
+import { getInvoices } from "../../api/payments";
 import CheckoutButton from "../Payment/CheckoutButton";
 
 const AccountSettings = () => {
@@ -31,6 +32,9 @@ const AccountSettings = () => {
   const [message, setMessage] = useState("");
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [billingCycle, setBillingCycle] = useState("monthly"); // 'monthly' | 'yearly'
+  const [payments, setPayments] = useState([]);
+  const [paymentsLoading, setPaymentsLoading] = useState(false);
+  const [paymentsError, setPaymentsError] = useState("");
 
   // Clear message when switching tabs
   useEffect(() => {
@@ -220,6 +224,27 @@ const AccountSettings = () => {
     }
     setShowDeleteModal(false);
   };
+
+    // Fetch invoices when Billing tab is active
+    useEffect(() => {
+      const fetchPayments = async () => {
+        setPaymentsError("");
+        setPaymentsLoading(true);
+        try {
+          const res = await getInvoices();
+          setPayments(res.payments || []);
+        } catch (err) {
+          console.error("Error fetching invoices:", err);
+          setPaymentsError(err.message || "Error fetching billing history");
+        } finally {
+          setPaymentsLoading(false);
+        }
+      };
+
+      if (activeTab === "billing") {
+        fetchPayments();
+      }
+    }, [activeTab]);
 
   if (!user) return <p className="text-white">Loading...</p>;
 
@@ -772,9 +797,60 @@ const AccountSettings = () => {
               {/* Billing History */}
               <div className="bg-neutral-800 rounded-xl p-6 border border-gray-700">
                 <h2 className="text-2xl font-bold mb-4">Billing History</h2>
-                <div className="text-center py-8">
-                  <p className="text-gray-400">No billing history available</p>
-                </div>
+                {paymentsLoading ? (
+                  <div className="text-center py-8 text-gray-400">Loading...</div>
+                ) : paymentsError ? (
+                  <div className="text-center py-8 text-red-400">{paymentsError}</div>
+                ) : payments && payments.length > 0 ? (
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-left">
+                      <thead>
+                        <tr className="text-gray-400 text-sm">
+                          <th className="pb-2">Date</th>
+                          <th className="pb-2">Amount</th>
+                          <th className="pb-2">Status</th>
+                          <th className="pb-2">Period</th>
+                          <th className="pb-2">Invoice</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {payments.map((p) => {
+                          const date = p.createdAtStripe
+                            ? new Date(p.createdAtStripe * 1000)
+                            : p.createdAt
+                              ? new Date(p.createdAt)
+                              : null;
+                          const amount = p.amountPaid != null ? (p.amountPaid / 100).toFixed(2) : "0.00";
+                          const currency = (p.currency || "USD").toUpperCase();
+                          const periodStart = p.periodStart ? new Date(p.periodStart * 1000) : null;
+                          const periodEnd = p.periodEnd ? new Date(p.periodEnd * 1000) : null;
+
+                          return (
+                            <tr key={p._id || p.stripeInvoiceId} className="border-t border-gray-700">
+                              <td className="py-3 text-sm text-gray-300">{date ? date.toLocaleDateString() : "-"}</td>
+                              <td className="py-3 text-sm text-gray-300">{currency} {amount}</td>
+                              <td className="py-3 text-sm text-gray-300">{p.status || "-"}</td>
+                              <td className="py-3 text-sm text-gray-300">{periodStart && periodEnd ? `${periodStart.toLocaleDateString()} — ${periodEnd.toLocaleDateString()}` : "-"}</td>
+                              <td className="py-3 text-sm text-gray-300">
+                                {p.hostedInvoiceUrl ? (
+                                  <a href={p.hostedInvoiceUrl} target="_blank" rel="noreferrer" className="text-blue-400 hover:underline">View</a>
+                                ) : p.invoicePdf ? (
+                                  <a href={p.invoicePdf} target="_blank" rel="noreferrer" className="text-blue-400 hover:underline">Download</a>
+                                ) : (
+                                  <span className="text-gray-500">-</span>
+                                )}
+                              </td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                  </div>
+                ) : (
+                  <div className="text-center py-8">
+                    <p className="text-gray-400">No billing history available</p>
+                  </div>
+                )}
               </div>
             </motion.div>
           )}

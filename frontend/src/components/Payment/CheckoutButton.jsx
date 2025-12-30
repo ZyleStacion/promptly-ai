@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { checkout } from ''
 
 const CheckoutButton = ({ priceId, userId, planName }) => {
   const [loading, setLoading] = useState(false);
