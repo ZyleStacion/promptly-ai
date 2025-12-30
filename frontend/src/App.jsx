@@ -10,6 +10,7 @@ import SignIn from "./components/SignInUp/SignIn";
 import SignUp from "./components/SignInUp/SignUp";
 import Dashboard from "./components/Dashboard/Dashboard";
 import AccountSetting from "./components/Dashboard/AccountSettings";
+import PlansPage from "./components/Dashboard/PlansPage";
 import ForgotPassword from "./components/auth/ForgotPassword";
 import ResetPassword from "./components/auth/ResetPassword";
 import Documentation from "./components/Documentation/Documentation";
@@ -24,7 +25,7 @@ import AdminRoute from "./components/Admin/AdminProtectedRoute";
 import { loadStripe } from "@stripe/stripe-js";
 
 // TODO: replace with key from Stripe
-const stripePromise = loadStripe("pk_test_placeholder");
+const stripePromise = loadStripe('pk_test_51O6acYKS89qhN4fbUWEj4DgDtfJZLJ19QKbGPJq9pQ0y8UVbn1mQ3XlFczGuGnkrC3zyRY3i2V5yaMT0XVO4CN4M00Mpy2QUPK');
 
 const HomePage = () => (
   <main className="overflow-x-hidden bg-gray-900">
@@ -45,6 +46,7 @@ export const App = () => {
         <Route path="/signup" element={<SignUp />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/dashboard/settings" element={<AccountSetting />} />
+        <Route path="/dashboard/plans" element={<PlansPage userId="user-id-here" />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/reset-password/:token" element={<ResetPassword />} />
         <Route path="/documentation" element={<Documentation />} />

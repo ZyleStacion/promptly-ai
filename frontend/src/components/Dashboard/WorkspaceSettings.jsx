@@ -1,11 +1,14 @@
 import React from "react";
 import { motion } from "framer-motion";
+import { useNavigate } from "react-router-dom";
 
 const WorkspaceSettings = () => {
+  const navigate = useNavigate();
+
   const settingsOptions = [
-    { title: "Plans", description: "View your Promptly plan" },
-    { title: "General", description: "Placeholder for second option" },
-    { title: "General", description: "Placeholder for third option" },
+    { title: "Plans", description: "Manage and upgrade your Promptly AI plan", path: "/dashboard/plans" },
+    { title: "Billing", description: "Modify your billing details", path: "/dashboard/billing" },
+    { title: "Support", description: "Get help from our support team", path: null },
   ];
 
   return (
@@ -16,7 +19,7 @@ const WorkspaceSettings = () => {
         transition={{ duration: 0.4 }}
         className="text-2xl font-bold mb-6"
       >
-        Workspace Setting
+        Workspace Settings
       </motion.h2>
 
       <div className="space-y-4">
@@ -30,6 +33,7 @@ const WorkspaceSettings = () => {
               scale: 1.02,
               borderColor: "rgba(156, 163, 175, 0.5)",
             }}
+            onClick={() => option.path && navigate(option.path)}
             className="bg-neutral-800 p-5 rounded-xl border border-gray-700 hover:border-gray-600 transition cursor-pointer"
           >
             <h3 className="text-lg font-semibold">{option.title}</h3>
