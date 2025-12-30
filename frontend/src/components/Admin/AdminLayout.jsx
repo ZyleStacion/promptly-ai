@@ -1,9 +1,32 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Link, Outlet, useNavigate } from "react-router-dom";
 import { FaUsers, FaChartPie, FaCrown, FaArrowLeft, FaBug } from "react-icons/fa";
 
 const AdminLayout = () => {
   const navigate = useNavigate();
+
+  const [feedbackCount, setFeedbackCount] = useState(0);
+useEffect(() => {
+  const loadFeedbackCount = async () => {
+    try {
+      const res = await fetch(
+        "http://localhost:3000/admin/feedback/notifications/count",
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
+
+      const data = await res.json();
+      setFeedbackCount(data.count || 0);
+    } catch (err) {
+      console.error("Failed to load admin feedback count");
+    }
+  };
+
+  loadFeedbackCount();
+}, []);
 
   return (
     <div className="min-h-screen flex bg-gray-900 text-white">
@@ -40,10 +63,20 @@ const AdminLayout = () => {
 
           <Link
             to="/admin/feedback"
-            className="flex items-center gap-3 p-3 rounded-lg hover:bg-neutral-700 transition"
+            className="flex items-center justify-between p-3 rounded-lg hover:bg-neutral-700 transition"
           >
-            <FaBug /> Feedback
+            <div className="flex items-center gap-3">
+              <FaUsers />
+              Feedback
+            </div>
+
+            {feedbackCount > 0 && (
+              <span className="bg-red-500 text-white text-xs px-2 py-0.5 rounded-full">
+                {feedbackCount}
+              </span>
+            )}
           </Link>
+
         </nav>
 
         <button

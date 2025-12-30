@@ -25,3 +25,11 @@ export const replyFeedback = async (req, res) => {
   res.json({ message: "Reply sent" });
 };
 
+export const getPendingFeedbackCount = async (req, res) => {
+  const count = await Feedback.countDocuments({
+    status: { $ne: "replied" }
+  });
+
+  res.json({ count });
+};
+
