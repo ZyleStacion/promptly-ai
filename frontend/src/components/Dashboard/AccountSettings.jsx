@@ -29,6 +29,7 @@ const AccountSettings = () => {
   const [twoFactorEnabled, setTwoFactorEnabled] = useState(false);
   const [message, setMessage] = useState("");
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [billingCycle, setBillingCycle] = useState("monthly"); // 'monthly' | 'yearly'
 
   // Clear message when switching tabs
   useEffect(() => {
@@ -230,6 +231,13 @@ const AccountSettings = () => {
     if (!name) return false;
     return currentPlan.toLowerCase() === name.toLowerCase();
   };
+  // helper to format prices based on billing cycle (yearly uses 10% discount)
+  const formatPrice = (monthly) => {
+    if (billingCycle === "monthly") return `$${monthly}`;
+    const yearly = Math.round(monthly * 10);
+    return `$${yearly}`;
+  };
+  const billingLabel = billingCycle === "monthly" ? "/month" : "/year";
   // --------------------------------------------------
   // FRONTEND UI
   // --------------------------------------------------
@@ -621,6 +629,23 @@ const AccountSettings = () => {
               {/* Available Plans */}
               <div className="bg-neutral-800 rounded-xl p-6 border border-gray-700">
                 <h2 className="text-2xl font-bold mb-4">Available Plans</h2>
+                <div className="flex items-center justify-between mb-4">
+                  <div className="text-sm text-gray-400">Select billing cycle</div>
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => setBillingCycle("monthly")}
+                      className={`px-3 py-1 rounded-full text-sm font-medium transition ${billingCycle === "monthly" ? "bg-white text-black" : "bg-neutral-700 text-gray-300"}`}
+                    >
+                      Monthly
+                    </button>
+                    <button
+                      onClick={() => setBillingCycle("yearly")}
+                      className={`px-3 py-1 rounded-full text-sm font-medium transition ${billingCycle === "yearly" ? "bg-white text-black" : "bg-neutral-700 text-gray-300"}`}
+                    >
+                      Yearly
+                    </button>
+                  </div>
+                </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {/* Pro Plan */}
                   <div className="bg-neutral-900 rounded-lg p-6 border border-blue-500/50 hover:border-blue-500 transition">
@@ -630,9 +655,9 @@ const AccountSettings = () => {
                       </h3>
                       <div className="flex items-baseline gap-1">
                         <span className="text-3xl font-bold text-white">
-                          $29
+                          {formatPrice(29)}
                         </span>
-                        <span className="text-gray-400">/month</span>
+                        <span className="text-gray-400">{billingLabel}</span>
                       </div>
                     </div>
                     <ul className="space-y-3 mb-6 text-gray-300">
@@ -673,9 +698,9 @@ const AccountSettings = () => {
                       </h3>
                       <div className="flex items-baseline gap-1">
                         <span className="text-3xl font-bold text-white">
-                          $99
+                          {formatPrice(99)}
                         </span>
-                        <span className="text-gray-400">/month</span>
+                        <span className="text-gray-400">{billingLabel}</span>
                       </div>
                     </div>
                     <ul className="space-y-3 mb-6 text-gray-300">
