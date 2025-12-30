@@ -2,7 +2,7 @@ import Feedback from "../models/feedback.js";
 
 export const getAllFeedbacks = async (req, res) => {
   const feedbacks = await Feedback.find()
-    .populate("user", "email username")
+    .populate("user", "email username isAdmin")
     .sort({ createdAt: -1 });
 
   res.json({ feedbacks });
