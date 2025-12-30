@@ -11,6 +11,7 @@ import path from "path";
 import { fileURLToPath } from "url";
 import adminRoutes from "./routes/admin.js";
 import paymentRoutes from "./routes/payment.js";
+import { handleWebhook } from "./controllers/paymentController.js";
 
 
 dotenv.config();
@@ -20,6 +21,8 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 app.use(cors());
 
+// Mount webhook route with raw body parser BEFORE the global json parser
+app.post('/payment/webhook', express.raw({ type: 'application/json' }), handleWebhook);
 
 // Middleware
 app.use(express.json());

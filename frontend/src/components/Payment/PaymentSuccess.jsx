@@ -5,6 +5,32 @@ const PaymentSuccess = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
+    // Finalize checkout session (create DB record) when redirected here from Stripe
+    const finalizeSession = async () => {
+      try {
+        const params = new URLSearchParams(window.location.search);
+        const sessionId = params.get('session_id');
+        if (!sessionId) return;
+
+        const token = localStorage.getItem('token');
+        const res = await fetch('/payment/finalize', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            ...(token ? { Authorization: `Bearer ${token}` } : {}),
+          },
+          body: JSON.stringify({ sessionId }),
+        });
+
+        const data = await res.json().catch(() => ({}));
+        console.log('Finalize session response:', res.status, data);
+      } catch (err) {
+        console.error('Error finalizing checkout session:', err);
+      }
+    };
+
+    finalizeSession();
+
     // Show toast notification
     const showToast = () => {
       const toast = document.createElement('div');

@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { checkout } from ''
 
 const CheckoutButton = ({ priceId, userId, planName }) => {
   const [loading, setLoading] = useState(false);
@@ -10,8 +11,8 @@ const CheckoutButton = ({ priceId, userId, planName }) => {
 
     try {
       const token = localStorage.getItem('token');
-      
-      const response = await fetch('http://localhost:3000/payment/checkout', {
+
+      const response = await fetch('/payment/checkout', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -23,13 +24,22 @@ const CheckoutButton = ({ priceId, userId, planName }) => {
         }),
       });
 
-      if (!response.ok) {
-        throw new Error('Failed to create checkout session');
+      const text = await response.text();
+      let data;
+      try {
+        data = JSON.parse(text || '{}');
+      } catch (e) {
+        console.warn('Non-JSON response from checkout endpoint:', text);
+        throw new Error('Invalid response from server');
       }
 
-      const data = await response.json();
-      
-      // Redirect to Stripe Checkout
+      if (!response.ok) {
+        const msg = data.error || data.message || 'Failed to create checkout session';
+        throw new Error(msg);
+      }
+
+      console.log('Checkout session URL:', data.url);
+      // Open Stripe Checkout in same window
       window.location.href = data.url;
     } catch (err) {
       setError(err.message);
