@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from "react";
+/* eslint-disable no-unused-vars */
+import React, { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import DashboardNavbar from "./DashboardNavbar.jsx";
@@ -6,30 +7,62 @@ import ModelsSection from "./ModelsSection.jsx";
 import UsageSection from "./UsageSection.jsx";
 import WorkspaceSettings from "./WorkspaceSettings.jsx";
 import TrainingSourcesModal from "./TrainingSourcesModal.jsx";
-import { mockApi, USE_MOCK_API } from "../../api/mockApi";
+import EditChatbotModal from "./EditChatbotModal.jsx";
+import ChatInterface from "./ChatInterface.jsx";
+import FeedbackButton from "../Feedback/FeedbackButton.jsx";
+import { api, USE_MOCK_API } from "../../api/mockApi";
 
 const isAuthenticated = () => !!localStorage.getItem("token");
 
+// Helper function to read file as text
+const readFileAsText = (file) => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = (e) => resolve(e.target.result);
+    reader.onerror = (e) => reject(e);
+    reader.readAsText(file);
+  });
+};
+
 const Dashboard = () => {
   const navigate = useNavigate();
+  const feedbackRef = useRef(null);
   const [chatbots, setChatbots] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activeSection, setActiveSection] = useState("models"); // models, usage, settings
   const [showTrainingModal, setShowTrainingModal] = useState(false);
   const [showChatbotUIModal, setShowChatbotUIModal] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [error, setError] = useState("");
+  const [creating, setCreating] = useState(false);
+  const [editingChatbot, setEditingChatbot] = useState(null);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   // Training form state
   const [trainingFiles, setTrainingFiles] = useState([]);
   const [trainingText, setTrainingText] = useState("");
   const [selectedModel, setSelectedModel] = useState("");
-  const [chatbotType, setChatbotType] = useState("");
+  const [availableModels, setAvailableModels] = useState([]);
+  const [loadingModels, setLoadingModels] = useState(false);
+  const [chatbotType, setChatbotType] = useState("general");
+  const [chatbotPersonality, setChatbotPersonality] = useState("friendly");
 
   // Chatbot UI form state
   const [chatbotName, setChatbotName] = useState("");
+  const [description, setDescription] = useState("");
+  const [welcomeMessage, setWelcomeMessage] = useState("");
   const [primaryColor, setPrimaryColor] = useState("#3B82F6");
   const [profilePicture, setProfilePicture] = useState(null);
   const [profilePreview, setProfilePreview] = useState("");
+  const [profileDeleted, setProfileDeleted] = useState(false);
+
+  // Edit-specific training data state
+  const [editingTrainingData, setEditingTrainingData] = useState([]);
+
+  // Chat interface state
+  const [selectedChatbot, setSelectedChatbot] = useState(null);
+  const [showChatInterface, setShowChatInterface] = useState(false);
 
   useEffect(() => {
     if (!isAuthenticated()) navigate("/signin");
@@ -39,17 +72,59 @@ const Dashboard = () => {
     setIsAdmin(user.isAdmin || false);
 
     loadChatbots();
+    loadOllamaModels();
   }, []);
+
+  // Prefill from workspace settings
+  useEffect(() => {
+    const saved = JSON.parse(localStorage.getItem("workspaceSettings") || "{}");
+    if (saved.welcomeMessage && !welcomeMessage) {
+      setWelcomeMessage(saved.welcomeMessage);
+    }
+  }, []);
+
+  const loadOllamaModels = async () => {
+    try {
+      setLoadingModels(true);
+      const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:3000";
+      const response = await fetch(`${apiUrl}/chat/models`);
+      const data = await response.json();
+
+      if (data.success && data.models) {
+        setAvailableModels(data.models);
+        const saved = JSON.parse(
+          localStorage.getItem("workspaceSettings") || "{}"
+        );
+        const savedDefault = saved.defaultModel;
+        if (savedDefault && data.models.some((m) => m.name === savedDefault)) {
+          setSelectedModel(savedDefault);
+        } else if (data.models.length > 0 && !selectedModel) {
+          setSelectedModel(data.models[0].name);
+        }
+      }
+    } catch (err) {
+      console.error("Failed to load Ollama models:", err);
+      // Fallback to a default model
+      setAvailableModels([{ name: "gemma3:1b-it-qat", size: 0 }]);
+      setSelectedModel("gemma3:1b-it-qat");
+    } finally {
+      setLoadingModels(false);
+    }
+  };
 
   const loadChatbots = async () => {
     try {
       setLoading(true);
-      if (USE_MOCK_API) {
-        const response = await mockApi.getChatbots();
-        setChatbots(response.chatbots);
+      setError("");
+      const response = await api.getChatbots();
+      if (response.success) {
+        setChatbots(response.chatbots || []);
+      } else {
+        setError(response.error || "Failed to load chatbots");
       }
     } catch (error) {
       console.error("Error loading chatbots:", error);
+      setError("Failed to load chatbots. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -79,36 +154,190 @@ const Dashboard = () => {
     setShowChatbotUIModal(true);
   };
 
-  const handleDone = () => {
-    // Placeholder for creating chatbot
-    console.log("Creating chatbot:", {
-      chatbotName,
-      primaryColor,
-      profilePicture,
-    });
-    setShowChatbotUIModal(false);
-    // Reset forms
-    setTrainingFiles([]);
-    setTrainingText("");
-    setSelectedModel("");
-    setChatbotType("");
-    setChatbotName("");
-    setPrimaryColor("#3B82F6");
-    setProfilePicture(null);
-    setProfilePreview("");
+  const handleDone = async () => {
+    if (!chatbotName.trim()) {
+      setError("Chatbot name is required");
+      return;
+    }
+
+    try {
+      setCreating(true);
+      setError("");
+
+      // Prepare training data
+      let trainingData = [];
+
+      // If editing and using editingTrainingData (from EditChatbotModal)
+      if (editingChatbot && editingTrainingData.length > 0) {
+        trainingData = editingTrainingData;
+      } else {
+        // Read and add file contents from trainingFiles
+        for (const file of trainingFiles) {
+          try {
+            const fileContent = await readFileAsText(file);
+            trainingData.push({
+              type: "file",
+              filename: file.name,
+              content: fileContent,
+            });
+          } catch (err) {
+            console.error(`Failed to read file ${file.name}:`, err);
+            setError(`Failed to read file: ${file.name}`);
+            setCreating(false);
+            return;
+          }
+        }
+
+        // Add text
+        if (trainingText.trim()) {
+          trainingData.push({
+            type: "text",
+            content: trainingText,
+          });
+        }
+      }
+
+      // Create chatbot payload
+      const ws = JSON.parse(localStorage.getItem("workspaceSettings") || "{}");
+      const systemPromptStr =
+        ws.systemPrompt ||
+        `You are ${chatbotName}, a helpful AI assistant. Answer questions based on the provided information.`;
+      const payload = {
+        name: chatbotName,
+        description: description || chatbotName,
+        welcomeMessage:
+          welcomeMessage ||
+          ws.welcomeMessage ||
+          `Hi! I'm ${chatbotName}. How can I help you today?`,
+        businessName: chatbotName,
+        businessDescription: description,
+        chatbotType: chatbotType,
+        modelName: selectedModel,
+        systemPrompt: systemPromptStr,
+        primaryColor,
+        profilePicture: profilePreview || null,
+        trainingData,
+      };
+
+      let response;
+      if (editingChatbot) {
+        // Update existing chatbot
+        response = await api.updateChatbot(editingChatbot._id, payload);
+      } else {
+        // Create new chatbot
+        response = await api.createChatbot(payload);
+      }
+
+      if (response.success) {
+        // Reload chatbots
+        await loadChatbots();
+
+        // Reset forms
+        setShowChatbotUIModal(false);
+        setEditingChatbot(null);
+        setEditingTrainingData([]);
+        setTrainingFiles([]);
+        setTrainingText("");
+        setSelectedModel(
+          availableModels.length > 0 ? availableModels[0].name : ""
+        );
+        setChatbotType("general");
+        setChatbotPersonality("friendly");
+        setChatbotName("");
+        setDescription("");
+        setWelcomeMessage("");
+        setPrimaryColor("#3B82F6");
+        setProfilePicture(null);
+        setProfilePreview("");
+        setProfileDeleted(false);
+      } else {
+        setError(
+          response.error ||
+            `Failed to ${editingChatbot ? "update" : "create"} chatbot`
+        );
+      }
+    } catch (err) {
+      console.error(
+        `Error ${editingChatbot ? "updating" : "creating"} chatbot:`,
+        err
+      );
+      setError(
+        `Failed to ${
+          editingChatbot ? "update" : "create"
+        } chatbot. Please try again.`
+      );
+    } finally {
+      setCreating(false);
+    }
+  };
+
+  const handleDeleteChatbot = async (id) => {
+    if (!window.confirm("Are you sure you want to delete this chatbot?")) {
+      return;
+    }
+
+    try {
+      const response = await api.deleteChatbot(id);
+      if (response.success) {
+        await loadChatbots();
+      } else {
+        setError(response.error || "Failed to delete chatbot");
+      }
+    } catch (err) {
+      console.error("Error deleting chatbot:", err);
+      setError("Failed to delete chatbot");
+    }
+  };
+
+  const handleTestChatbot = (chatbot) => {
+    setSelectedChatbot(chatbot);
+    setShowChatInterface(true);
+  };
+
+  const handleEditChatbot = (chatbot) => {
+    // Set editing state
+    setEditingChatbot(chatbot);
+
+    // Populate all form fields with existing chatbot data
+    setChatbotName(chatbot.name || "");
+    setDescription(chatbot.description || "");
+    setWelcomeMessage(chatbot.welcomeMessage || "");
+    setPrimaryColor(chatbot.primaryColor || "#3B82F6");
+    setProfilePreview(chatbot.profilePicture || "");
+    setProfileDeleted(false);
+    setChatbotType(chatbot.chatbotType || "general");
+    setChatbotPersonality(chatbot.personality || "friendly");
+    setSelectedModel(
+      chatbot.modelName ||
+        (availableModels.length > 0 ? availableModels[0].name : "")
+    );
+
+    // Use array-based training data for edit mode
+    setEditingTrainingData(chatbot.trainingData || []);
+
+    // Open edit modal
+    setShowEditModal(true);
+  };
+
+  const handleCloseChatInterface = () => {
+    setShowChatInterface(false);
+    setSelectedChatbot(null);
   };
 
   return (
-    <div className="min-h-screen bg-gray-900 text-white">
-      <DashboardNavbar />
+    <div className="min-h-screen bg-gray-900 dark:bg-gray-900 bg-gray-50 text-gray-900 dark:text-white">
+      <DashboardNavbar
+        onFeedbackClick={() => feedbackRef.current?.openModal()}
+        onMenuClick={() => setIsSidebarOpen(!isSidebarOpen)}
+      />
 
       <div className="flex pt-10">
-        {/* Left Sidebar Navigation */}
+        {/* Left Sidebar Navigation - Desktop Only */}
         <motion.div
           initial={{ x: -100, opacity: 0 }}
           animate={{ x: 0, opacity: 1 }}
           transition={{ duration: 0.5 }}
-          className="w-64 min-h-screen bg-neutral-900 border-r border-gray-700 p-6 fixed left-0"
+          className="hidden lg:block w-64 min-h-screen bg-neutral-900 dark:bg-neutral-900 bg-white border-r border-gray-700 dark:border-gray-700 border-gray-200 p-6 fixed left-0"
         >
           <nav className="space-y-3 pt-10">
             <motion.button
@@ -169,13 +398,25 @@ const Dashboard = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.3 }}
-          className="ml-64 flex-1 p-8 pt-20"
+          className="lg:ml-64 flex-1 p-8 pt-20"
         >
+          {error && (
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="mb-4 p-4 bg-red-600/20 border border-red-600 rounded-lg text-red-400 text-sm"
+            >
+              {error}
+            </motion.div>
+          )}
           {activeSection === "models" && (
             <ModelsSection
               loading={loading}
               chatbots={chatbots}
               onCreateChatbot={() => setShowTrainingModal(true)}
+              onDeleteChatbot={handleDeleteChatbot}
+              onTestChatbot={handleTestChatbot}
+              onEditChatbot={handleEditChatbot}
             />
           )}
           {activeSection === "usage" && <UsageSection chatbots={chatbots} />}
@@ -191,12 +432,16 @@ const Dashboard = () => {
         setTrainingFiles={setTrainingFiles}
         trainingText={trainingText}
         selectedModel={selectedModel}
+        availableModels={availableModels}
+        loadingModels={loadingModels}
         chatbotType={chatbotType}
+        chatbotPersonality={chatbotPersonality}
         handleFileChange={handleFileChange}
         handleRemoveFile={handleRemoveFile}
         setTrainingText={setTrainingText}
         setSelectedModel={setSelectedModel}
         setChatbotType={setChatbotType}
+        setChatbotPersonality={setChatbotPersonality}
         handleTrainContinue={handleTrainContinue}
       />
 
@@ -227,7 +472,7 @@ const Dashboard = () => {
                   {/* Chatbot Name */}
                   <div className="mb-4">
                     <label className="block mb-2 text-sm text-gray-300">
-                      Chatbot Name
+                      Chatbot Name *
                     </label>
                     <input
                       type="text"
@@ -235,6 +480,36 @@ const Dashboard = () => {
                       onChange={(e) => setChatbotName(e.target.value)}
                       placeholder="Enter chatbot name..."
                       className="w-full bg-neutral-700 border border-gray-600 rounded-lg p-3 text-white placeholder-gray-500 focus:outline-none focus:border-blue-500"
+                    />
+                  </div>
+
+                  {/* Description */}
+                  <div className="mb-4">
+                    <label className="block mb-2 text-sm text-gray-300">
+                      Description
+                    </label>
+                    <textarea
+                      value={description}
+                      onChange={(e) => setDescription(e.target.value)}
+                      placeholder="Describe your chatbot..."
+                      rows="3"
+                      className="w-full bg-neutral-700 border border-gray-600 rounded-lg p-3 text-white placeholder-gray-500 focus:outline-none focus:border-blue-500 resize-none"
+                    />
+                  </div>
+
+                  {/* Welcome Message */}
+                  <div className="mb-4">
+                    <label className="block mb-2 text-sm text-gray-300">
+                      Welcome Message
+                    </label>
+                    <textarea
+                      value={welcomeMessage}
+                      onChange={(e) => setWelcomeMessage(e.target.value)}
+                      placeholder={`Hi! I'm ${
+                        chatbotName || "your assistant"
+                      }. How can I help you today?`}
+                      rows="2"
+                      className="w-full bg-neutral-700 border border-gray-600 rounded-lg p-3 text-white placeholder-gray-500 focus:outline-none focus:border-blue-500 resize-none"
                     />
                   </div>
 
@@ -348,24 +623,236 @@ const Dashboard = () => {
               </div>
 
               {/* Buttons */}
-              <div className="flex gap-3">
+              <div className="flex gap-3 mt-6">
                 <button
-                  onClick={() => setShowChatbotUIModal(false)}
-                  className="flex-1 px-4 py-3 bg-neutral-700 rounded-lg hover:bg-neutral-600 transition"
+                  onClick={() => {
+                    setShowChatbotUIModal(false);
+                    // If editing, also clear editing state and reset forms
+                    if (editingChatbot) {
+                      setEditingChatbot(null);
+                    }
+                  }}
+                  className="flex-1 px-4 py-3 bg-neutral-700 rounded-lg hover:bg-neutral-600 transition disabled:opacity-50"
+                  disabled={creating}
                 >
                   Back
                 </button>
                 <button
                   onClick={handleDone}
-                  className="flex-1 px-4 py-3 bg-gradient-to-r from-blue-600 to-violet-600 rounded-lg font-semibold hover:opacity-90 transition"
+                  disabled={creating || !chatbotName.trim()}
+                  className="flex-1 px-4 py-3 bg-gradient-to-r from-blue-600 to-violet-600 rounded-lg font-semibold hover:opacity-90 transition disabled:opacity-50"
                 >
-                  Done
+                  {creating ? "Saving..." : "Save"}
                 </button>
               </div>
             </motion.div>
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* Edit Chatbot Modal */}
+      {showEditModal && editingChatbot && (
+        <EditChatbotModal
+          isOpen={showEditModal}
+          onClose={() => {
+            setShowEditModal(false);
+            setEditingChatbot(null);
+          }}
+          chatbot={editingChatbot}
+          chatbotName={chatbotName}
+          setChatbotName={setChatbotName}
+          description={description}
+          setDescription={setDescription}
+          welcomeMessage={welcomeMessage}
+          setWelcomeMessage={setWelcomeMessage}
+          primaryColor={primaryColor}
+          setPrimaryColor={setPrimaryColor}
+          chatbotType={chatbotType}
+          setChatbotType={setChatbotType}
+          chatbotPersonality={chatbotPersonality}
+          setChatbotPersonality={setChatbotPersonality}
+          selectedModel={selectedModel}
+          setSelectedModel={setSelectedModel}
+          profilePreview={profilePreview}
+          onUploadProfile={(e) => {
+            const file = e.target.files?.[0];
+            if (file) {
+              const reader = new FileReader();
+              reader.onloadend = () => {
+                setProfilePreview(reader.result);
+                setProfileDeleted(false);
+              };
+              reader.readAsDataURL(file);
+            }
+          }}
+          onDeleteProfile={() => {
+            setProfilePreview("");
+            setProfileDeleted(true);
+          }}
+          availableModels={availableModels}
+          editingTrainingData={editingTrainingData}
+          onRemoveTrainingItem={(idx) => {
+            setEditingTrainingData((prev) => prev.filter((_, i) => i !== idx));
+          }}
+          onAddFiles={async (files) => {
+            for (const file of files) {
+              const content = await readFileAsText(file);
+              setEditingTrainingData((prev) => [
+                ...prev,
+                { type: "file", filename: file.name, content },
+              ]);
+            }
+          }}
+          onAddText={(text) => {
+            const t = (text || "").trim();
+            if (t)
+              setEditingTrainingData((prev) => [
+                ...prev,
+                { type: "text", content: t },
+              ]);
+          }}
+          onSave={async () => {
+            if (!chatbotName.trim()) return;
+            try {
+              setCreating(true);
+              const ws = JSON.parse(
+                localStorage.getItem("workspaceSettings") || "{}"
+              );
+              const systemPromptStr =
+                ws.systemPrompt ||
+                `You are ${chatbotName}, a helpful AI assistant. Answer questions based on the provided information.`;
+              const payload = {
+                name: chatbotName,
+                description: description || chatbotName,
+                welcomeMessage:
+                  welcomeMessage ||
+                  ws.welcomeMessage ||
+                  `Hi! I'm ${chatbotName}. How can I help you today?`,
+                businessName: chatbotName,
+                businessDescription: description,
+                chatbotType: chatbotType,
+                modelName: selectedModel,
+                systemPrompt: systemPromptStr,
+                primaryColor,
+                profilePicture: profileDeleted ? null : profilePreview || null,
+                trainingData: editingTrainingData,
+              };
+              const response = await api.updateChatbot(
+                editingChatbot._id,
+                payload
+              );
+              if (response.success) {
+                await loadChatbots();
+                setShowEditModal(false);
+                setEditingChatbot(null);
+                setEditingTrainingData([]);
+                setProfilePreview("");
+                setProfileDeleted(false);
+                setChatbotName("");
+                setDescription("");
+                setWelcomeMessage("");
+                setSelectedModel(
+                  availableModels.length > 0 ? availableModels[0].name : ""
+                );
+                setChatbotType("general");
+                setChatbotPersonality("friendly");
+                setPrimaryColor("#3B82F6");
+              }
+            } finally {
+              setCreating(false);
+            }
+          }}
+          saving={creating}
+        />
+      )}
+
+      {/* Chat Interface Modal */}
+      {showChatInterface && selectedChatbot && (
+        <ChatInterface
+          chatbot={selectedChatbot}
+          onClose={handleCloseChatInterface}
+          apiUrl={import.meta.env.VITE_API_URL || "http://localhost:3000"}
+        />
+      )}
+
+      {/* Mobile Sidebar Modal */}
+      <AnimatePresence>
+        {isSidebarOpen && (
+          <div
+            className="lg:hidden fixed inset-0 bg-black/60 z-50 flex items-start justify-start pt-20"
+            onClick={() => setIsSidebarOpen(false)}
+          >
+            <motion.div
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -20 }}
+              transition={{ duration: 0.2 }}
+              onClick={(e) => e.stopPropagation()}
+              className="bg-neutral-900 border-r border-gray-700 p-6 w-64 h-full overflow-y-auto"
+            >
+              <nav className="space-y-3 pt-6">
+                <button
+                  onClick={() => {
+                    setActiveSection("models");
+                    setIsSidebarOpen(false);
+                  }}
+                  className={`w-full text-left px-4 py-3 rounded-lg transition ${
+                    activeSection === "models"
+                      ? "bg-gradient-to-r from-blue-600 to-violet-600 font-semibold"
+                      : "bg-neutral-700 hover:bg-neutral-600"
+                  }`}
+                >
+                  Models
+                </button>
+
+                <button
+                  onClick={() => {
+                    setActiveSection("usage");
+                    setIsSidebarOpen(false);
+                  }}
+                  className={`w-full text-left px-4 py-3 rounded-lg transition ${
+                    activeSection === "usage"
+                      ? "bg-gradient-to-r from-blue-600 to-violet-600 font-semibold"
+                      : "bg-neutral-700 hover:bg-neutral-600"
+                  }`}
+                >
+                  Usage
+                </button>
+
+                <button
+                  onClick={() => {
+                    setActiveSection("settings");
+                    setIsSidebarOpen(false);
+                  }}
+                  className={`w-full text-left px-4 py-3 rounded-lg transition ${
+                    activeSection === "settings"
+                      ? "bg-gradient-to-r from-blue-600 to-violet-600 font-semibold"
+                      : "bg-neutral-700 hover:bg-neutral-600"
+                  }`}
+                >
+                  Workspace setting
+                </button>
+
+                {/* Admin Panel Button - Only visible for admins */}
+                {isAdmin && (
+                  <button
+                    onClick={() => {
+                      navigate("/admin");
+                      setIsSidebarOpen(false);
+                    }}
+                    className="w-full text-left px-4 py-3 rounded-lg transition bg-amber-600 hover:bg-amber-700 font-semibold"
+                  >
+                    Admin Panel
+                  </button>
+                )}
+              </nav>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* Feedback Button */}
+      <FeedbackButton ref={feedbackRef} />
     </div>
   );
 };

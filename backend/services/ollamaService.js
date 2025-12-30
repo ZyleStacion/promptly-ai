@@ -19,4 +19,14 @@ async function sendMessage(model, prompt) {
   }
 }
 
-export { sendMessage };
+async function listModels() {
+  try {
+    const response = await ollamaApi.get('/api/tags');
+    return response.data.models || [];
+  } catch (err) {
+    console.error('Failed to fetch Ollama models:', err.message);
+    throw err;
+  }
+}
+
+export { sendMessage, listModels };

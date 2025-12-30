@@ -14,6 +14,9 @@ import PlansPage from "./components/Dashboard/PlansPage";
 import ForgotPassword from "./components/auth/ForgotPassword";
 import ResetPassword from "./components/auth/ResetPassword";
 import Documentation from "./components/Documentation/Documentation";
+import IntegrationDemo from "./components/IntegrationDemo/IntegrationDemo";
+import ChatbotWidget from "./components/Chatbot/ChatbotWidget";
+import FeedbackButton from "./components/Feedback/FeedbackButton";
 
 // Admin pages
 import AdminLayout from "./components/Admin/AdminLayout";
@@ -33,6 +36,8 @@ const getUserId = () => {
   const user = JSON.parse(localStorage.getItem("user") || "{}");
   return user.id || user._id || "";
 };
+import ChatbotManagement from "./components/Admin/ChatbotManagement";
+
 
 const HomePage = () => (
   <main className="overflow-x-hidden bg-gray-900">
@@ -41,12 +46,15 @@ const HomePage = () => (
     <HowItWorks />
     <WhyChooseOurPlatform />
     <Footer />
+    {/* Promptly Chatbot Widget - Shows how to integrate on React sites */}
+    <ChatbotWidget chatbotId="6951ca5594649fca1064b26e" />
   </main>
 );
 
 export const App = () => {
   return (
     <Router>
+      <FeedbackButton />
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/signin" element={<SignIn />} />
@@ -59,6 +67,7 @@ export const App = () => {
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/reset-password/:token" element={<ResetPassword />} />
         <Route path="/documentation" element={<Documentation />} />
+        <Route path="/integration-demo" element={<IntegrationDemo />} />
 
         <Route
           path="/admin"
@@ -70,6 +79,7 @@ export const App = () => {
         >
           <Route index element={<AdminDashboard />} />
           <Route path="users" element={<UserManagement />} />
+          <Route path="chatbots" element={<ChatbotManagement />} />
         </Route>
       </Routes>
     </Router>
