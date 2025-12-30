@@ -20,6 +20,8 @@ import AdminLayout from "./components/Admin/AdminLayout";
 import AdminDashboard from "./components/Admin/AdminDashboard";
 import UserManagement from "./components/Admin/UseraManagement";
 import AdminRoute from "./components/Admin/AdminProtectedRoute";
+import PaymentSuccess from "./components/Payment/PaymentSuccess";
+import PaymentCanceled from "./components/Payment/PaymentCanceled";
 
 // Stripe
 import { loadStripe } from "@stripe/stripe-js";
@@ -53,6 +55,8 @@ export const App = () => {
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/dashboard/settings" element={<AccountSetting />} />
         <Route path="/dashboard/plans" element={<PlansPage userId={getUserId()} />} />
+        <Route path="/success" element={<PaymentSuccess />} />
+        <Route path="/cancel" element={<PaymentCanceled />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/reset-password/:token" element={<ResetPassword />} />
         <Route path="/documentation" element={<Documentation />} />
