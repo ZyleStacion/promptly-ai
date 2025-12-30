@@ -26,6 +26,52 @@ export const deleteUserByAdmin = async (req, res) => {
 };
 
 /* ============================
+      GET ALL CHATBOTS (ADMIN)
+============================ */
+export const getAllChatbots = async (req, res) => {
+  try {
+    const chatbots = await Chatbot.find()
+      .sort({ createdAt: -1 })
+      .populate("userId", "email username");
+
+    res.json({
+      chatbots: chatbots.map((bot) => ({
+        _id: bot._id,
+        name: bot.name,
+        description: bot.description,
+        ownerEmail: bot.userId?.email || "Unknown",
+        createdAt: bot.createdAt,
+        status: bot.status,
+      })),
+    });
+  } catch (err) {
+    console.error("Admin get chatbots error:", err);
+    res.status(500).json({ error: "Failed to load chatbots" });
+  }
+};
+
+/* ============================
+     DELETE CHATBOT (ADMIN)
+============================ */
+export const deleteChatbotByAdmin = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const chatbot = await Chatbot.findByIdAndDelete(id);
+
+    if (!chatbot) {
+      return res.status(404).json({ error: "Chatbot not found" });
+    }
+
+    res.json({ message: "Chatbot deleted by admin" });
+  } catch (err) {
+    console.error("Admin delete chatbot error:", err);
+    res.status(500).json({ error: "Failed to delete chatbot" });
+  }
+};
+
+
+/* ============================
      TOGGLE ADMIN ROLE
 ============================ */
 export const toggleAdminRole = async (req, res) => {

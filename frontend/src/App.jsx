@@ -21,6 +21,8 @@ import AdminLayout from "./components/Admin/AdminLayout";
 import AdminDashboard from "./components/Admin/AdminDashboard";
 import UserManagement from "./components/Admin/UseraManagement";
 import AdminRoute from "./components/Admin/AdminProtectedRoute";
+import ChatbotManagement from "./components/Admin/ChatbotManagement";
+
 
 const HomePage = () => (
   <main className="overflow-x-hidden bg-gray-900">
@@ -59,6 +61,7 @@ export const App = () => {
         >
           <Route index element={<AdminDashboard />} />
           <Route path="users" element={<UserManagement />} />
+          <Route path="chatbots" element={<ChatbotManagement />} />
         </Route>
       </Routes>
     </Router>

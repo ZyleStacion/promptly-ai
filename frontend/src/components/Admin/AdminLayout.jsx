@@ -30,6 +30,13 @@ const AdminLayout = () => {
           >
             <FaUsers /> User Management
           </Link>
+
+          <Link
+            to="/admin/chatbots"
+            className="flex items-center gap-3 p-3 rounded-lg hover:bg-neutral-700 transition"
+          >
+            <FaUsers /> chatbot Management
+          </Link>
         </nav>
 
         <button
