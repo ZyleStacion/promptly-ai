@@ -1,13 +1,13 @@
 import React from "react";
 import { Link, Outlet, useNavigate } from "react-router-dom";
-import { FaUsers, FaChartPie, FaCrown, FaArrowLeft } from "react-icons/fa";
+import { FaUsers, FaChartPie, FaCrown, FaArrowLeft, FaBug } from "react-icons/fa";
 
 const AdminLayout = () => {
   const navigate = useNavigate();
 
   return (
     <div className="min-h-screen flex bg-gray-900 text-white">
-      
+
       {/* Sidebar */}
       <aside className="w-64 bg-neutral-900 border-r border-gray-700 p-6 space-y-6">
 
@@ -36,6 +36,13 @@ const AdminLayout = () => {
             className="flex items-center gap-3 p-3 rounded-lg hover:bg-neutral-700 transition"
           >
             <FaUsers /> chatbot Management
+          </Link>
+
+          <Link
+            to="/admin/feedback"
+            className="flex items-center gap-3 p-3 rounded-lg hover:bg-neutral-700 transition"
+          >
+            <FaBug /> Feedback
           </Link>
         </nav>
 
