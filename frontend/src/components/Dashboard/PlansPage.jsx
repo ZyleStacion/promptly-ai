@@ -21,10 +21,10 @@ const BillingPage = ({ userId }) => {
     },
     {
       name: 'Pro',
-      monthlyPrice: 49,
-      annualPrice: 490,
-      priceIdMonthly: 'price_1SjxQY3tBDM4Uh8Ah0fGFzN8',
-      priceIdAnnual: 'price_1SjxDn3tBDM4Uh8AesTbq38U',
+      monthlyPrice: 29,
+      annualPrice: 290,
+      priceIdMonthly: 'price_1Sk0ju3tBDM4Uh8AID3qhu5S',
+      priceIdAnnual: 'price_1Sk0s13tBDM4Uh8Ag7oIwytw',
       description: 'For growing teams',
       features: [
         '50,000 API calls/month',
@@ -37,10 +37,10 @@ const BillingPage = ({ userId }) => {
     },
     {
       name: 'Enterprise',
-      monthlyPrice: 199,
-      annualPrice: 1990,
-      priceIdMonthly: 'price_1SjxDM3tBDM4Uh8AsmPjLSYD',
-      priceIdAnnual: 'price_1SjxRI3tBDM4Uh8AU9CbUNeI',
+      monthlyPrice: 99,
+      annualPrice: 990,
+      priceIdMonthly: 'price_1SjxRI3tBDM4Uh8AU9CbUNeI',
+      priceIdAnnual: 'price_1Sk0tE3tBDM4Uh8AZFTTWsWW',
       description: 'For large scale operations',
       features: [
         'Unlimited API calls',

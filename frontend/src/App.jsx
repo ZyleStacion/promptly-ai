@@ -26,7 +26,6 @@ import PaymentCanceled from "./components/Payment/PaymentCanceled";
 // Stripe
 import { loadStripe } from "@stripe/stripe-js";
 
-// TODO: replace with key from Stripe
 const stripePromise = loadStripe('pk_test_51O6acYKS89qhN4fbUWEj4DgDtfJZLJ19QKbGPJq9pQ0y8UVbn1mQ3XlFczGuGnkrC3zyRY3i2V5yaMT0XVO4CN4M00Mpy2QUPK');
 
 // Get user from localStorage

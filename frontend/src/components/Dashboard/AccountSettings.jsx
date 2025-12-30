@@ -221,6 +221,15 @@ const AccountSettings = () => {
 
   if (!user) return <p className="text-white">Loading...</p>;
 
+  // Determine current subscription plan from user object
+  const currentPlan = (user.subscriptionPlan && user.subscriptionPlan.trim()) ||
+    (user.subscriptionStatus && user.subscriptionStatus.toLowerCase() !== "none"
+      ? "Basic"
+      : "Free");
+  const isCurrentPlan = (name) => {
+    if (!name) return false;
+    return currentPlan.toLowerCase() === name.toLowerCase();
+  };
   // --------------------------------------------------
   // FRONTEND UI
   // --------------------------------------------------
@@ -544,27 +553,67 @@ const AccountSettings = () => {
                   <div className="flex items-center justify-between mb-4">
                     <div>
                       <h3 className="text-xl font-bold text-white">
-                        Free Plan
+                        {currentPlan} Plan
                       </h3>
                       <p className="text-gray-400 text-sm">
-                        Perfect for getting started
+                        {currentPlan === "Free" || currentPlan === "Basic"
+                          ? "Perfect for getting started"
+                          : currentPlan === "Pro"
+                          ? "Great for growing teams"
+                          : "Enterprise features and support"}
                       </p>
                     </div>
-                    <span className="text-2xl font-bold text-white">$0</span>
+                    <span className="text-2xl font-bold text-white">
+                      {currentPlan === "Free" || currentPlan === "Basic" ? "$0" : currentPlan === "Pro" ? "$29" : "$99"}
+                    </span>
                   </div>
                   <ul className="space-y-2 text-gray-300">
-                    <li className="flex items-center gap-2">
-                      <span className="text-green-400">✓</span>
-                      <span>50 credits per month</span>
-                    </li>
-                    <li className="flex items-center gap-2">
-                      <span className="text-green-400">✓</span>
-                      <span>Up to 10 chatbots</span>
-                    </li>
-                    <li className="flex items-center gap-2">
-                      <span className="text-green-400">✓</span>
-                      <span>Basic analytics</span>
-                    </li>
+                    {currentPlan.toLowerCase() === "free" || currentPlan.toLowerCase() === "basic" ? (
+                      <>
+                        <li className="flex items-center gap-2">
+                          <span className="text-green-400">✓</span>
+                          <span>50 credits per month</span>
+                        </li>
+                        <li className="flex items-center gap-2">
+                          <span className="text-green-400">✓</span>
+                          <span>1 chatbot</span>
+                        </li>
+                        <li className="flex items-center gap-2">
+                          <span className="text-green-400">✓</span>
+                          <span>Basic analytics</span>
+                        </li>
+                      </>
+                    ) : currentPlan.toLowerCase() === "pro" ? (
+                      <>
+                        <li className="flex items-center gap-2">
+                          <span className="text-blue-400">✓</span>
+                          <span>500 credits/month</span>
+                        </li>
+                        <li className="flex items-center gap-2">
+                          <span className="text-blue-400">✓</span>
+                          <span>Unlimited chatbots</span>
+                        </li>
+                        <li className="flex items-center gap-2">
+                          <span className="text-blue-400">✓</span>
+                          <span>Advanced analytics</span>
+                        </li>
+                      </>
+                    ) : (
+                      <>
+                        <li className="flex items-center gap-2">
+                          <span className="text-violet-400">✓</span>
+                          <span>Unlimited credits</span>
+                        </li>
+                        <li className="flex items-center gap-2">
+                          <span className="text-violet-400">✓</span>
+                          <span>Unlimited chatbots</span>
+                        </li>
+                        <li className="flex items-center gap-2">
+                          <span className="text-violet-400">✓</span>
+                          <span>Custom integrations</span>
+                        </li>
+                      </>
+                    )}
                   </ul>
                 </div>
               </div>
@@ -604,16 +653,23 @@ const AccountSettings = () => {
                         <span>Priority support</span>
                       </li>
                     </ul>
-                    <button className="w-full bg-blue-600 hover:bg-blue-700 py-2 rounded-lg text-white font-semibold transition">
-                      Upgrade to Pro
+                    <button
+                      onClick={() => console.log("Upgrade to Pro clicked")}
+                      disabled={isCurrentPlan("Pro")}
+                      className={`w-full py-2 rounded-lg text-white font-semibold transition ${isCurrentPlan("Pro")
+                        ? "bg-gray-700 text-gray-400 cursor-not-allowed"
+                        : "bg-blue-600 hover:bg-blue-700"
+                        }`}
+                    >
+                      {isCurrentPlan("Pro") ? "Current Plan" : "Upgrade to Pro"}
                     </button>
                   </div>
 
-                  {/* Max Plan */}
+                  {/* Enterprise Plan */}
                   <div className="bg-neutral-900 rounded-lg p-6 border border-violet-500/50 hover:border-violet-500 transition">
                     <div className="mb-4">
                       <h3 className="text-xl font-bold text-white mb-1">
-                        Max Plan
+                        Enterprise Plan
                       </h3>
                       <div className="flex items-baseline gap-1">
                         <span className="text-3xl font-bold text-white">
@@ -642,8 +698,15 @@ const AccountSettings = () => {
                         </span>
                       </li>
                     </ul>
-                    <button className="w-full bg-gradient-to-r from-blue-600 to-violet-600 hover:opacity-90 py-2 rounded-lg text-white font-semibold transition">
-                      Upgrade to Max
+                    <button
+                      onClick={() => console.log("Upgrade to Enterprise clicked")}
+                      disabled={isCurrentPlan("Enterprise") || isCurrentPlan("Max")}
+                      className={`w-full py-2 rounded-lg text-white font-semibold transition ${isCurrentPlan("Enterprise") || isCurrentPlan("Max")
+                        ? "bg-gray-700 text-gray-400 cursor-not-allowed"
+                        : "bg-gradient-to-r from-blue-600 to-violet-600 hover:opacity-90"
+                        }`}
+                    >
+                      {isCurrentPlan("Enterprise") || isCurrentPlan("Max") ? "Current Plan" : "Upgrade to Enterprise"}
                     </button>
                   </div>
                 </div>
