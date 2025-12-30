@@ -781,7 +781,7 @@ const AccountSettings = () => {
               transition={{ duration: 0.3 }}
               className="space-y-6"
             >
-              {/* Payment Methods */}
+              {/* Payment Methods
               <div className="bg-neutral-800 rounded-xl p-6 border border-gray-700">
                 <h2 className="text-2xl font-bold mb-4">Payment Methods</h2>
                 <div className="text-center py-8">
@@ -792,7 +792,7 @@ const AccountSettings = () => {
                     + Add Payment Method
                   </button>
                 </div>
-              </div>
+              </div> */}
 
               {/* Billing History */}
               <div className="bg-neutral-800 rounded-xl p-6 border border-gray-700">
