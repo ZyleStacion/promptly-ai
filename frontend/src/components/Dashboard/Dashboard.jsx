@@ -147,7 +147,7 @@ const Dashboard = () => {
                   : "bg-neutral-700 hover:bg-neutral-600"
               }`}
             >
-              Workspace setting
+              Workspace Settings
             </motion.button>
 
             {/* Admin Panel Button - Only visible for admins */}

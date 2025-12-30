@@ -27,6 +27,12 @@ import { loadStripe } from "@stripe/stripe-js";
 // TODO: replace with key from Stripe
 const stripePromise = loadStripe('pk_test_51O6acYKS89qhN4fbUWEj4DgDtfJZLJ19QKbGPJq9pQ0y8UVbn1mQ3XlFczGuGnkrC3zyRY3i2V5yaMT0XVO4CN4M00Mpy2QUPK');
 
+// Get user from localStorage
+const getUserId = () => {
+  const user = JSON.parse(localStorage.getItem("user") || "{}");
+  return user.id || user._id || "";
+};
+
 const HomePage = () => (
   <main className="overflow-x-hidden bg-gray-900">
     <Navbar />
@@ -46,7 +52,7 @@ export const App = () => {
         <Route path="/signup" element={<SignUp />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/dashboard/settings" element={<AccountSetting />} />
-        <Route path="/dashboard/plans" element={<PlansPage userId="user-id-here" />} />
+        <Route path="/dashboard/plans" element={<PlansPage userId={getUserId()} />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/reset-password/:token" element={<ResetPassword />} />
         <Route path="/documentation" element={<Documentation />} />

@@ -1,16 +1,16 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import CheckoutButton from '../Payment/CheckoutButton';
 
 const BillingPage = ({ userId }) => {
+  const navigate = useNavigate();
   const [billingCycle, setBillingCycle] = useState('monthly');
 
   const plans = [
     {
       name: 'Basic',
-      monthlyPrice: 9,
-      annualPrice: 90,
-      priceIdMonthly: 'price_starter_monthly', // Replace with real Stripe price ID
-      priceIdAnnual: 'price_starter_annual',
+      monthlyPrice: 0,
+      annualPrice: 0,
       description: 'Perfect for getting started',
       features: [
         '5,000 API calls/month',
@@ -23,8 +23,8 @@ const BillingPage = ({ userId }) => {
       name: 'Pro',
       monthlyPrice: 49,
       annualPrice: 490,
-      priceIdMonthly: 'price_pro_monthly',
-      priceIdAnnual: 'price_pro_annual',
+      priceIdMonthly: 'price_1SjxQY3tBDM4Uh8Ah0fGFzN8',
+      priceIdAnnual: 'price_1SjxDn3tBDM4Uh8AesTbq38U',
       description: 'For growing teams',
       features: [
         '50,000 API calls/month',
@@ -39,8 +39,8 @@ const BillingPage = ({ userId }) => {
       name: 'Enterprise',
       monthlyPrice: 199,
       annualPrice: 1990,
-      priceIdMonthly: 'price_enterprise_monthly',
-      priceIdAnnual: 'price_enterprise_annual',
+      priceIdMonthly: 'price_1SjxDM3tBDM4Uh8AsmPjLSYD',
+      priceIdAnnual: 'price_1SjxRI3tBDM4Uh8AU9CbUNeI',
       description: 'For large scale operations',
       features: [
         'Unlimited API calls',
@@ -55,6 +55,27 @@ const BillingPage = ({ userId }) => {
   return (
     <div className="bg-gray-900 min-h-screen text-white py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
+        {/* Back Button */}
+        <button
+          onClick={() => navigate(-1)}
+          className="mb-6 flex items-center gap-2 text-gray-400 hover:text-white transition"
+        >
+          <svg
+            className="w-5 h-5"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M15 19l-7-7 7-7"
+            />
+          </svg>
+          Back
+        </button>
+
         {/* Header */}
         <div className="text-center mb-12">
           <h1 className="text-4xl font-bold mb-4">Simple, Transparent Pricing</h1>
@@ -120,15 +141,24 @@ const BillingPage = ({ userId }) => {
                 </div>
 
                 {/* CTA Button */}
-                <CheckoutButton
-                  priceId={
-                    billingCycle === 'monthly'
-                      ? plan.priceIdMonthly
-                      : plan.priceIdAnnual
-                  }
-                  userId={userId}
-                  planName={plan.name}
-                />
+                {plan.name === 'Basic' ? (
+                  <button
+                    disabled
+                    className="w-full bg-gray-600 text-gray-400 font-bold py-2 px-4 rounded cursor-not-allowed"
+                  >
+                    Current Plan
+                  </button>
+                ) : (
+                  <CheckoutButton
+                    priceId={
+                      billingCycle === 'monthly'
+                        ? plan.priceIdMonthly
+                        : plan.priceIdAnnual
+                    }
+                    userId={userId}
+                    planName={plan.name}
+                  />
+                )}
 
                 {/* Features List */}
                 <div className="mt-8 space-y-4">
