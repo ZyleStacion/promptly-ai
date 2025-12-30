@@ -11,6 +11,9 @@ import googleAuthRoutes from "./routes/googleAuth.js";
 import path from "path";
 import { fileURLToPath } from "url";
 import adminRoutes from "./routes/admin.js";
+import feedbackRoutes from "./routes/feedback.js";
+import adminFeedbackRoutes from "./routes/adminFeedback.js";
+
 
 
 dotenv.config();
@@ -32,6 +35,11 @@ app.use("/auth", googleAuthRoutes);
 app.use("/user", userRoutes);
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 app.use("/admin", adminRoutes);
+app.use("/feedback", feedbackRoutes);
+app.use("/admin/feedback", adminFeedbackRoutes);
+
+
+
 
 
 // Connect to MongoDB
