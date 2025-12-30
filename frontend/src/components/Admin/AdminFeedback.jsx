@@ -12,7 +12,7 @@ const AdminFeedback = () => {
       },
     });
     const data = await res.json();
-    setFeedbacks(data.feedbacks);
+    setFeedbacks(data.feedbacks || []);
   };
 
   useEffect(() => {
@@ -44,13 +44,26 @@ const AdminFeedback = () => {
             key={fb._id}
             className="bg-neutral-800 p-6 rounded-xl border border-gray-700"
           >
+            {/* Header */}
             <div className="flex justify-between mb-2">
               <div>
-                <p className="font-semibold">{fb.user.email}</p>
+                <div className="flex items-center gap-2">
+                  <p className="text-sm text-gray-300">
+                    {fb.user?.email || "Deleted user"}
+                  </p>
+
+                  {fb.user?.isAdmin && (
+                    <span className="text-xs px-2 py-0.5 rounded-full bg-purple-600/20 text-purple-400 font-semibold">
+                      ADMIN
+                    </span>
+                  )}
+                </div>
+
                 <p className="text-sm text-gray-400">
                   {new Date(fb.createdAt).toLocaleString()}
                 </p>
               </div>
+
               <span
                 className={`px-3 py-1 rounded-full text-sm ${
                   fb.status === "open"
@@ -62,19 +75,22 @@ const AdminFeedback = () => {
               </span>
             </div>
 
+            {/* Description */}
             <p className="mb-3 text-gray-200">{fb.description}</p>
 
-            <div className="flex gap-2 mb-4">
-              {fb.labels.map((l) => (
+            {/* Labels */}
+            <div className="flex gap-2 mb-4 flex-wrap">
+              {fb.labels?.map((label) => (
                 <span
-                  key={l}
+                  key={label}
                   className="px-3 py-1 bg-gray-700 rounded-full text-sm"
                 >
-                  {l}
+                  {label}
                 </span>
               ))}
             </div>
 
+            {/* Screenshot */}
             {fb.screenshot && (
               <img
                 src={`http://localhost:3000${fb.screenshot}`}
@@ -83,6 +99,7 @@ const AdminFeedback = () => {
               />
             )}
 
+            {/* Admin reply */}
             {fb.adminReply ? (
               <div className="bg-neutral-700 p-4 rounded">
                 <p className="font-semibold mb-1">Admin Reply</p>
