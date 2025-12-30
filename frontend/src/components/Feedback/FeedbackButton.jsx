@@ -1,9 +1,11 @@
 import React, { useState, forwardRef, useImperativeHandle } from "react";
 import { AnimatePresence } from "framer-motion";
-import { Bug, X, Upload, Send } from "lucide-react";
+import { Bug, X, Upload } from "lucide-react";
 
 const FeedbackButton = forwardRef((props, ref) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [showLoginPrompt, setShowLoginPrompt] = useState(false);
+
   const [bugDescription, setBugDescription] = useState("");
   const [selectedLabels, setSelectedLabels] = useState([]);
   const [screenshot, setScreenshot] = useState(null);
@@ -45,23 +47,21 @@ const FeedbackButton = forwardRef((props, ref) => {
   };
 
   const handleSubmit = async () => {
-    if (!bugDescription.trim()) {
-      alert("Please describe the issue");
-      return;
-    }
+    if (!bugDescription.trim()) return;
 
     const token = localStorage.getItem("token");
+
+    // 🔴 NOT LOGGED IN → show login popup
     if (!token) {
-      alert("You must be logged in to send feedback");
+      setIsModalOpen(false);
+      setShowLoginPrompt(true);
       return;
     }
 
     const formData = new FormData();
     formData.append("description", bugDescription);
     formData.append("labels", JSON.stringify(selectedLabels));
-    if (screenshot) {
-      formData.append("screenshot", screenshot);
-    }
+    if (screenshot) formData.append("screenshot", screenshot);
 
     try {
       setLoading(true);
@@ -74,15 +74,11 @@ const FeedbackButton = forwardRef((props, ref) => {
         body: formData,
       });
 
-      if (!res.ok) {
-        throw new Error("Failed to submit feedback");
-      }
+      if (!res.ok) throw new Error();
 
-      alert("✅ Feedback submitted successfully!");
       handleClose();
     } catch (err) {
       console.error("Feedback error:", err);
-      alert("❌ Failed to submit feedback. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -98,17 +94,22 @@ const FeedbackButton = forwardRef((props, ref) => {
 
   return (
     <>
-      {/* Feedback Button */}
+      {/* ================= FEEDBACK BUTTON ================= */}
       <button
         onClick={() => setIsModalOpen(true)}
-        className="hidden md:flex fixed right-0 top-[60%] bg-gradient-to-b from-purple-600 to-blue-600 text-white px-3 py-6 rounded-l-lg shadow-lg z-50 items-center gap-2"
+        className="hidden md:flex fixed right-0 top-[60%]
+        bg-gradient-to-b from-purple-600 to-blue-600
+        text-white px-3 py-6 rounded-l-lg shadow-lg z-50
+        items-center gap-2"
         style={{ writingMode: "vertical-rl" }}
       >
         <Bug className="w-5 h-5 rotate-90" />
-        <span className="font-semibold text-sm tracking-wider">FEEDBACK</span>
+        <span className="font-semibold text-sm tracking-wider">
+          FEEDBACK
+        </span>
       </button>
 
-      {/* Modal */}
+      {/* ================= FEEDBACK MODAL ================= */}
       <AnimatePresence>
         {isModalOpen && (
           <>
@@ -117,15 +118,23 @@ const FeedbackButton = forwardRef((props, ref) => {
               className="fixed inset-0 bg-black/50 z-50"
             />
 
-            <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white dark:bg-gray-800 rounded-xl shadow-2xl z-50 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+            <div
+              className="fixed top-1/2 left-1/2
+              -translate-x-1/2 -translate-y-1/2
+              bg-white dark:bg-gray-800
+              rounded-xl shadow-2xl z-50
+              w-full max-w-2xl max-h-[90vh] overflow-y-auto"
+            >
               <div className="p-6">
                 {/* Header */}
                 <div className="flex justify-between items-center mb-6">
                   <div className="flex items-center gap-3">
                     <div className="p-2 bg-purple-100 dark:bg-purple-900 rounded-lg">
-                      <Bug className="w-6 h-6 text-purple-600 dark:text-purple-400" />
+                      <Bug className="w-6 h-6 text-purple-600" />
                     </div>
-                    <h2 className="text-2xl font-bold">Report an Issue</h2>
+                    <h2 className="text-2xl font-bold">
+                      Report an Issue
+                    </h2>
                   </div>
                   <button onClick={handleClose}>
                     <X />
@@ -182,10 +191,56 @@ const FeedbackButton = forwardRef((props, ref) => {
                 <button
                   onClick={handleSubmit}
                   disabled={loading}
-                  className="w-full bg-gradient-to-r from-purple-600 to-blue-600 py-3 rounded text-white font-semibold"
+                  className="w-full bg-gradient-to-r from-purple-600 to-blue-600
+                  py-3 rounded text-white font-semibold"
                 >
                   {loading ? "Sending..." : "Send Feedback"}
                 </button>
+              </div>
+            </div>
+          </>
+        )}
+      </AnimatePresence>
+
+      {/* ================= LOGIN REQUIRED POPUP ================= */}
+      <AnimatePresence>
+        {showLoginPrompt && (
+          <>
+            <div
+              className="fixed inset-0 bg-black/50 z-50"
+              onClick={() => setShowLoginPrompt(false)}
+            />
+
+            <div
+              className="fixed top-1/2 left-1/2
+              -translate-x-1/2 -translate-y-1/2
+              bg-white dark:bg-gray-800
+              rounded-xl shadow-2xl z-50
+              w-full max-w-sm p-6 text-center"
+            >
+              <h3 className="text-xl font-bold mb-2">
+                Login Required
+              </h3>
+
+              <p className="text-gray-600 dark:text-gray-300 mb-6">
+                You must be logged in to report an issue.
+              </p>
+
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setShowLoginPrompt(false)}
+                  className="flex-1 py-2 rounded bg-gray-200 dark:bg-gray-700"
+                >
+                  Cancel
+                </button>
+
+                <a
+                  href="/signin"
+                  className="flex-1 py-2 rounded
+                  bg-purple-600 text-white font-semibold"
+                >
+                  Go to Login
+                </a>
               </div>
             </div>
           </>
