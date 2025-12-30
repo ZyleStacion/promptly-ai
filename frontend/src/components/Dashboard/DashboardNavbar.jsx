@@ -1,12 +1,19 @@
 import React, { useState, useEffect, useRef } from "react";
 import { LuBrain } from "react-icons/lu";
 import { FaUserCircle } from "react-icons/fa";
-import { FiSettings, FiBook, FiCreditCard, FiLogOut } from "react-icons/fi";
+import {
+  FiSettings,
+  FiBook,
+  FiCreditCard,
+  FiLogOut,
+  FiMessageSquare,
+  FiMenu,
+} from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { USE_MOCK_API } from "../../api/mockApi";
 
-const DashboardNavbar = () => {
+const DashboardNavbar = ({ onFeedbackClick, onMenuClick }) => {
   const navigate = useNavigate();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [user, setUser] = useState({ username: "", email: "" });
@@ -52,13 +59,22 @@ const DashboardNavbar = () => {
 
   return (
     <nav className="w-full bg-neutral-900 border-b border-gray-800 px-6 py-4 flex items-center justify-between fixed top-0 left-0 z-20">
-      {/* LEFT — Logo */}
-      <div
-        onClick={() => navigate("/")}
-        className="flex items-center gap-2 cursor-pointer"
-      >
-        <LuBrain className="text-3xl bg-gradient-to-r from-blue-600 to-violet-600 text-white rounded-lg p-1" />
-        <h1 className="text-xl font-bold text-white">Promptly AI</h1>
+      {/* LEFT — Menu Button and Logo */}
+      <div className="flex items-center gap-4">
+        <button
+          onClick={onMenuClick}
+          className="lg:hidden text-gray-400 hover:text-white transition p-2"
+          title="Toggle Menu"
+        >
+          <FiMenu className="text-2xl" />
+        </button>
+        <div
+          onClick={() => navigate("/")}
+          className="flex items-center gap-2 cursor-pointer"
+        >
+          <LuBrain className="text-3xl bg-gradient-to-r from-blue-600 to-violet-600 text-white rounded-lg p-1" />
+          <h1 className="text-xl font-bold text-white">Promptly AI</h1>
+        </div>
       </div>
 
       {/* CENTER — Username's Workspace */}
@@ -168,6 +184,18 @@ const DashboardNavbar = () => {
                 >
                   <FiCreditCard className="text-lg" />
                   <span>Account Plan</span>
+                </button>
+
+                {/* Feedback Button - Mobile Only */}
+                <button
+                  onClick={() => {
+                    onFeedbackClick?.();
+                    setDropdownOpen(false);
+                  }}
+                  className="lg:hidden w-full flex items-center gap-3 px-4 py-3 text-gray-300 hover:bg-neutral-700 hover:text-white transition"
+                >
+                  <FiMessageSquare className="text-lg" />
+                  <span>Feedback</span>
                 </button>
               </div>
 

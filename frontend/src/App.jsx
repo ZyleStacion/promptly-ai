@@ -14,6 +14,7 @@ import ResetPassword from "./components/auth/ResetPassword";
 import Documentation from "./components/Documentation/Documentation";
 import IntegrationDemo from "./components/IntegrationDemo/IntegrationDemo";
 import ChatbotWidget from "./components/Chatbot/ChatbotWidget";
+import FeedbackButton from "./components/Feedback/FeedbackButton";
 
 // Admin pages
 import AdminLayout from "./components/Admin/AdminLayout";
@@ -36,6 +37,7 @@ const HomePage = () => (
 export const App = () => {
   return (
     <Router>
+      <FeedbackButton />
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/signin" element={<SignIn />} />
