@@ -65,21 +65,25 @@ const AdminDashboard = () => {
         )}
       </Section>
 
-      {/* Chatbot Usage Chart */}
-      <Section title="Total Chatbots">
-        {hasChatbotData ? (
-          <ResponsiveContainer width="100%" height={250}>
-            <BarChart data={[{ name: "Chatbots", value: stats.totalChatbots }]}>
-              <XAxis dataKey="name" stroke="#ccc" />
-              <YAxis stroke="#ccc" />
-              <Tooltip />
-              <Bar dataKey="value" fill="#6366f1" />
-            </BarChart>
-          </ResponsiveContainer>
-        ) : (
-          <Placeholder message="No chatbots created yet" />
-        )}
+      {/* Chatbot Usage */}
+      <Section title="Chatbot Usage">
+        <div className="flex items-center justify-between">
+          <div>
+            <p className="text-gray-400 text-sm mb-1">Total Chatbots</p>
+            <p className="text-5xl font-bold text-indigo-400">
+              {stats.totalChatbots || 0}
+            </p>
+          </div>
+
+          {/* Visual indicator */}
+          <div className="w-24 h-24 rounded-full border-4 border-indigo-500/30 flex items-center justify-center">
+            <span className="text-indigo-400 text-lg font-semibold">
+              {stats.totalChatbots}
+            </span>
+          </div>
+        </div>
       </Section>
+
     </div>
   );
 };
@@ -90,13 +94,12 @@ const Card = ({ label, value, positive }) => (
   <div className="bg-neutral-800 p-6 rounded-xl border border-gray-700">
     <h2 className="text-lg text-gray-300">{label}</h2>
     <p
-      className={`text-4xl font-bold ${
-        positive === undefined
+      className={`text-4xl font-bold ${positive === undefined
           ? ""
           : positive
-          ? "text-green-400"
-          : "text-red-400"
-      }`}
+            ? "text-green-400"
+            : "text-red-400"
+        }`}
     >
       {value}
     </p>
