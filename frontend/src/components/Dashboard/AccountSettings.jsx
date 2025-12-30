@@ -3,6 +3,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { motion } from "framer-motion";
 import { FaUser, FaLock, FaCreditCard, FaFileInvoice } from "react-icons/fa";
 import { mockApi, USE_MOCK_API } from "../../api/mockApi";
+import CheckoutButton from "../Payment/CheckoutButton";
 
 const AccountSettings = () => {
   const navigate = useNavigate();
@@ -678,16 +679,20 @@ const AccountSettings = () => {
                         <span>Priority support</span>
                       </li>
                     </ul>
-                    <button
-                      onClick={() => console.log("Upgrade to Pro clicked")}
-                      disabled={isCurrentPlan("Pro")}
-                      className={`w-full py-2 rounded-lg text-white font-semibold transition ${isCurrentPlan("Pro")
-                        ? "bg-gray-700 text-gray-400 cursor-not-allowed"
-                        : "bg-blue-600 hover:bg-blue-700"
-                        }`}
-                    >
-                      {isCurrentPlan("Pro") ? "Current Plan" : "Upgrade to Pro"}
-                    </button>
+                    {isCurrentPlan("Pro") ? (
+                      <button
+                        disabled
+                        className="w-full bg-gray-700 text-gray-400 py-2 rounded-lg font-semibold cursor-not-allowed"
+                      >
+                        Current Plan
+                      </button>
+                    ) : (
+                      <CheckoutButton
+                        priceId={billingCycle === "monthly" ? "price_1Sk0ju3tBDM4Uh8AID3qhu5S" : "price_1Sk0s13tBDM4Uh8Ag7oIwytw"}
+                        userId={user.id || user._id}
+                        planName="Pro"
+                      />
+                    )}
                   </div>
 
                   {/* Enterprise Plan */}
@@ -723,16 +728,20 @@ const AccountSettings = () => {
                         </span>
                       </li>
                     </ul>
-                    <button
-                      onClick={() => console.log("Upgrade to Enterprise clicked")}
-                      disabled={isCurrentPlan("Enterprise") || isCurrentPlan("Max")}
-                      className={`w-full py-2 rounded-lg text-white font-semibold transition ${isCurrentPlan("Enterprise") || isCurrentPlan("Max")
-                        ? "bg-gray-700 text-gray-400 cursor-not-allowed"
-                        : "bg-gradient-to-r from-blue-600 to-violet-600 hover:opacity-90"
-                        }`}
-                    >
-                      {isCurrentPlan("Enterprise") || isCurrentPlan("Max") ? "Current Plan" : "Upgrade to Enterprise"}
-                    </button>
+                    {isCurrentPlan("Enterprise") || isCurrentPlan("Max") ? (
+                      <button
+                        disabled
+                        className="w-full bg-gray-700 text-gray-400 py-2 rounded-lg font-semibold cursor-not-allowed"
+                      >
+                        Current Plan
+                      </button>
+                    ) : (
+                      <CheckoutButton
+                        priceId={billingCycle === "monthly" ? "price_1SjxRI3tBDM4Uh8AU9CbUNeI" : "price_1Sk0tE3tBDM4Uh8AZFTTWsWW"}
+                        userId={user.id || user._id}
+                        planName="Enterprise"
+                      />
+                    )}
                   </div>
                 </div>
               </div>
