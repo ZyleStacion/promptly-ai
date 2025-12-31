@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
+import { Copy } from "lucide-react";
 
 const WorkspaceSettings = () => {
+  const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:3000";
   const navigate = useNavigate();
 
   const settingsOptions = [
@@ -10,10 +12,6 @@ const WorkspaceSettings = () => {
     { title: "Billing", description: "Modify your billing details", path: "/dashboard/billing" },
     { title: "Support", description: "Get help from our support team", path: null },
   ];
-import { Copy } from "lucide-react";
-
-const WorkspaceSettings = () => {
-  const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:3000";
   const [availableModels, setAvailableModels] = useState([]);
   const [loadingModels, setLoadingModels] = useState(false);
 
@@ -140,8 +138,9 @@ const WorkspaceSettings = () => {
             <p className="text-gray-400 text-sm mt-1">{option.description}</p>
           </motion.div>
         ))}
+        {/* TODO: Look at this */}
         Workspace Settings — Chat Model Creation
-      </motion.h2>
+      </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Model Defaults */}
