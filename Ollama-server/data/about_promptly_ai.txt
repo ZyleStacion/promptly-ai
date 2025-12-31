@@ -1,0 +1,372 @@
+Welcome to Promptly AI - The AI Chatbot Platform
+
+About Promptly AI:
+Promptly AI is an open-source platform that allows anyone to create, customize, and deploy intelligent AI chatbots powered by Ollama. We make it simple to build conversational AI without needing deep technical expertise.
+
+Key Features:
+
+1. Easy Chatbot Creation
+- No coding required
+- Upload your own training data (files or text snippets)
+- Customize appearance to match your brand
+- Set custom personality and welcome messages
+- Choose from multiple AI models
+
+2. Multiple Integration Options
+- Embed on any website with a single line of code
+- Works with HTML, React, Vue, and any framework
+- Responsive design (mobile-friendly)
+- Customizable colors, avatar, and styling
+
+3. AI Model Selection
+- Powered by Ollama (local AI models)
+- Support for multiple models: Gemma, Llama, Mistral, etc.
+- Fast response times
+- Privacy-focused (runs locally)
+
+4. Training Data Management
+- Upload text files (.txt)
+- Add text snippets directly
+- Manage multiple training sources per chatbot
+- Real-time content updates
+
+5. Dashboard Features
+- Create and manage multiple chatbots
+- Test chatbots in real-time
+- View chat history
+- Edit chatbot settings anytime
+- Get embed code with one click
+
+How to Get Started:
+
+1. Create Account
+- Sign up on the platform
+- No credit card required
+- Free tier available
+
+2. Create Your First Chatbot
+- Click "Create Chatbot"
+- Upload training files or add text content
+- Select an AI model (recommend starting with Gemma)
+- Customize colors, personality, and welcome message
+- Click "Done"
+
+3. Test Your Chatbot
+- Click "Test Chatbot" from your dashboard
+- Chat with your AI assistant
+- Verify responses quality
+
+4. Get Embed Code
+- Click "Get Embed Code" on your chatbot
+- Copy the code snippet
+- Paste into your website
+
+5. Deploy Anywhere
+- Add to your website
+- Add to your app
+- Add to customer support portal
+- Share the embed code with team
+
+How to Embed Your Chatbot:
+
+Step 1: Get Your Chatbot ID
+- Go to Dashboard
+- Find your chatbot
+- Click "Get Embed Code"
+- Copy the chatbot ID (looks like: chatbot-1234567890)
+
+Step 2: Add to HTML Website
+Add these three lines to your HTML file (before closing </body> tag):
+
+```
+<!-- Promptly Chatbot Widget -->
+<div data-promptly-chatbot-id="YOUR_CHATBOT_ID"></div>
+<script>
+  window.PROMPTLY_API_URL = 'http://localhost:3000';
+</script>
+<script src="http://localhost:5173/promptly-widget.js"></script>
+```
+
+Replace "YOUR_CHATBOT_ID" with your actual chatbot ID from the dashboard.
+
+Step 3: Add to React Website
+For React apps, we provide an easy-to-use component:
+
+```jsx
+import ChatbotWidget from './components/Chatbot/ChatbotWidget';
+
+export function MyPage() {
+  return (
+    <div>
+      <h1>Welcome!</h1>
+      <ChatbotWidget chatbotId="YOUR_CHATBOT_ID" />
+    </div>
+  );
+}
+```
+
+Step 4: Deploy
+That's it! Your chatbot will appear in the bottom-right corner.
+
+Embedding Features:
+
+Appearance:
+- Floating button with chat icon
+- Customizable colors (matches your brand)
+- Custom avatar image
+- Smooth animations
+- Mobile responsive
+
+Interaction:
+- Typing indicator shows AI is thinking
+- Real-time message streaming
+- Conversation history in session
+- Error handling with user-friendly messages
+- Auto-scroll to latest messages
+
+Customization Options:
+
+When embedding, you can customize:
+1. Colors: Primary color matches your brand
+2. Avatar: Custom image for your chatbot
+3. Welcome Message: Greet users with custom text
+4. Personality: AI tone (friendly, professional, casual, etc.)
+5. Response Model: Choose which AI model to use
+
+Example: Custom Implementation
+```html
+<div data-promptly-chatbot-id="chatbot-1234567890"></div>
+<script>
+  window.PROMPTLY_API_URL = 'https://your-api.com';
+</script>
+<script src="https://cdn.promptly-ai.com/widget.js"></script>
+```
+
+The chatbot will:
+- Load your saved colors automatically
+- Display your custom welcome message
+- Use your configured AI model
+- Apply your personality settings
+- Show your avatar image
+
+Troubleshooting:
+
+Q: Chatbot doesn't appear
+- Make sure backend API is running
+- Verify chatbot ID is correct
+- Check browser console for errors
+- Ensure chatbot status is "active"
+
+Q: Chatbot appears but doesn't respond
+- Check backend is running on correct port
+- Verify PROMPTLY_API_URL is set correctly
+- Check Ollama service is running
+- See browser console for API errors
+
+Q: Styling doesn't match my brand
+- Edit your chatbot colors in dashboard
+- Update avatar image
+- Customize welcome message
+- Adjust personality settings
+- Hard refresh browser to clear cache
+
+Q: Widget script not loading
+- Check script URL is accessible
+- Verify no CORS errors in console
+- Check network tab in developer tools
+- Ensure script tag is before closing </body>
+
+Advanced Usage:
+
+Multiple Chatbots on One Page:
+```html
+<div data-promptly-chatbot-id="chatbot-1"></div>
+<div data-promptly-chatbot-id="chatbot-2"></div>
+<script src="...promptly-widget.js"></script>
+```
+
+Dynamic Chatbot ID:
+```jsx
+const [chatbotId, setChatbotId] = useState('chatbot-123');
+<ChatbotWidget chatbotId={chatbotId} />
+```
+
+Custom API Endpoint:
+```html
+<script>
+  window.PROMPTLY_API_URL = 'https://your-production-api.com';
+</script>
+```
+
+Popular Platforms:
+
+Works on:
+- Static HTML websites
+- React applications
+- Next.js applications
+- Vue.js applications
+- Angular applications
+- Any platform that supports JavaScript
+
+Examples:
+
+WordPress:
+- Add code to theme footer or custom HTML block
+- Works with any WordPress theme
+
+Webflow:
+- Add custom code before closing </body>
+- Use embed element for React
+
+Shopify:
+- Add to theme.liquid footer
+- Create chatbot for customer support
+
+Wix:
+- Use custom HTML iframe code
+- Add to page footer
+
+Ghost:
+- Add to blog footer
+- Use in code injection
+
+Ready to Embed?
+
+1. Create a chatbot in dashboard
+2. Click "Get Embed Code"
+3. Copy the code
+4. Paste into your website
+5. Done! Chat button appears
+
+Need Help?
+
+- Check our documentation
+- Visit integration examples page
+- Contact support team
+- View code samples in GitHub
+
+Use Cases:
+
+- Customer Support: Handle common questions automatically
+- Sales Chatbot: Answer product questions and qualify leads
+- Internal Knowledge Base: Train on company documentation
+- Educational: Create tutoring chatbots
+- Personal Assistant: Build your own AI helper
+- Business Automation: Automate repetitive conversations
+
+Supported Models (Ollama):
+
+- Gemma 3 (1B-IT): Fast, lightweight, great for general questions
+- Llama 2: Powerful, good for complex reasoning
+- Mistral: Balanced, fast and smart
+- Neural Chat: Optimized for conversations
+- Custom models: Deploy any Ollama-compatible model
+
+Pricing & Plans:
+
+Free Tier:
+- Up to 3 chatbots
+- 500 conversations/month
+- Basic training data (up to 5MB)
+- Community support
+
+Pro Tier:
+- Unlimited chatbots
+- 10,000 conversations/month
+- Advanced training data (up to 100MB)
+- Priority email support
+- Custom analytics
+
+Enterprise:
+- Everything in Pro
+- Unlimited conversations
+- Dedicated support
+- Custom integrations
+- SLA guarantee
+
+Technical Requirements:
+
+- Backend: Express.js + MongoDB
+- Frontend: React + Vite
+- AI: Ollama (local models)
+- No external API fees
+- Self-hosted or cloud-hosted options
+
+API Documentation:
+
+Public Endpoints (no auth needed):
+- GET /chat/config/{chatbotId} - Get chatbot configuration
+- POST /chat/public - Send message to public chatbot
+
+Protected Endpoints (requires login):
+- GET /chatbot - List user's chatbots
+- POST /chatbot - Create new chatbot
+- PUT /chatbot/{id} - Update chatbot
+- DELETE /chatbot/{id} - Delete chatbot
+- POST /chatbot/{id}/train - Add training data
+
+Authentication:
+- JWT-based authentication
+- Secure token storage
+- User data isolation
+- Password reset support
+
+Data Privacy & Security:
+
+- All data encrypted in transit (HTTPS)
+- Database encryption at rest
+- No third-party AI APIs (local only)
+- GDPR compliant
+- User data never shared
+- Can be self-hosted for full control
+
+Support & Resources:
+
+- Documentation: Available in platform
+- Integration Guide: Step-by-step setup
+- Code Examples: HTML and React samples
+- Email Support: support@promptly-ai.com
+- Community Forum: Discuss and share ideas
+- GitHub: Open source repository
+
+Common Questions:
+
+Q: Do I need Ollama installed?
+A: For self-hosted deployment yes, but we provide cloud hosting too
+
+Q: Can I use my own data?
+A: Yes! Upload any text files or add text snippets as training data
+
+Q: How many conversations can my chatbot handle?
+A: Depends on your plan - free tier gets 500/month, pro gets 10,000/month
+
+Q: Can I change my chatbot later?
+A: Yes! Edit name, colors, training data, personality anytime
+
+Q: Is my data secure?
+A: Yes, all data is encrypted and private to your account
+
+Q: Can I export conversations?
+A: Yes, download chat history anytime from your dashboard
+
+Q: What if I want to delete my chatbot?
+A: Click delete and it's gone - no recovery option, so be careful!
+
+Q: Can multiple people manage one chatbot?
+A: Coming soon! Currently one account per user
+
+Getting Help:
+
+- In-app tutorial: First time setup wizard
+- Video guides: See examples of chatbot creation
+- Documentation: Comprehensive guides for all features
+- Support chat: Talk to our team (ironically via chatbot!)
+- GitHub issues: Report bugs or request features
+
+Ready to Build Your AI Chatbot?
+
+Start now at: https://promptly-ai.com
+Sign up: https://promptly-ai.com/signup
+Learn more: https://promptly-ai.com/docs
+
+Thank you for choosing Promptly AI!

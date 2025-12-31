@@ -1,9 +1,31 @@
 import express from "express";
-import { register, login } from "../controllers/authController.js";
+import {
+  createChatbot,
+  getChatbots,
+  getChatbot,
+  updateChatbot,
+  deleteChatbot,
+} from "../controllers/chatbotController.js";
+import auth from "../middleware/userMiddleware.js";
 
 const router = express.Router();
 
-router.post("/register", register);
-router.post("/login", login);
+// All routes require authentication
+router.use(auth);
+
+// Create chatbot
+router.post("/", createChatbot);
+
+// Get all chatbots for logged-in user
+router.get("/", getChatbots);
+
+// Get single chatbot
+router.get("/:id", getChatbot);
+
+// Update chatbot
+router.put("/:id", updateChatbot);
+
+// Delete chatbot
+router.delete("/:id", deleteChatbot);
 
 export default router;

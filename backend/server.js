@@ -5,11 +5,15 @@ import authRoutes from "./routes/auth.js";
 import chatbotRoutes from "./routes/chatbot.js";
 import ollamaRoutes from "./routes/chat.js";;
 import userRoutes from "./routes/user.js";
+import embedRoutes from "./routes/embed.js";
 import cors from 'cors';
 import googleAuthRoutes from "./routes/googleAuth.js";
 import path from "path";
 import { fileURLToPath } from "url";
 import adminRoutes from "./routes/admin.js";
+import feedbackRoutes from "./routes/feedback.js";
+import adminFeedbackRoutes from "./routes/adminFeedback.js";
+
 
 
 dotenv.config();
@@ -26,10 +30,16 @@ app.use(express.urlencoded({ extended: true }));
 app.use("/auth", authRoutes);
 app.use("/chatbot", chatbotRoutes);
 app.use('/ollama', ollamaRoutes);
+app.use('/chat', embedRoutes);
 app.use("/auth", googleAuthRoutes);
 app.use("/user", userRoutes);
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 app.use("/admin", adminRoutes);
+app.use("/feedback", feedbackRoutes);
+app.use("/admin/feedback", adminFeedbackRoutes);
+
+
+
 
 
 // Connect to MongoDB

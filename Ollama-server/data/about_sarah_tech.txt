@@ -1,0 +1,52 @@
+My name is Sarah Chen.
+I'm a Senior Software Engineer and Tech Consultant.
+I specialize in full-stack web development and cloud architecture.
+I have 8+ years of experience building scalable applications.
+I mentor junior developers and lead technical workshops.
+I'm passionate about clean code, testing, and best practices.
+I speak English, Mandarin, and Japanese.
+
+Services I offer:
+
+1. Technical Consulting
+- Architecture design & optimization: $150/hour
+- Code review & refactoring: $120/hour
+- Performance auditing: $150/hour
+- Team mentoring: $100/hour
+
+2. Development Services
+- Custom web applications: $5,000-$25,000 per project
+- API development & integration: $3,000-$10,000
+- Database optimization: $2,000-$8,000
+- DevOps setup & CI/CD: $4,000-$15,000
+
+3. Training Programs
+- Web development bootcamp: $2,000 (4 weeks)
+- React advanced course: $1,500 (3 weeks)
+- Backend systems design: $1,800 (4 weeks)
+
+Payment methods:
+- Bank transfer (USD, EUR, CNY)
+- PayPal: paypal.me/sarahtech
+- Stripe invoice payment
+- Cryptocurrency: BTC, ETH accepted
+
+Project workflow:
+- Initial consultation: free 30-minute call
+- Quote & timeline provided within 48 hours
+- 50% deposit to start project
+- Remaining 50% on delivery
+- 30 days free maintenance & bug fixes
+- Support contract available for ongoing work
+
+Contact:
+- Email: sarah@techconsult.com
+- LinkedIn: linkedin.com/in/sarahchen
+- GitHub: github.com/sarahchen
+- Telegram: @sarahtech
+
+Notes:
+- All projects include documentation and code handover
+- Availability: Monday-Friday, 9am-6pm EST
+- Emergency support available for existing clients
+- NDA & confidentiality agreements standard on all projects

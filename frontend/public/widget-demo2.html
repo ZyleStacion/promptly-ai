@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TechFlow - Customer Support Platform</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+      color: #333;
+      line-height: 1.6;
+    }
+
+    /* Navigation */
+    nav {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 1rem 2rem;
+      position: sticky;
+      top: 0;
+      z-index: 40;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    nav .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    nav h2 {
+      font-size: 1.5rem;
+      font-weight: 700;
+    }
+
+    nav ul {
+      list-style: none;
+      display: flex;
+      gap: 2rem;
+    }
+
+    nav a {
+      color: white;
+      text-decoration: none;
+      font-weight: 500;
+      transition: opacity 0.3s;
+    }
+
+    nav a:hover {
+      opacity: 0.8;
+    }
+
+    /* Hero Section */
+    .hero {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 6rem 2rem;
+      text-align: center;
+    }
+
+    .hero h1 {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+      font-weight: 700;
+    }
+
+    .hero p {
+      font-size: 1.2rem;
+      margin-bottom: 2rem;
+      opacity: 0.95;
+    }
+
+    .cta-button {
+      display: inline-block;
+      background: white;
+      color: #667eea;
+      padding: 0.75rem 2rem;
+      border-radius: 6px;
+      font-weight: 600;
+      text-decoration: none;
+      transition: transform 0.3s, box-shadow 0.3s;
+    }
+
+    .cta-button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+    }
+
+    /* Container */
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 2rem;
+    }
+
+    /* Sections */
+    section {
+      padding: 4rem 2rem;
+    }
+
+    section h2 {
+      font-size: 2.5rem;
+      margin-bottom: 3rem;
+      text-align: center;
+      color: #1f2937;
+    }
+
+    /* Features Grid */
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 2rem;
+      margin-bottom: 3rem;
+    }
+
+    .feature-card {
+      background: white;
+      padding: 2rem;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      transition: transform 0.3s, box-shadow 0.3s;
+    }
+
+    .feature-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 16px rgba(0,0,0,0.12);
+    }
+
+    .feature-card h3 {
+      color: #667eea;
+      margin-bottom: 1rem;
+      font-size: 1.3rem;
+    }
+
+    .feature-card p {
+      color: #6b7280;
+    }
+
+    /* Benefits Section */
+    .benefits {
+      background: #f9fafb;
+    }
+
+    .benefits-content {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 3rem;
+      align-items: center;
+    }
+
+    .benefits-list {
+      list-style: none;
+    }
+
+    .benefits-list li {
+      padding: 1rem 0;
+      color: #6b7280;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .benefits-list li:before {
+      content: "✓";
+      color: #667eea;
+      font-weight: bold;
+      font-size: 1.3rem;
+    }
+
+    /* Pricing Section */
+    .pricing-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 2rem;
+    }
+
+    .pricing-card {
+      background: white;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      padding: 2.5rem;
+      text-align: center;
+      transition: transform 0.3s, box-shadow 0.3s;
+    }
+
+    .pricing-card.featured {
+      border-color: #667eea;
+      box-shadow: 0 8px 24px rgba(102, 126, 234, 0.15);
+      transform: scale(1.05);
+    }
+
+    .pricing-card h3 {
+      font-size: 1.5rem;
+      margin-bottom: 1rem;
+      color: #1f2937;
+    }
+
+    .price {
+      font-size: 2.5rem;
+      color: #667eea;
+      font-weight: 700;
+      margin: 1.5rem 0;
+    }
+
+    .pricing-features {
+      list-style: none;
+      margin: 2rem 0;
+      text-align: left;
+      color: #6b7280;
+    }
+
+    .pricing-features li {
+      padding: 0.5rem 0;
+    }
+
+    .pricing-features li:before {
+      content: "•";
+      color: #667eea;
+      font-weight: bold;
+      margin-right: 0.5rem;
+    }
+
+    .pricing-button {
+      background: #667eea;
+      color: white;
+      padding: 0.75rem 2rem;
+      border: none;
+      border-radius: 6px;
+      font-weight: 600;
+      cursor: pointer;
+      width: 100%;
+      transition: background 0.3s;
+    }
+
+    .pricing-button:hover {
+      background: #764ba2;
+    }
+
+    /* FAQ Section */
+    .faq {
+      background: #f9fafb;
+    }
+
+    .faq-item {
+      background: white;
+      margin-bottom: 1.5rem;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    .faq-question {
+      padding: 1.5rem;
+      background: white;
+      border-left: 4px solid #667eea;
+      cursor: pointer;
+      font-weight: 600;
+      color: #1f2937;
+      transition: background 0.3s;
+    }
+
+    .faq-question:hover {
+      background: #f9fafb;
+    }
+
+    .faq-answer {
+      padding: 1.5rem;
+      color: #6b7280;
+      border-top: 1px solid #e5e7eb;
+    }
+
+    /* Footer */
+    footer {
+      background: #1f2937;
+      color: white;
+      padding: 3rem 2rem;
+      text-align: center;
+    }
+
+    footer p {
+      margin-bottom: 1rem;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      nav ul {
+        display: none;
+      }
+
+      .hero h1 {
+        font-size: 2rem;
+      }
+
+      .benefits-content {
+        grid-template-columns: 1fr;
+      }
+
+      .pricing-card.featured {
+        transform: scale(1);
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Navigation -->
+  <nav>
+    <div class="container">
+      <h2>🚀 TechFlow</h2>
+      <ul>
+        <li><a href="#features">Features</a></li>
+        <li><a href="#benefits">Benefits</a></li>
+        <li><a href="#pricing">Pricing</a></li>
+        <li><a href="#faq">FAQ</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- Hero Section -->
+  <section class="hero">
+    <div class="container">
+      <h1>Customer Support Made Simple</h1>
+      <p>Intelligent chatbots powered by advanced AI. Try our support assistant below! 👇</p>
+      <a href="#features" class="cta-button">Get Started</a>
+    </div>
+  </section>
+
+  <!-- Features Section -->
+  <section id="features">
+    <div class="container">
+      <h2>Powerful Features</h2>
+      <div class="features-grid">
+        <div class="feature-card">
+          <h3>24/7 Support</h3>
+          <p>Our AI-powered chatbot is available around the clock to answer your questions instantly.</p>
+        </div>
+        <div class="feature-card">
+          <h3>Instant Responses</h3>
+          <p>Get immediate answers to common questions without waiting for human support agents.</p>
+        </div>
+        <div class="feature-card">
+          <h3>Smart Learning</h3>
+          <p>Our system learns from interactions to provide better responses over time.</p>
+        </div>
+        <div class="feature-card">
+          <h3>Easy Integration</h3>
+          <p>Embed our chatbot on your website with just a couple lines of code.</p>
+        </div>
+        <div class="feature-card">
+          <h3>Customizable</h3>
+          <p>Match your brand colors, style, and personality to maintain consistency.</p>
+        </div>
+        <div class="feature-card">
+          <h3>Analytics</h3>
+          <p>Track conversations and get insights into customer interactions.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Benefits Section -->
+  <section id="benefits" class="benefits">
+    <div class="container">
+      <h2>Why Choose TechFlow?</h2>
+      <div class="benefits-content">
+        <div>
+          <h3 style="color: #1f2937; margin-bottom: 2rem;">Trusted by thousands of businesses</h3>
+          <ul class="benefits-list">
+            <li>Reduce customer support costs by 40%</li>
+            <li>Improve customer satisfaction scores</li>
+            <li>Faster response times</li>
+            <li>Reduced support team workload</li>
+            <li>Available in 50+ languages</li>
+            <li>Enterprise-grade security</li>
+            <li>Dedicated support team</li>
+          </ul>
+        </div>
+        <div>
+          <img src="https://images.unsplash.com/photo-1552664730-d307ca884978?w=500&h=500&fit=crop" alt="Team collaboration" style="border-radius: 8px; width: 100%;">
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Pricing Section -->
+  <section id="pricing">
+    <div class="container">
+      <h2>Simple, Transparent Pricing</h2>
+      <div class="pricing-grid">
+        <div class="pricing-card">
+          <h3>Starter</h3>
+          <div class="price">$29</div>
+          <p style="color: #6b7280; margin-bottom: 1.5rem;">per month</p>
+          <ul class="pricing-features">
+            <li>Up to 5 chatbots</li>
+            <li>1,000 conversations/month</li>
+            <li>Basic analytics</li>
+            <li>Community support</li>
+          </ul>
+          <button class="pricing-button">Get Started</button>
+        </div>
+
+        <div class="pricing-card featured">
+          <h3>Professional</h3>
+          <div class="price">$99</div>
+          <p style="color: #6b7280; margin-bottom: 1.5rem;">per month</p>
+          <ul class="pricing-features">
+            <li>Unlimited chatbots</li>
+            <li>10,000 conversations/month</li>
+            <li>Advanced analytics</li>
+            <li>Priority email support</li>
+            <li>Custom branding</li>
+          </ul>
+          <button class="pricing-button">Get Started</button>
+        </div>
+
+        <div class="pricing-card">
+          <h3>Enterprise</h3>
+          <div class="price">Custom</div>
+          <p style="color: #6b7280; margin-bottom: 1.5rem;">contact us</p>
+          <ul class="pricing-features">
+            <li>Everything in Professional</li>
+            <li>Unlimited conversations</li>
+            <li>Dedicated account manager</li>
+            <li>24/7 phone support</li>
+            <li>Custom integrations</li>
+          </ul>
+          <button class="pricing-button">Contact Sales</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ Section -->
+  <section id="faq" class="faq">
+    <div class="container">
+      <h2>Frequently Asked Questions</h2>
+      
+      <div class="faq-item">
+        <div class="faq-question">How do I embed the chatbot on my website?</div>
+        <div class="faq-answer">Simply add two lines of code to your HTML: a div with your chatbot ID and a script tag. Our widget will automatically load and initialize!</div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-question">Can I customize the chatbot's appearance?</div>
+        <div class="faq-answer">Yes! You can customize colors, avatar, welcome message, and personality to match your brand perfectly.</div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-question">What training data can I provide?</div>
+        <div class="faq-answer">You can upload text files and documents, or add text snippets directly. The chatbot learns from this data to provide better answers.</div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-question">Is there a free trial?</div>
+        <div class="faq-answer">Yes! Start with our free tier and upgrade anytime. No credit card required.</div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-question">What AI models are supported?</div>
+        <div class="faq-answer">We support Ollama models and can integrate with other LLMs. Choose the model that best fits your needs.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    <div class="container">
+      <p>&copy; 2025 TechFlow. All rights reserved.</p>
+      <p style="font-size: 0.9rem; opacity: 0.8;">Powered by Promptly AI</p>
+    </div>
+  </footer>
+
+<!-- Promptly Chatbot Widget -->
+<div data-promptly-chatbot-id="6951ddc894649fca1064b38b"></div>
+<script>
+  globalThis.PROMPTLY_API_URL = 'http://localhost:3000';
+  // Adjust :3000 to your backend port if different
+</script>
+<script src="http://localhost:5173/promptly-widget.js"></script>
+</body>
+</html>
