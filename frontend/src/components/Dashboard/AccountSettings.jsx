@@ -699,10 +699,11 @@ const AccountSettings = () => {
 
                 {/* Unsubscribe button */}
                 <button
-                  onClick={() => handleUnsubscribe(plan.name)}
-                  className="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 mt-4 rounded"
+                  onClick={() => handleUnsubscribe(currentPlan)}
+                  disabled={unsubLoading}
+                  className="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 mt-4 rounded disabled:opacity-60"
                 >
-                  Unsubscribe
+                  {unsubLoading ? 'Cancelling...' : 'Unsubscribe'}
                 </button>
               </div>
 
