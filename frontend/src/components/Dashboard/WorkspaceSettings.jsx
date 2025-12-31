@@ -9,7 +9,7 @@ const WorkspaceSettings = () => {
 
   const settingsOptions = [
     { title: "Plans", description: "Manage and upgrade your Promptly AI plan", path: "/dashboard/plans" },
-    { title: "Billing", description: "Modify your billing details", path: "/dashboard/billing" },
+    { title: "Billing", description: "View your billing history", path: "/dashboard/billing" },
     { title: "Support", description: "Get help from our support team", path: null },
   ];
   const [availableModels, setAvailableModels] = useState([]);

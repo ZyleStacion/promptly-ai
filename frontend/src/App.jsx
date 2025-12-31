@@ -36,6 +36,7 @@ const getUserId = () => {
   const user = JSON.parse(localStorage.getItem("user") || "{}");
   return user.id || user._id || "";
 };
+
 import ChatbotManagement from "./components/Admin/ChatbotManagement";
 import AdminFeedback from "./components/Admin/AdminFeedback";
 
@@ -62,6 +63,7 @@ export const App = () => {
         <Route path="/signup" element={<SignUp />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/dashboard/settings" element={<AccountSetting />} />
+        <Route path="/dashboard/billing" element={<AccountSetting />} />
         <Route path="/dashboard/plans" element={<PlansPage userId={getUserId()} />} />
         <Route path="/success" element={<PaymentSuccess />} />
         <Route path="/cancel" element={<PaymentCanceled />} />

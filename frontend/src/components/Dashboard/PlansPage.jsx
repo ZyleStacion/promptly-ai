@@ -1,10 +1,66 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import CheckoutButton from '../Payment/CheckoutButton';
 
 const BillingPage = ({ userId }) => {
   const navigate = useNavigate();
   const [billingCycle, setBillingCycle] = useState('monthly');
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    // Load cached user first
+    try {
+      const stored = JSON.parse(localStorage.getItem('user') || '{}');
+      setUser(stored && Object.keys(stored).length ? stored : null);
+    } catch (e) {
+      setUser(null);
+    }
+
+    // Then attempt to fetch fresh user from API to ensure subscription fields are current
+    (async () => {
+      try {
+        const token = localStorage.getItem('token');
+        if (!token) return;
+        const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+        const res = await fetch(`${API_URL}/user/me`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (!res.ok) return;
+        const data = await res.json();
+        if (data && data.user) {
+          setUser(data.user);
+          // update localStorage so other pages see latest
+          localStorage.setItem('user', JSON.stringify(data.user));
+        }
+      } catch (e) {
+        // silent fail — keep cached user
+      }
+    })();
+  }, []);
+
+  // Determine current subscription plan similar to AccountSettings
+  const getCurrentPlan = () => {
+    console.log("User:", {user});
+    if (!user) return null;
+    const subscriptionPlan = (user.subscriptionPlan && String(user.subscriptionPlan).trim()) || null;
+    console.log("Plan:", {subscriptionPlan});
+    if (subscriptionPlan) return subscriptionPlan;
+    if (user.subscriptionStatus && String(user.subscriptionStatus).toLowerCase() !== 'none') return 'Basic';
+    return 'Free';
+  };
+
+  const currentPlan = getCurrentPlan();
+  const isCurrentPlan = (name) => {
+    if (!name || !currentPlan) return false;
+    return String(currentPlan).toLowerCase() === String(name).toLowerCase();
+  };
+
+  const handleUnsubscribe = (planName) => {
+    const ok = window.confirm(`Are you sure you want to cancel your ${planName} subscription?`);
+    if (!ok) return;
+    // Redirect user to Account Settings > Billing where subscription actions are managed
+    navigate('/dashboard/settings', { state: { activeTab: 'billing' } });
+  };
 
   const plans = [
     {
@@ -29,7 +85,7 @@ const BillingPage = ({ userId }) => {
       features: [
         '50,000 API calls/month',
         'Priority support',
-        '10 chatbots',
+        '5 chatbots',
         'Advanced analytics',
         'Custom integrations',
       ],
@@ -45,7 +101,7 @@ const BillingPage = ({ userId }) => {
       features: [
         'Unlimited API calls',
         '24/7 dedicated support',
-        'Unlimited chatbots',
+        '20 chatbots',
         'Custom analytics',
         'Custom integrations',
       ],
@@ -141,12 +197,32 @@ const BillingPage = ({ userId }) => {
                 </div>
 
                 {/* CTA Button */}
-                {plan.name === 'Basic' ? (
+                {isCurrentPlan(plan.name) ? (
+                  <div className="space-y-3">
+                    <button
+                      disabled
+                      className="w-full bg-gray-600 text-gray-400 font-bold py-2 px-4 rounded cursor-not-allowed"
+                    >
+                      Current Plan
+                    </button>
+                    {(plan.monthlyPrice > 0 || plan.annualPrice > 0) && (
+                      <button
+                        onClick={() => handleUnsubscribe(plan.name)}
+                        className="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
+                      >
+                        Unsubscribe
+                      </button>
+                    )}
+                  </div>
+                ) : plan.monthlyPrice === 0 && plan.annualPrice === 0 ? (
                   <button
-                    disabled
-                    className="w-full bg-gray-600 text-gray-400 font-bold py-2 px-4 rounded cursor-not-allowed"
+                    onClick={() => {
+                      /* For free/basic plan, maybe navigate or show message */
+                      navigate('/dashboard');
+                    }}
+                    className="w-full bg-gray-700 text-white font-bold py-2 px-4 rounded"
                   >
-                    Current Plan
+                    Choose Basic
                   </button>
                 ) : (
                   <CheckoutButton

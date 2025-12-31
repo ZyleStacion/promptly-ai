@@ -10,7 +10,7 @@ const AccountSettings = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [activeTab, setActiveTab] = useState(
-    location.state?.activeTab || "profile"
+    location.state?.activeTab || (location.pathname === "/dashboard/billing" ? "billing" : "profile")
   );
 
   const [user, setUser] = useState(null);
