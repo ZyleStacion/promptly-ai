@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { API_URL } from "../../api/api";
 
 const AdminFeedback = () => {
   const [feedbacks, setFeedbacks] = useState([]);
@@ -6,7 +7,7 @@ const AdminFeedback = () => {
   const [activeId, setActiveId] = useState(null);
 
   const loadFeedbacks = async () => {
-    const res = await fetch("http://localhost:3000/admin/feedback", {
+    const res = await fetch(`${API_URL}/admin/feedback`, {
       headers: {
         Authorization: `Bearer ${localStorage.getItem("token")}`,
       },
@@ -20,7 +21,7 @@ const AdminFeedback = () => {
   }, []);
 
   const sendReply = async (id) => {
-    await fetch(`http://localhost:3000/admin/feedback/${id}/reply`, {
+    await fetch(`${API_URL}/admin/feedback/${id}/reply`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -93,7 +94,7 @@ const AdminFeedback = () => {
             {/* Screenshot */}
             {fb.screenshot && (
               <img
-                src={`http://localhost:3000${fb.screenshot}`}
+                src={`${API_URL}${fb.screenshot}`}
                 alt="screenshot"
                 className="max-h-40 rounded mb-4 border"
               />
