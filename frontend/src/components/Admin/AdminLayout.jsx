@@ -58,7 +58,7 @@ useEffect(() => {
             to="/admin/chatbots"
             className="flex items-center gap-3 p-3 rounded-lg hover:bg-neutral-700 transition"
           >
-            <FaUsers /> chatbot Management
+            <FaUsers /> Chatbot Management
           </Link>
 
           <Link
