@@ -388,3 +388,47 @@ export const listPaymentsForUser = async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 };
+
+export const cancelSubscription = async (req, res) => {
+  try {
+    const userId = req.user && req.user._id;
+    if (!userId) return res.status(401).json({ error: "Unauthorized" });
+
+    const user = await User.findById(userId);
+    if (!user) return res.status(404).json({ error: 'User not found' });
+
+    let subscriptionId = user.subscriptionId || null;
+
+    // If we don't have a stored subscription id, try to find one via Stripe customer
+    if (!subscriptionId && user.stripeCustomerId) {
+      const subs = await stripeInstance.subscriptions.list({ customer: user.stripeCustomerId, limit: 1 });
+      if (subs && Array.isArray(subs.data) && subs.data.length > 0) {
+        subscriptionId = subs.data[0].id;
+      }
+    }
+
+    if (!subscriptionId) {
+      return res.status(400).json({ error: 'No active subscription found for user' });
+    }
+
+    // Cancel the subscription immediately
+    try {
+      await stripeInstance.subscriptions.del(subscriptionId);
+    } catch (stripeErr) {
+      console.error('Stripe cancel error:', stripeErr);
+      return res.status(500).json({ error: stripeErr.message || 'Failed to cancel subscription' });
+    }
+
+    // Update user record in DB
+    await User.findByIdAndUpdate(userId, {
+      subscriptionStatus: 'canceled',
+      subscriptionId: null,
+      subscriptionPlan: 'Free',
+    });
+
+    return res.json({ message: 'Subscription canceled' });
+  } catch (err) {
+    console.error('Error cancelling subscription:', err);
+    return res.status(500).json({ error: err.message });
+  }
+};
