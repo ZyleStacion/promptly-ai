@@ -138,10 +138,17 @@ const WorkspaceSettings = () => {
             <p className="text-gray-400 text-sm mt-1">{option.description}</p>
           </motion.div>
         ))}
-        {/* TODO: Look at this */}
-        Workspace Settings — Chat Model Creation
       </div>
 
+      {/* Chatbot Model Creation Settings */}
+      <motion.h3
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4 }}
+        className="text-2xl font-bold mb-6 pt-6"
+      >
+        Chatbot Model Creation Settings
+      </motion.h3>
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Model Defaults */}
         <motion.div
