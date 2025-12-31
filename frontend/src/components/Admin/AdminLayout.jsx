@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Link, Outlet, useNavigate } from "react-router-dom";
 import { FaUsers, FaChartPie, FaCrown, FaArrowLeft, FaBug } from "react-icons/fa";
+import { API_URL } from '../../api/api';
 
 const AdminLayout = () => {
   const navigate = useNavigate();
@@ -10,7 +11,7 @@ useEffect(() => {
   const loadFeedbackCount = async () => {
     try {
       const res = await fetch(
-        "http://localhost:3000/admin/feedback/notifications/count",
+        `${API_URL}/admin/feedback/notifications/count`,
         {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`,

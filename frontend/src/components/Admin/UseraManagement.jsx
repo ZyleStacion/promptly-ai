@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { API_URL } from '../../api/api';
 
 const UserManagement = () => {
   const [users, setUsers] = useState([]);
@@ -7,7 +8,7 @@ const UserManagement = () => {
   const menuRefs = useRef({});
 
   const loadUsers = () => {
-    fetch("http://localhost:3000/admin/users", {
+    fetch(`${API_URL}/admin/users`, {
       headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
     })
       .then((res) => res.json())
@@ -35,14 +36,14 @@ const UserManagement = () => {
   }, [openMenuId]);
 
   const toggleAdmin = (id) => {
-    fetch(`http://localhost:3000/admin/toggle-role/${id}`, {
+    fetch(`${API_URL}/admin/toggle-role/${id}`, {
       method: "PUT",
       headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
     }).then(() => loadUsers());
   };
 
   const deleteUser = (id) => {
-    fetch(`http://localhost:3000/admin/delete/${id}`, {
+    fetch(`${API_URL}/admin/delete/${id}`, {
       method: "DELETE",
       headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
     }).then(() => loadUsers());

@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { API_URL } from '../../api/api';
 
 const ChatbotManagement = () => {
   const [chatbots, setChatbots] = useState([]);
@@ -7,7 +8,7 @@ const ChatbotManagement = () => {
   const menuRefs = useRef({});
 
   const loadChatbots = () => {
-    fetch("http://localhost:3000/admin/chatbots", {
+    fetch(`${API_URL}/admin/chatbots`, {
       headers: {
         Authorization: `Bearer ${localStorage.getItem("token")}`,
       },
@@ -39,7 +40,7 @@ const ChatbotManagement = () => {
   const deleteChatbot = (id) => {
     if (!confirm("Are you sure you want to delete this chatbot?")) return;
 
-    fetch(`http://localhost:3000/admin/chatbots/${id}`, {
+    fetch(`${API_URL}/admin/chatbots/${id}`, {
       method: "DELETE",
       headers: {
         Authorization: `Bearer ${localStorage.getItem("token")}`,

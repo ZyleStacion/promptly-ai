@@ -7,6 +7,7 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from "recharts";
+import { API_URL } from '../../api/api';
 
 const AdminDashboard = () => {
   const [stats, setStats] = useState(null);
@@ -15,7 +16,7 @@ const AdminDashboard = () => {
   useEffect(() => {
     const loadStats = async () => {
       try {
-        const res = await fetch("http://localhost:3000/admin/stats", {
+        const res = await fetch(`${API_URL}/admin/stats`, {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`,
           },
