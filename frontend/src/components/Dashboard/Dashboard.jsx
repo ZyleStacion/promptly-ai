@@ -103,16 +103,6 @@ const Dashboard = () => {
               label="Workspace setting"
               active={activeSection === "settings"}
               onClick={() => setActiveSection("settings")}
-<<<<<<< HEAD
-              className={`w-full text-left px-4 py-3 rounded-lg transition ${
-                activeSection === "settings"
-                  ? "bg-gradient-to-r from-blue-600 to-violet-600 font-semibold"
-                  : "bg-neutral-700 hover:bg-neutral-600"
-              }`}
-            >
-              Workspace Settings
-            </motion.button>
-=======
             />
 
             <SidebarButton
@@ -124,7 +114,6 @@ const Dashboard = () => {
               }}
               badge={notificationCount}
             />
->>>>>>> origin/backend
 
             {isAdmin && (
               <SidebarButton
