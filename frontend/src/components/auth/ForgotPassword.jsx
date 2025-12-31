@@ -23,6 +23,7 @@ const ForgotPassword = () => {
     setLoading(true);
 
     try {
+      // TODO: Fix this
       const res = await fetch("http://localhost:3000/auth/forgot-password", {
         method: "POST",
         headers: { "Content-Type": "application/json" },

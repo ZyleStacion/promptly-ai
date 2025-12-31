@@ -23,6 +23,7 @@ Frontend:
 - react-icons
 - react-router-dom
 - recharts
+- @stripe/react-stripe-js @stripe/stripe-js
 
 Backend:
 
@@ -38,6 +39,7 @@ Backend:
 - multer
 - nodemailer
 - crypto
+- stripe
 
 
 ### 🏃 2. Running

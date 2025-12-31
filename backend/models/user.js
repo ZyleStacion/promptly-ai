@@ -1,7 +1,6 @@
 import mongoose from "mongoose";
 import bcrypt from "bcryptjs";
 
-
 const UserSchema = new mongoose.Schema({
   username: { type: String, required: true },
   email: { type: String, required: true, unique: true },
@@ -15,8 +14,15 @@ const UserSchema = new mongoose.Schema({
 },
   
   isAdmin: { type: Boolean, default: false },   
-
   createdAt: { type: Date, default: Date.now },
+
+  // Subscription data
+  stripeCustomerId: { type: String},
+  subscriptionStatus: { type: String, default: "none" }, // Active, cancelled
+  subscriptionId: { type: String },
+  subscriptionPlan: { type: String, default: "Basic" }, // Basic, Pro, Enterprise
+  subscriptionStartDate: { type: Date },
+  subscriptionEndDate: { type: Date},
 });
 
 // Hash password before save

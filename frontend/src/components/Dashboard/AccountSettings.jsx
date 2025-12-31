@@ -3,6 +3,8 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { motion } from "framer-motion";
 import { FaUser, FaLock, FaCreditCard, FaFileInvoice } from "react-icons/fa";
 import { mockApi, USE_MOCK_API } from "../../api/mockApi";
+import { getInvoices } from "../../api/payments";
+import CheckoutButton from "../Payment/CheckoutButton";
 
 const AccountSettings = () => {
   const navigate = useNavigate();
@@ -29,6 +31,10 @@ const AccountSettings = () => {
   const [twoFactorEnabled, setTwoFactorEnabled] = useState(false);
   const [message, setMessage] = useState("");
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [billingCycle, setBillingCycle] = useState("monthly"); // 'monthly' | 'yearly'
+  const [payments, setPayments] = useState([]);
+  const [paymentsLoading, setPaymentsLoading] = useState(false);
+  const [paymentsError, setPaymentsError] = useState("");
 
   // Clear message when switching tabs
   useEffect(() => {
@@ -219,8 +225,45 @@ const AccountSettings = () => {
     setShowDeleteModal(false);
   };
 
+    // Fetch invoices when Billing tab is active
+    useEffect(() => {
+      const fetchPayments = async () => {
+        setPaymentsError("");
+        setPaymentsLoading(true);
+        try {
+          const res = await getInvoices();
+          setPayments(res.payments || []);
+        } catch (err) {
+          console.error("Error fetching invoices:", err);
+          setPaymentsError(err.message || "Error fetching billing history");
+        } finally {
+          setPaymentsLoading(false);
+        }
+      };
+
+      if (activeTab === "billing") {
+        fetchPayments();
+      }
+    }, [activeTab]);
+
   if (!user) return <p className="text-white">Loading...</p>;
 
+  // Determine current subscription plan from user object
+  const currentPlan = (user.subscriptionPlan && user.subscriptionPlan.trim()) ||
+    (user.subscriptionStatus && user.subscriptionStatus.toLowerCase() !== "none"
+      ? "Basic"
+      : "Free");
+  const isCurrentPlan = (name) => {
+    if (!name) return false;
+    return currentPlan.toLowerCase() === name.toLowerCase();
+  };
+  // helper to format prices based on billing cycle (yearly uses 10% discount)
+  const formatPrice = (monthly) => {
+    if (billingCycle === "monthly") return `$${monthly}`;
+    const yearly = Math.round(monthly * 10);
+    return `$${yearly}`;
+  };
+  const billingLabel = billingCycle === "monthly" ? "/month" : "/year";
   // --------------------------------------------------
   // FRONTEND UI
   // --------------------------------------------------
@@ -544,27 +587,67 @@ const AccountSettings = () => {
                   <div className="flex items-center justify-between mb-4">
                     <div>
                       <h3 className="text-xl font-bold text-white">
-                        Free Plan
+                        {currentPlan} Plan
                       </h3>
                       <p className="text-gray-400 text-sm">
-                        Perfect for getting started
+                        {currentPlan === "Free" || currentPlan === "Basic"
+                          ? "Perfect for getting started"
+                          : currentPlan === "Pro"
+                          ? "Great for growing teams"
+                          : "Enterprise features and support"}
                       </p>
                     </div>
-                    <span className="text-2xl font-bold text-white">$0</span>
+                    <span className="text-2xl font-bold text-white">
+                      {currentPlan === "Free" || currentPlan === "Basic" ? "$0" : currentPlan === "Pro" ? "$29" : "$99"}
+                    </span>
                   </div>
                   <ul className="space-y-2 text-gray-300">
-                    <li className="flex items-center gap-2">
-                      <span className="text-green-400">✓</span>
-                      <span>50 credits per month</span>
-                    </li>
-                    <li className="flex items-center gap-2">
-                      <span className="text-green-400">✓</span>
-                      <span>Up to 10 chatbots</span>
-                    </li>
-                    <li className="flex items-center gap-2">
-                      <span className="text-green-400">✓</span>
-                      <span>Basic analytics</span>
-                    </li>
+                    {currentPlan.toLowerCase() === "free" || currentPlan.toLowerCase() === "basic" ? (
+                      <>
+                        <li className="flex items-center gap-2">
+                          <span className="text-green-400">✓</span>
+                          <span>50 credits per month</span>
+                        </li>
+                        <li className="flex items-center gap-2">
+                          <span className="text-green-400">✓</span>
+                          <span>1 chatbot</span>
+                        </li>
+                        <li className="flex items-center gap-2">
+                          <span className="text-green-400">✓</span>
+                          <span>Basic analytics</span>
+                        </li>
+                      </>
+                    ) : currentPlan.toLowerCase() === "pro" ? (
+                      <>
+                        <li className="flex items-center gap-2">
+                          <span className="text-blue-400">✓</span>
+                          <span>500 credits/month</span>
+                        </li>
+                        <li className="flex items-center gap-2">
+                          <span className="text-blue-400">✓</span>
+                          <span>Unlimited chatbots</span>
+                        </li>
+                        <li className="flex items-center gap-2">
+                          <span className="text-blue-400">✓</span>
+                          <span>Advanced analytics</span>
+                        </li>
+                      </>
+                    ) : (
+                      <>
+                        <li className="flex items-center gap-2">
+                          <span className="text-violet-400">✓</span>
+                          <span>Unlimited credits</span>
+                        </li>
+                        <li className="flex items-center gap-2">
+                          <span className="text-violet-400">✓</span>
+                          <span>Unlimited chatbots</span>
+                        </li>
+                        <li className="flex items-center gap-2">
+                          <span className="text-violet-400">✓</span>
+                          <span>Custom integrations</span>
+                        </li>
+                      </>
+                    )}
                   </ul>
                 </div>
               </div>
@@ -572,6 +655,23 @@ const AccountSettings = () => {
               {/* Available Plans */}
               <div className="bg-neutral-800 rounded-xl p-6 border border-gray-700">
                 <h2 className="text-2xl font-bold mb-4">Available Plans</h2>
+                <div className="flex items-center justify-between mb-4">
+                  <div className="text-sm text-gray-400">Select billing cycle</div>
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => setBillingCycle("monthly")}
+                      className={`px-3 py-1 rounded-full text-sm font-medium transition ${billingCycle === "monthly" ? "bg-white text-black" : "bg-neutral-700 text-gray-300"}`}
+                    >
+                      Monthly
+                    </button>
+                    <button
+                      onClick={() => setBillingCycle("yearly")}
+                      className={`px-3 py-1 rounded-full text-sm font-medium transition ${billingCycle === "yearly" ? "bg-white text-black" : "bg-neutral-700 text-gray-300"}`}
+                    >
+                      Yearly
+                    </button>
+                  </div>
+                </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {/* Pro Plan */}
                   <div className="bg-neutral-900 rounded-lg p-6 border border-blue-500/50 hover:border-blue-500 transition">
@@ -581,9 +681,9 @@ const AccountSettings = () => {
                       </h3>
                       <div className="flex items-baseline gap-1">
                         <span className="text-3xl font-bold text-white">
-                          $29
+                          {formatPrice(29)}
                         </span>
-                        <span className="text-gray-400">/month</span>
+                        <span className="text-gray-400">{billingLabel}</span>
                       </div>
                     </div>
                     <ul className="space-y-3 mb-6 text-gray-300">
@@ -604,22 +704,33 @@ const AccountSettings = () => {
                         <span>Priority support</span>
                       </li>
                     </ul>
-                    <button className="w-full bg-blue-600 hover:bg-blue-700 py-2 rounded-lg text-white font-semibold transition">
-                      Upgrade to Pro
-                    </button>
+                    {isCurrentPlan("Pro") ? (
+                      <button
+                        disabled
+                        className="w-full bg-gray-700 text-gray-400 py-2 rounded-lg font-semibold cursor-not-allowed"
+                      >
+                        Current Plan
+                      </button>
+                    ) : (
+                      <CheckoutButton
+                        priceId={billingCycle === "monthly" ? "price_1Sk0ju3tBDM4Uh8AID3qhu5S" : "price_1Sk0s13tBDM4Uh8Ag7oIwytw"}
+                        userId={user.id || user._id}
+                        planName="Pro"
+                      />
+                    )}
                   </div>
 
-                  {/* Max Plan */}
+                  {/* Enterprise Plan */}
                   <div className="bg-neutral-900 rounded-lg p-6 border border-violet-500/50 hover:border-violet-500 transition">
                     <div className="mb-4">
                       <h3 className="text-xl font-bold text-white mb-1">
-                        Max Plan
+                        Enterprise Plan
                       </h3>
                       <div className="flex items-baseline gap-1">
                         <span className="text-3xl font-bold text-white">
-                          $99
+                          {formatPrice(99)}
                         </span>
-                        <span className="text-gray-400">/month</span>
+                        <span className="text-gray-400">{billingLabel}</span>
                       </div>
                     </div>
                     <ul className="space-y-3 mb-6 text-gray-300">
@@ -642,9 +753,20 @@ const AccountSettings = () => {
                         </span>
                       </li>
                     </ul>
-                    <button className="w-full bg-gradient-to-r from-blue-600 to-violet-600 hover:opacity-90 py-2 rounded-lg text-white font-semibold transition">
-                      Upgrade to Max
-                    </button>
+                    {isCurrentPlan("Enterprise") || isCurrentPlan("Max") ? (
+                      <button
+                        disabled
+                        className="w-full bg-gray-700 text-gray-400 py-2 rounded-lg font-semibold cursor-not-allowed"
+                      >
+                        Current Plan
+                      </button>
+                    ) : (
+                      <CheckoutButton
+                        priceId={billingCycle === "monthly" ? "price_1SjxRI3tBDM4Uh8AU9CbUNeI" : "price_1Sk0tE3tBDM4Uh8AZFTTWsWW"}
+                        userId={user.id || user._id}
+                        planName="Enterprise"
+                      />
+                    )}
                   </div>
                 </div>
               </div>
@@ -659,7 +781,7 @@ const AccountSettings = () => {
               transition={{ duration: 0.3 }}
               className="space-y-6"
             >
-              {/* Payment Methods */}
+              {/* Payment Methods
               <div className="bg-neutral-800 rounded-xl p-6 border border-gray-700">
                 <h2 className="text-2xl font-bold mb-4">Payment Methods</h2>
                 <div className="text-center py-8">
@@ -670,14 +792,65 @@ const AccountSettings = () => {
                     + Add Payment Method
                   </button>
                 </div>
-              </div>
+              </div> */}
 
               {/* Billing History */}
               <div className="bg-neutral-800 rounded-xl p-6 border border-gray-700">
                 <h2 className="text-2xl font-bold mb-4">Billing History</h2>
-                <div className="text-center py-8">
-                  <p className="text-gray-400">No billing history available</p>
-                </div>
+                {paymentsLoading ? (
+                  <div className="text-center py-8 text-gray-400">Loading...</div>
+                ) : paymentsError ? (
+                  <div className="text-center py-8 text-red-400">{paymentsError}</div>
+                ) : payments && payments.length > 0 ? (
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-left">
+                      <thead>
+                        <tr className="text-gray-400 text-sm">
+                          <th className="pb-2">Date</th>
+                          <th className="pb-2">Amount</th>
+                          <th className="pb-2">Status</th>
+                          <th className="pb-2">Period</th>
+                          <th className="pb-2">Invoice</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {payments.map((p) => {
+                          const date = p.createdAtStripe
+                            ? new Date(p.createdAtStripe * 1000)
+                            : p.createdAt
+                              ? new Date(p.createdAt)
+                              : null;
+                          const amount = p.amountPaid != null ? (p.amountPaid / 100).toFixed(2) : "0.00";
+                          const currency = (p.currency || "USD").toUpperCase();
+                          const periodStart = p.periodStart ? new Date(p.periodStart * 1000) : null;
+                          const periodEnd = p.periodEnd ? new Date(p.periodEnd * 1000) : null;
+
+                          return (
+                            <tr key={p._id || p.stripeInvoiceId} className="border-t border-gray-700">
+                              <td className="py-3 text-sm text-gray-300">{date ? date.toLocaleDateString() : "-"}</td>
+                              <td className="py-3 text-sm text-gray-300">{currency} {amount}</td>
+                              <td className="py-3 text-sm text-gray-300">{p.status || "-"}</td>
+                              <td className="py-3 text-sm text-gray-300">{periodStart && periodEnd ? `${periodStart.toLocaleDateString()} — ${periodEnd.toLocaleDateString()}` : "-"}</td>
+                              <td className="py-3 text-sm text-gray-300">
+                                {p.hostedInvoiceUrl ? (
+                                  <a href={p.hostedInvoiceUrl} target="_blank" rel="noreferrer" className="text-blue-400 hover:underline">View</a>
+                                ) : p.invoicePdf ? (
+                                  <a href={p.invoicePdf} target="_blank" rel="noreferrer" className="text-blue-400 hover:underline">Download</a>
+                                ) : (
+                                  <span className="text-gray-500">-</span>
+                                )}
+                              </td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                  </div>
+                ) : (
+                  <div className="text-center py-8">
+                    <p className="text-gray-400">No billing history available</p>
+                  </div>
+                )}
               </div>
             </motion.div>
           )}

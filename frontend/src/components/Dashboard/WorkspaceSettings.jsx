@@ -1,9 +1,17 @@
 import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
+import { useNavigate } from "react-router-dom";
 import { Copy } from "lucide-react";
 
 const WorkspaceSettings = () => {
   const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:3000";
+  const navigate = useNavigate();
+
+  const settingsOptions = [
+    { title: "Plans", description: "Manage and upgrade your Promptly AI plan", path: "/dashboard/plans" },
+    { title: "Billing", description: "Modify your billing details", path: "/dashboard/billing" },
+    { title: "Support", description: "Get help from our support team", path: null },
+  ];
   const [availableModels, setAvailableModels] = useState([]);
   const [loadingModels, setLoadingModels] = useState(false);
 
@@ -109,9 +117,38 @@ const WorkspaceSettings = () => {
         transition={{ duration: 0.4 }}
         className="text-2xl font-bold mb-6"
       >
-        Workspace Settings — Chat Model Creation
+        Workspace Settings
       </motion.h2>
 
+      <div className="space-y-4">
+        {settingsOptions.map((option, index) => (
+          <motion.div
+            key={index}
+            initial={{ opacity: 0, x: -50 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: index * 0.1 + 0.2, duration: 0.4 }}
+            whileHover={{
+              scale: 1.02,
+              borderColor: "rgba(156, 163, 175, 0.5)",
+            }}
+            onClick={() => option.path && navigate(option.path)}
+            className="bg-neutral-800 p-5 rounded-xl border border-gray-700 hover:border-gray-600 transition cursor-pointer"
+          >
+            <h3 className="text-lg font-semibold">{option.title}</h3>
+            <p className="text-gray-400 text-sm mt-1">{option.description}</p>
+          </motion.div>
+        ))}
+      </div>
+
+      {/* Chatbot Model Creation Settings */}
+      <motion.h3
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4 }}
+        className="text-2xl font-bold mb-6 pt-6"
+      >
+        Chatbot Model Creation Settings
+      </motion.h3>
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Model Defaults */}
         <motion.div
