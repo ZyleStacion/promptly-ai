@@ -40,10 +40,8 @@ const BillingPage = ({ userId }) => {
 
   // Determine current subscription plan similar to AccountSettings
   const getCurrentPlan = () => {
-    console.log("User:", {user});
     if (!user) return null;
     const subscriptionPlan = (user.subscriptionPlan && String(user.subscriptionPlan).trim()) || null;
-    console.log("Plan:", {subscriptionPlan});
     if (subscriptionPlan) return subscriptionPlan;
     if (user.subscriptionStatus && String(user.subscriptionStatus).toLowerCase() !== 'none') return 'Basic';
     return 'Free';
@@ -56,11 +54,51 @@ const BillingPage = ({ userId }) => {
   };
 
   const handleUnsubscribe = (planName) => {
-    const ok = window.confirm(`Are you sure you want to cancel your ${planName} subscription?`);
-    if (!ok) return;
-    // Redirect user to Account Settings > Billing where subscription actions are managed
-    navigate('/dashboard/settings', { state: { activeTab: 'billing' } });
+    (async () => {
+      const ok = window.confirm(`Are you sure you want to cancel your ${planName} subscription?`);
+      if (!ok) return;
+      try {
+        setUnsubLoading(true);
+        const token = localStorage.getItem('token');
+        const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+        const res = await fetch(`${API_URL}/payment/cancel-subscription`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ planName }),
+        });
+
+        if (!res.ok) {
+          const err = await res.json().catch(() => ({}));
+          throw new Error(err.error || 'Failed to cancel subscription');
+        }
+
+        const data = await res.json().catch(() => ({}));
+
+        // Update local user state to reflect cancellation so UI updates immediately
+        const updated = Object.assign({}, user || {}, {
+          subscriptionStatus: 'canceled',
+          subscriptionPlan: 'Free',
+        });
+        setUser(updated);
+        try { localStorage.setItem('user', JSON.stringify(updated)); } catch (e) {}
+
+        alert(data.message || 'Subscription canceled');
+        
+        // Navigate to subscription settings to view the change
+        navigate('/dashboard/settings', { state: { activeTab: 'subscription' } });
+      } catch (err) {
+        console.error('Unsubscribe error:', err);
+        alert(err.message || 'Failed to cancel subscription');
+      } finally {
+        setUnsubLoading(false);
+      }
+    })();
   };
+
+  const [unsubLoading, setUnsubLoading] = useState(false);
 
   const plans = [
     {

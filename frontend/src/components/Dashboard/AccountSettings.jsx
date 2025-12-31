@@ -35,6 +35,7 @@ const AccountSettings = () => {
   const [payments, setPayments] = useState([]);
   const [paymentsLoading, setPaymentsLoading] = useState(false);
   const [paymentsError, setPaymentsError] = useState("");
+  const [unsubLoading, setUnsubLoading] = useState(false);
 
   // Clear message when switching tabs
   useEffect(() => {
@@ -223,6 +224,49 @@ const AccountSettings = () => {
       setMessage("Error deleting account");
     }
     setShowDeleteModal(false);
+  };
+
+  const handleUnsubscribe = async (planName) => {
+    const ok = window.confirm(`Are you sure you want to cancel your ${planName} subscription?`);
+    if (!ok) return;
+
+    try {
+      setUnsubLoading(true);
+      const token = localStorage.getItem('token');
+      const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+      const res = await fetch(`${API_URL}/payment/cancel-subscription`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ planName }),
+      });
+
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.error || 'Failed to cancel subscription');
+      }
+
+      const data = await res.json().catch(() => ({}));
+
+      // update local user state to reflect cancellation
+      const updated = Object.assign({}, user || {}, {
+        subscriptionStatus: 'canceled',
+        subscriptionPlan: 'Free',
+      });
+      setUser(updated);
+      try { localStorage.setItem('user', JSON.stringify(updated)); } catch (e) {}
+
+      alert(data.message || 'Subscription canceled');
+      // navigate to subscription tab for further actions
+      navigate('/dashboard/settings', { state: { activeTab: 'subscriptions' } });
+    } catch (err) {
+      console.error('Unsubscribe error:', err);
+      alert(err.message || 'Failed to cancel subscription');
+    } finally {
+      setUnsubLoading(false);
+    }
   };
 
     // Fetch invoices when Billing tab is active
@@ -604,6 +648,7 @@ const AccountSettings = () => {
                   <ul className="space-y-2 text-gray-300">
                     {currentPlan.toLowerCase() === "free" || currentPlan.toLowerCase() === "basic" ? (
                       <>
+                      {/* Free description */}
                         <li className="flex items-center gap-2">
                           <span className="text-green-400">✓</span>
                           <span>50 credits per month</span>
@@ -619,13 +664,14 @@ const AccountSettings = () => {
                       </>
                     ) : currentPlan.toLowerCase() === "pro" ? (
                       <>
+                      {/* Pro desription */}
                         <li className="flex items-center gap-2">
                           <span className="text-blue-400">✓</span>
-                          <span>500 credits/month</span>
+                          <span>50,000 API calls/month</span>
                         </li>
                         <li className="flex items-center gap-2">
                           <span className="text-blue-400">✓</span>
-                          <span>Unlimited chatbots</span>
+                          <span>5 chatbots</span>
                         </li>
                         <li className="flex items-center gap-2">
                           <span className="text-blue-400">✓</span>
@@ -636,20 +682,28 @@ const AccountSettings = () => {
                       <>
                         <li className="flex items-center gap-2">
                           <span className="text-violet-400">✓</span>
-                          <span>Unlimited credits</span>
+                          <span>Unlimited API calls</span>
                         </li>
                         <li className="flex items-center gap-2">
                           <span className="text-violet-400">✓</span>
-                          <span>Unlimited chatbots</span>
+                          <span>20 chatbots</span>
                         </li>
                         <li className="flex items-center gap-2">
                           <span className="text-violet-400">✓</span>
-                          <span>Custom integrations</span>
+                          <span>Custom analytics</span>
                         </li>
                       </>
                     )}
                   </ul>
                 </div>
+
+                {/* Unsubscribe button */}
+                <button
+                  onClick={() => handleUnsubscribe(plan.name)}
+                  className="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 mt-4 rounded"
+                >
+                  Unsubscribe
+                </button>
               </div>
 
               {/* Available Plans */}
@@ -689,19 +743,23 @@ const AccountSettings = () => {
                     <ul className="space-y-3 mb-6 text-gray-300">
                       <li className="flex items-center gap-2">
                         <span className="text-blue-400">✓</span>
-                        <span>500 credits/month</span>
+                        <span>50,000 API calls/month</span>
                       </li>
                       <li className="flex items-center gap-2">
                         <span className="text-blue-400">✓</span>
-                        <span>Unlimited chatbots</span>
+                        <span>Priority support</span>
+                      </li>
+                      <li className="flex items-center gap-2">
+                        <span className="text-blue-400">✓</span>
+                        <span>5 chatbots</span>
                       </li>
                       <li className="flex items-center gap-2">
                         <span className="text-blue-400">✓</span>
                         <span>Advanced analytics</span>
                       </li>
-                      <li className="flex items-center gap-2">
+                        <li className="flex items-center gap-2">
                         <span className="text-blue-400">✓</span>
-                        <span>Priority support</span>
+                        <span>Custom integrations</span>
                       </li>
                     </ul>
                     {isCurrentPlan("Pro") ? (
@@ -736,21 +794,23 @@ const AccountSettings = () => {
                     <ul className="space-y-3 mb-6 text-gray-300">
                       <li className="flex items-center gap-2">
                         <span className="text-violet-400">✓</span>
-                        <span>Unlimited credits</span>
+                        <span>Unlimited API calls</span>
                       </li>
                       <li className="flex items-center gap-2">
                         <span className="text-violet-400">✓</span>
-                        <span>Unlimited chatbots</span>
+                        <span>24/7 dedicated support</span>
+                      </li>
+                      <li className="flex items-center gap-2">
+                        <span className="text-violet-400">✓</span>
+                        <span>20 chatbots</span>
+                      </li>
+                      <li className="flex items-center gap-2">
+                        <span className="text-violet-400">✓</span>
+                        <span>Custom analytics</span>
                       </li>
                       <li className="flex items-center gap-2">
                         <span className="text-violet-400">✓</span>
                         <span>Custom integrations</span>
-                      </li>
-                      <li className="flex items-center gap-2">
-                        <span className="text-violet-400">✓</span>
-                        <span>
-                          Dedicated support + 1 kiss from each of us developers
-                        </span>
                       </li>
                     </ul>
                     {isCurrentPlan("Enterprise") || isCurrentPlan("Max") ? (
