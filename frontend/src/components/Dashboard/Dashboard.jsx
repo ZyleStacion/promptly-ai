@@ -13,7 +13,7 @@ import ChatInterface from "./ChatInterface.jsx";
 import FeedbackButton from "../Feedback/FeedbackButton.jsx";
 import Notification from "./Notification.jsx";
 
-import { api } from "../../api/mockApi";
+import { API_URL } from "../../api/api.js";
 
 const isAuthenticated = () => !!localStorage.getItem("token");
 
@@ -60,7 +60,8 @@ const Dashboard = () => {
   const loadNotificationCount = async () => {
     try {
       const res = await fetch(
-        "http://localhost:3000/feedback/notifications/count",
+        // Replace this with .env API path
+        `${API_URL}/feedback/notifications/count`,
         {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`,

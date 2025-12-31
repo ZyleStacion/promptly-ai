@@ -5,6 +5,7 @@ import { FaUser, FaLock, FaCreditCard, FaFileInvoice } from "react-icons/fa";
 import { mockApi, USE_MOCK_API } from "../../api/mockApi";
 import { getInvoices } from "../../api/payments";
 import CheckoutButton from "../Payment/CheckoutButton";
+import { API_URL } from "../../api/api";
 
 const AccountSettings = () => {
   const navigate = useNavigate();
@@ -56,7 +57,7 @@ const AccountSettings = () => {
           const token = localStorage.getItem("token");
           console.log("Token:", token ? "exists" : "missing");
 
-          const res = await fetch("http://localhost:3000/user/me", {
+          const res = await fetch(`${API_URL}/user/me`, {
             headers: {
               Authorization: `Bearer ${token}`,
             },
@@ -78,7 +79,7 @@ const AccountSettings = () => {
         const fullImg = u.profileImage
           ? USE_MOCK_API
             ? u.profileImage
-            : `http://localhost:3000${u.profileImage}`
+            : `${API_URL}/${u.profileImage}`
           : "";
 
         setProfileImage(fullImg);
@@ -135,7 +136,7 @@ const AccountSettings = () => {
       if (USE_MOCK_API) {
         data = await mockApi.updateUserProfile(formData);
       } else {
-        const res = await fetch("http://localhost:3000/user/update-info", {
+        const res = await fetch(`${API_URL}/user/update-info`, {
           method: "PUT",
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -151,7 +152,7 @@ const AccountSettings = () => {
         const img = data.user.profileImage
           ? USE_MOCK_API
             ? data.user.profileImage
-            : `http://localhost:3000${data.user.profileImage}`
+            : `${API_URL}${data.user.profileImage}`
           : "";
 
         setUser(data.user);
@@ -179,7 +180,7 @@ const AccountSettings = () => {
       if (USE_MOCK_API) {
         data = await mockApi.changePassword({ currentPassword, newPassword });
       } else {
-        const res = await fetch("http://localhost:3000/user/change-password", {
+        const res = await fetch(`${API_URL}/user/change-password`, {
           method: "PUT",
           headers: {
             "Content-Type": "application/json",
@@ -210,7 +211,7 @@ const AccountSettings = () => {
       if (USE_MOCK_API) {
         await mockApi.deleteAccount();
       } else {
-        await fetch("http://localhost:3000/user/delete", {
+        await fetch(`${API_URL}/user/delete`, {
           method: "DELETE",
           headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
         });
@@ -233,7 +234,6 @@ const AccountSettings = () => {
     try {
       setUnsubLoading(true);
       const token = localStorage.getItem('token');
-      const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
       const res = await fetch(`${API_URL}/payment/cancel-subscription`, {
         method: 'POST',
         headers: {
