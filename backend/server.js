@@ -13,7 +13,8 @@ import { fileURLToPath } from "url";
 import adminRoutes from "./routes/admin.js";
 import paymentRoutes from "./routes/payment.js";
 import { handleWebhook } from "./controllers/paymentController.js";
-
+import feedbackRoutes from "./routes/feedback.js";
+import adminFeedbackRoutes from "./routes/adminFeedback.js";
 
 dotenv.config();
 
@@ -37,7 +38,8 @@ app.use("/user", userRoutes);
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 app.use("/admin", adminRoutes);
 app.use("/payment", paymentRoutes);
-
+app.use("/feedback", feedbackRoutes);
+app.use("/admin/feedback", adminFeedbackRoutes);
 
 // Connect to MongoDB
 connectDB();
@@ -46,7 +48,6 @@ connectDB();
 app.get("/", (req, res) => {
   res.send("Promptly AI Server Running...");
 });
-
 
 // Server Listener
 const PORT = process.env.PORT || 3000;

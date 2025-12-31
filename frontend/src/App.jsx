@@ -37,6 +37,7 @@ const getUserId = () => {
   return user.id || user._id || "";
 };
 import ChatbotManagement from "./components/Admin/ChatbotManagement";
+import AdminFeedback from "./components/Admin/AdminFeedback";
 
 
 const HomePage = () => (
@@ -80,6 +81,7 @@ export const App = () => {
           <Route index element={<AdminDashboard />} />
           <Route path="users" element={<UserManagement />} />
           <Route path="chatbots" element={<ChatbotManagement />} />
+          <Route path="/admin/feedback" element={<AdminFeedback />} />
         </Route>
       </Routes>
     </Router>
