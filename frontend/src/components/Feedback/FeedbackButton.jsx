@@ -132,12 +132,12 @@ const FeedbackButton = forwardRef((props, ref) => {
                     <div className="p-2 bg-purple-100 dark:bg-purple-900 rounded-lg">
                       <Bug className="w-6 h-6 text-purple-600" />
                     </div>
-                    <h2 className="text-2xl font-bold">
+                    <h2 className="text-2xl font-bold text-white">
                       Report an Issue
                     </h2>
                   </div>
                   <button onClick={handleClose}>
-                    <X />
+                    <X color="white" />
                   </button>
                 </div>
 
@@ -147,7 +147,7 @@ const FeedbackButton = forwardRef((props, ref) => {
                   onChange={(e) => setBugDescription(e.target.value)}
                   rows="6"
                   placeholder="Describe the issue..."
-                  className="w-full p-3 rounded border dark:bg-gray-700 mb-6"
+                  className="w-full p-3 rounded border text-white dark:bg-gray-700 mb-6"
                 />
 
                 {/* Labels */}
@@ -156,7 +156,7 @@ const FeedbackButton = forwardRef((props, ref) => {
                     <button
                       key={label}
                       onClick={() => handleLabelToggle(label)}
-                      className={`px-4 py-2 rounded-full text-sm ${
+                      className={`px-4 py-2 rounded-full text-sm text-white ${
                         selectedLabels.includes(label)
                           ? "bg-purple-600 text-white"
                           : "bg-gray-200 dark:bg-gray-700"
@@ -168,7 +168,7 @@ const FeedbackButton = forwardRef((props, ref) => {
                 </div>
 
                 {/* Upload */}
-                <label className="flex items-center gap-2 mb-4 cursor-pointer">
+                <label className="flex items-center gap-2 mb-4 cursor-pointer text-white">
                   <Upload />
                   <span>Upload Screenshot</span>
                   <input
@@ -218,7 +218,7 @@ const FeedbackButton = forwardRef((props, ref) => {
               rounded-xl shadow-2xl z-50
               w-full max-w-sm p-6 text-center"
             >
-              <h3 className="text-xl font-bold mb-2">
+              <h3 className="text-xl font-bold text-white mb-2">
                 Login Required
               </h3>
 
@@ -229,7 +229,7 @@ const FeedbackButton = forwardRef((props, ref) => {
               <div className="flex gap-3">
                 <button
                   onClick={() => setShowLoginPrompt(false)}
-                  className="flex-1 py-2 rounded bg-gray-200 dark:bg-gray-700"
+                  className="flex-1 py-2 rounded text-white bg-gray-200 dark:bg-gray-700"
                 >
                   Cancel
                 </button>
