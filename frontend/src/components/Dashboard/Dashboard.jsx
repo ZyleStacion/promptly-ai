@@ -71,7 +71,6 @@ const Dashboard = () => {
   const [notificationCount, setNotificationCount] = useState(0);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
-
   useEffect(() => {
     if (!isAuthenticated()) navigate("/signin");
 
@@ -82,9 +81,7 @@ const Dashboard = () => {
     loadChatbots();
     loadOllamaModels();
     loadNotificationCount();
-
   }, []);
-
 
   // Prefill from workspace settings
   useEffect(() => {
@@ -103,7 +100,9 @@ const Dashboard = () => {
 
       if (data.success && data.models) {
         setAvailableModels(data.models);
-        const saved = JSON.parse(localStorage.getItem("workspaceSettings") || "{}");
+        const saved = JSON.parse(
+          localStorage.getItem("workspaceSettings") || "{}"
+        );
         const savedDefault = saved.defaultModel;
         if (savedDefault && data.models.some((m) => m.name === savedDefault)) {
           setSelectedModel(savedDefault);
@@ -156,7 +155,6 @@ const Dashboard = () => {
       console.error("Failed to load notifications", err);
     }
   };
-
 
   const handleFileChange = (e) => {
     const newFiles = Array.from(e.target.files);
@@ -227,11 +225,16 @@ const Dashboard = () => {
 
       // Create chatbot payload
       const ws = JSON.parse(localStorage.getItem("workspaceSettings") || "{}");
-      const systemPromptStr = ws.systemPrompt || `You are ${chatbotName}, a helpful AI assistant. Answer questions based on the provided information.`;
+      const systemPromptStr =
+        ws.systemPrompt ||
+        `You are ${chatbotName}, a helpful AI assistant. Answer questions based on the provided information.`;
       const payload = {
         name: chatbotName,
         description: description || chatbotName,
-        welcomeMessage: welcomeMessage || ws.welcomeMessage || `Hi! I'm ${chatbotName}. How can I help you today?`,
+        welcomeMessage:
+          welcomeMessage ||
+          ws.welcomeMessage ||
+          `Hi! I'm ${chatbotName}. How can I help you today?`,
         businessName: chatbotName,
         businessDescription: description,
         chatbotType: chatbotType,
@@ -261,7 +264,9 @@ const Dashboard = () => {
         setEditingTrainingData([]);
         setTrainingFiles([]);
         setTrainingText("");
-        setSelectedModel(availableModels.length > 0 ? availableModels[0].name : "");
+        setSelectedModel(
+          availableModels.length > 0 ? availableModels[0].name : ""
+        );
         setChatbotType("general");
         setChatbotPersonality("friendly");
         setChatbotName("");
@@ -272,11 +277,21 @@ const Dashboard = () => {
         setProfilePreview("");
         setProfileDeleted(false);
       } else {
-        setError(response.error || `Failed to ${editingChatbot ? 'update' : 'create'} chatbot`);
+        setError(
+          response.error ||
+            `Failed to ${editingChatbot ? "update" : "create"} chatbot`
+        );
       }
     } catch (err) {
-      console.error(`Error ${editingChatbot ? 'updating' : 'creating'} chatbot:`, err);
-      setError(`Failed to ${editingChatbot ? 'update' : 'create'} chatbot. Please try again.`);
+      console.error(
+        `Error ${editingChatbot ? "updating" : "creating"} chatbot:`,
+        err
+      );
+      setError(
+        `Failed to ${
+          editingChatbot ? "update" : "create"
+        } chatbot. Please try again.`
+      );
     } finally {
       setCreating(false);
     }
@@ -318,7 +333,10 @@ const Dashboard = () => {
     setProfileDeleted(false);
     setChatbotType(chatbot.chatbotType || "general");
     setChatbotPersonality(chatbot.personality || "friendly");
-    setSelectedModel(chatbot.modelName || (availableModels.length > 0 ? availableModels[0].name : ""));
+    setSelectedModel(
+      chatbot.modelName ||
+        (availableModels.length > 0 ? availableModels[0].name : "")
+    );
 
     // Use array-based training data for edit mode
     setEditingTrainingData(chatbot.trainingData || []);
@@ -340,7 +358,6 @@ const Dashboard = () => {
         onMenuClick={() => setIsSidebarOpen(true)}
       />
 
-
       <div className="flex pt-10">
         {/* Left Sidebar Navigation */}
         <motion.div
@@ -354,10 +371,11 @@ const Dashboard = () => {
               whileHover={{ scale: 1.03, x: 5 }}
               whileTap={{ scale: 0.98 }}
               onClick={() => setActiveSection("models")}
-              className={`w-full text-left px-4 py-3 rounded-lg transition ${activeSection === "models"
-                ? "bg-gradient-to-r from-blue-600 to-violet-600 font-semibold"
-                : "bg-neutral-700 hover:bg-neutral-600"
-                }`}
+              className={`w-full text-left px-4 py-3 rounded-lg transition ${
+                activeSection === "models"
+                  ? "bg-gradient-to-r from-blue-600 to-violet-600 font-semibold"
+                  : "bg-neutral-700 hover:bg-neutral-600"
+              }`}
             >
               Models
             </motion.button>
@@ -366,10 +384,11 @@ const Dashboard = () => {
               whileHover={{ scale: 1.03, x: 5 }}
               whileTap={{ scale: 0.98 }}
               onClick={() => setActiveSection("usage")}
-              className={`w-full text-left px-4 py-3 rounded-lg transition ${activeSection === "usage"
-                ? "bg-gradient-to-r from-blue-600 to-violet-600 font-semibold"
-                : "bg-neutral-700 hover:bg-neutral-600"
-                }`}
+              className={`w-full text-left px-4 py-3 rounded-lg transition ${
+                activeSection === "usage"
+                  ? "bg-gradient-to-r from-blue-600 to-violet-600 font-semibold"
+                  : "bg-neutral-700 hover:bg-neutral-600"
+              }`}
             >
               Usage
             </motion.button>
@@ -378,10 +397,11 @@ const Dashboard = () => {
               whileHover={{ scale: 1.03, x: 5 }}
               whileTap={{ scale: 0.98 }}
               onClick={() => setActiveSection("settings")}
-              className={`w-full text-left px-4 py-3 rounded-lg transition ${activeSection === "settings"
-                ? "bg-gradient-to-r from-blue-600 to-violet-600 font-semibold"
-                : "bg-neutral-700 hover:bg-neutral-600"
-                }`}
+              className={`w-full text-left px-4 py-3 rounded-lg transition ${
+                activeSection === "settings"
+                  ? "bg-gradient-to-r from-blue-600 to-violet-600 font-semibold"
+                  : "bg-neutral-700 hover:bg-neutral-600"
+              }`}
             >
               Workspace setting
             </motion.button>
@@ -393,10 +413,11 @@ const Dashboard = () => {
                 setActiveSection("notification");
                 setNotificationCount(0);
               }}
-              className={`w-full text-left px-4 py-3 rounded-lg transition ${activeSection === "notification"
-                ? "bg-gradient-to-r from-blue-600 to-violet-600 font-semibold"
-                : "bg-neutral-700 hover:bg-neutral-600"
-                }`}
+              className={`w-full text-left px-4 py-3 rounded-lg transition ${
+                activeSection === "notification"
+                  ? "bg-gradient-to-r from-blue-600 to-violet-600 font-semibold"
+                  : "bg-neutral-700 hover:bg-neutral-600"
+              }`}
             >
               Notification
               {notificationCount > 0 && (
@@ -405,7 +426,6 @@ const Dashboard = () => {
                 </span>
               )}
             </motion.button>
-
 
             {/* Admin Panel Button - Only visible for admins */}
             {isAdmin && (
@@ -452,7 +472,6 @@ const Dashboard = () => {
           {activeSection === "notification" && (
             <Notification onViewed={() => setNotificationCount(0)} />
           )}
-
         </motion.div>
       </div>
 
@@ -470,11 +489,22 @@ const Dashboard = () => {
               onClick={(e) => e.stopPropagation()}
             >
               <nav className="space-y-3 pt-6">
-                <MobileButton label="Models" onClick={() => setActiveSection("models")} />
-                <MobileButton label="Usage" onClick={() => setActiveSection("usage")} />
-                <MobileButton label="Workspace setting" onClick={() => setActiveSection("settings")} />
                 <MobileButton
-                  label={`Notification ${notificationCount > 0 ? `(${notificationCount})` : ""}`}
+                  label="Models"
+                  onClick={() => setActiveSection("models")}
+                />
+                <MobileButton
+                  label="Usage"
+                  onClick={() => setActiveSection("usage")}
+                />
+                <MobileButton
+                  label="Workspace setting"
+                  onClick={() => setActiveSection("settings")}
+                />
+                <MobileButton
+                  label={`Notification ${
+                    notificationCount > 0 ? `(${notificationCount})` : ""
+                  }`}
                   onClick={() => {
                     setActiveSection("notification");
                     setNotificationCount(0);
@@ -486,8 +516,6 @@ const Dashboard = () => {
         )}
       </AnimatePresence>
       <FeedbackButton ref={feedbackRef} />
-
-
 
       {/* Add Training Sources Modal */}
       <TrainingSourcesModal
@@ -570,7 +598,9 @@ const Dashboard = () => {
                     <textarea
                       value={welcomeMessage}
                       onChange={(e) => setWelcomeMessage(e.target.value)}
-                      placeholder={`Hi! I'm ${chatbotName || 'your assistant'}. How can I help you today?`}
+                      placeholder={`Hi! I'm ${
+                        chatbotName || "your assistant"
+                      }. How can I help you today?`}
                       rows="2"
                       className="w-full bg-neutral-700 border border-gray-600 rounded-lg p-3 text-white placeholder-gray-500 focus:outline-none focus:border-blue-500 resize-none"
                     />
@@ -666,8 +696,8 @@ const Dashboard = () => {
                         <p className="text-gray-400 text-xs">
                           {chatbotType
                             ? `${chatbotType
-                              .charAt(0)
-                              .toUpperCase()}${chatbotType.slice(1)}`
+                                .charAt(0)
+                                .toUpperCase()}${chatbotType.slice(1)}`
                             : "General Purpose"}
                         </p>
                       </div>
@@ -717,7 +747,10 @@ const Dashboard = () => {
       {showEditModal && editingChatbot && (
         <EditChatbotModal
           isOpen={showEditModal}
-          onClose={() => { setShowEditModal(false); setEditingChatbot(null); }}
+          onClose={() => {
+            setShowEditModal(false);
+            setEditingChatbot(null);
+          }}
           chatbot={editingChatbot}
           chatbotName={chatbotName}
           setChatbotName={setChatbotName}
@@ -745,7 +778,10 @@ const Dashboard = () => {
               reader.readAsDataURL(file);
             }
           }}
-          onDeleteProfile={() => { setProfilePreview(""); setProfileDeleted(true); }}
+          onDeleteProfile={() => {
+            setProfilePreview("");
+            setProfileDeleted(true);
+          }}
           availableModels={availableModels}
           editingTrainingData={editingTrainingData}
           onRemoveTrainingItem={(idx) => {
@@ -754,33 +790,63 @@ const Dashboard = () => {
           onAddFiles={async (files) => {
             for (const file of files) {
               const content = await readFileAsText(file);
-              setEditingTrainingData((prev) => [...prev, { type: "file", filename: file.name, content }]);
+              setEditingTrainingData((prev) => [
+                ...prev,
+                { type: "file", filename: file.name, content },
+              ]);
             }
           }}
-          onAddText={(text) => {
-            const t = (text || "").trim();
-            if (t) setEditingTrainingData((prev) => [...prev, { type: "text", content: t }]);
+          onAddText={(snippet) => {
+            // Handle both string (old format) and object (new format from TextSnippetModal)
+            if (typeof snippet === "string") {
+              const t = snippet.trim();
+              if (t)
+                setEditingTrainingData((prev) => [
+                  ...prev,
+                  { type: "text", content: t },
+                ]);
+            } else if (snippet && snippet.content) {
+              // New format from TextSnippetModal with title and content
+              setEditingTrainingData((prev) => [
+                ...prev,
+                {
+                  type: "text",
+                  title: snippet.title || "Text snippet",
+                  content: snippet.content,
+                },
+              ]);
+            }
           }}
           onSave={async () => {
             if (!chatbotName.trim()) return;
             try {
               setCreating(true);
-              const ws = JSON.parse(localStorage.getItem("workspaceSettings") || "{}");
-              const systemPromptStr = ws.systemPrompt || `You are ${chatbotName}, a helpful AI assistant. Answer questions based on the provided information.`;
+              const ws = JSON.parse(
+                localStorage.getItem("workspaceSettings") || "{}"
+              );
+              const systemPromptStr =
+                ws.systemPrompt ||
+                `You are ${chatbotName}, a helpful AI assistant. Answer questions based on the provided information.`;
               const payload = {
                 name: chatbotName,
                 description: description || chatbotName,
-                welcomeMessage: welcomeMessage || ws.welcomeMessage || `Hi! I'm ${chatbotName}. How can I help you today?`,
+                welcomeMessage:
+                  welcomeMessage ||
+                  ws.welcomeMessage ||
+                  `Hi! I'm ${chatbotName}. How can I help you today?`,
                 businessName: chatbotName,
                 businessDescription: description,
                 chatbotType: chatbotType,
                 modelName: selectedModel,
                 systemPrompt: systemPromptStr,
                 primaryColor,
-                profilePicture: profileDeleted ? null : (profilePreview || null),
+                profilePicture: profileDeleted ? null : profilePreview || null,
                 trainingData: editingTrainingData,
               };
-              const response = await api.updateChatbot(editingChatbot._id, payload);
+              const response = await api.updateChatbot(
+                editingChatbot._id,
+                payload
+              );
               if (response.success) {
                 await loadChatbots();
                 setShowEditModal(false);
@@ -791,7 +857,9 @@ const Dashboard = () => {
                 setChatbotName("");
                 setDescription("");
                 setWelcomeMessage("");
-                setSelectedModel(availableModels.length > 0 ? availableModels[0].name : "");
+                setSelectedModel(
+                  availableModels.length > 0 ? availableModels[0].name : ""
+                );
                 setChatbotType("general");
                 setChatbotPersonality("friendly");
                 setPrimaryColor("#3B82F6");
