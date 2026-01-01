@@ -17,6 +17,27 @@ import { API_URL } from "../../api/api.js";
 
 const isAuthenticated = () => !!localStorage.getItem("token");
 
+// Mobile Button Component - matches desktop sidebar design
+const MobileButton = ({ label, onClick, isActive, badge }) => (
+  <motion.button
+    whileHover={{ scale: 1.03, x: 5 }}
+    whileTap={{ scale: 0.98 }}
+    onClick={onClick}
+    className={`w-full text-left px-4 py-3 rounded-lg transition ${
+      isActive
+        ? "bg-gradient-to-r from-blue-600 to-violet-600 font-semibold"
+        : "bg-neutral-700 hover:bg-neutral-600"
+    }`}
+  >
+    {label}
+    {badge && (
+      <span className="ml-2 bg-red-500 text-xs px-2 py-0.5 rounded-full">
+        {badge}
+      </span>
+    )}
+  </motion.button>
+);
+
 // Helper function to read file as text
 const readFileAsText = (file) => {
   return new Promise((resolve, reject) => {
@@ -364,7 +385,7 @@ const Dashboard = () => {
           initial={{ x: -100, opacity: 0 }}
           animate={{ x: 0, opacity: 1 }}
           transition={{ duration: 0.5 }}
-          className="w-64 min-h-screen bg-neutral-900 border-r border-gray-700 p-6 fixed left-0"
+          className="hidden lg:block w-64 min-h-screen bg-neutral-900 border-r border-gray-700 p-6 fixed left-0"
         >
           <nav className="space-y-3 pt-10">
             <motion.button
@@ -446,7 +467,7 @@ const Dashboard = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.3 }}
-          className="ml-64 flex-1 p-8 pt-20"
+          className="lg:ml-64 flex-1 p-4 lg:p-8 pt-20"
         >
           {error && (
             <motion.div
@@ -482,34 +503,63 @@ const Dashboard = () => {
             onClick={() => setIsSidebarOpen(false)}
           >
             <motion.div
-              initial={{ x: -20, opacity: 0 }}
+              initial={{ x: -100, opacity: 0 }}
               animate={{ x: 0, opacity: 1 }}
-              exit={{ x: -20, opacity: 0 }}
-              className="w-64 h-full bg-neutral-900 p-6"
+              exit={{ x: -100, opacity: 0 }}
+              transition={{ duration: 0.3 }}
+              className="w-64 h-full bg-neutral-900 border-r border-gray-700 p-6"
               onClick={(e) => e.stopPropagation()}
             >
-              <nav className="space-y-3 pt-6">
+              <nav className="space-y-3 pt-10">
                 <MobileButton
                   label="Models"
-                  onClick={() => setActiveSection("models")}
+                  isActive={activeSection === "models"}
+                  onClick={() => {
+                    setActiveSection("models");
+                    setIsSidebarOpen(false);
+                  }}
                 />
                 <MobileButton
                   label="Usage"
-                  onClick={() => setActiveSection("usage")}
+                  isActive={activeSection === "usage"}
+                  onClick={() => {
+                    setActiveSection("usage");
+                    setIsSidebarOpen(false);
+                  }}
                 />
                 <MobileButton
                   label="Workspace setting"
-                  onClick={() => setActiveSection("settings")}
+                  isActive={activeSection === "settings"}
+                  onClick={() => {
+                    setActiveSection("settings");
+                    setIsSidebarOpen(false);
+                  }}
                 />
                 <MobileButton
-                  label={`Notification ${
-                    notificationCount > 0 ? `(${notificationCount})` : ""
-                  }`}
+                  label="Notification"
+                  isActive={activeSection === "notification"}
+                  badge={notificationCount > 0 ? notificationCount : null}
                   onClick={() => {
                     setActiveSection("notification");
                     setNotificationCount(0);
+                    setIsSidebarOpen(false);
                   }}
                 />
+
+                {/* Admin Panel Button - Only visible for admins */}
+                {isAdmin && (
+                  <motion.button
+                    whileHover={{ scale: 1.03, x: 5 }}
+                    whileTap={{ scale: 0.98 }}
+                    onClick={() => {
+                      navigate("/admin");
+                      setIsSidebarOpen(false);
+                    }}
+                    className="w-full text-left px-4 py-3 rounded-lg transition bg-amber-600 hover:bg-amber-700 font-semibold"
+                  >
+                    Admin Panel
+                  </motion.button>
+                )}
               </nav>
             </motion.div>
           </div>
