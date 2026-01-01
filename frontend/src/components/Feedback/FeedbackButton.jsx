@@ -1,6 +1,7 @@
 import React, { useState, forwardRef, useImperativeHandle } from "react";
 import { AnimatePresence } from "framer-motion";
 import { Bug, X, Upload } from "lucide-react";
+import { API_URL } from '../../api/api';
 
 const FeedbackButton = forwardRef((props, ref) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -66,7 +67,7 @@ const FeedbackButton = forwardRef((props, ref) => {
     try {
       setLoading(true);
 
-      const res = await fetch("http://localhost:3000/feedback", {
+      const res = await fetch(`${API_URL}/feedback`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,

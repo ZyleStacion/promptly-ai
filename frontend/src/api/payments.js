@@ -1,6 +1,4 @@
-import { USE_MOCK_API, mockApi } from "./mockApi";
-
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
+import { API_URL } from '../../api/api';
 
 export async function getInvoices() {
 
