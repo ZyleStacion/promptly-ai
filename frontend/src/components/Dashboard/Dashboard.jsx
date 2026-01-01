@@ -17,17 +17,22 @@ import { API_URL } from "../../api/api.js";
 
 const isAuthenticated = () => !!localStorage.getItem("token");
 
+const CHATBOT_LIMITS = {
+  Basic: 1,
+  Pro: 5,
+  Enterprise: 20,
+};
+
 // Mobile Button Component - matches desktop sidebar design
 const MobileButton = ({ label, onClick, isActive, badge }) => (
   <motion.button
     whileHover={{ scale: 1.03, x: 5 }}
     whileTap={{ scale: 0.98 }}
     onClick={onClick}
-    className={`w-full text-left px-4 py-3 rounded-lg transition ${
-      isActive
+    className={`w-full text-left px-4 py-3 rounded-lg transition ${isActive
         ? "bg-gradient-to-r from-blue-600 to-violet-600 font-semibold"
         : "bg-neutral-700 hover:bg-neutral-600"
-    }`}
+      }`}
   >
     {label}
     {badge && (
@@ -58,6 +63,7 @@ const Dashboard = () => {
   const [showTrainingModal, setShowTrainingModal] = useState(false);
   const [showChatbotUIModal, setShowChatbotUIModal] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [currentUser, setCurrentUser] = useState(null);
   const [error, setError] = useState("");
   const [creating, setCreating] = useState(false);
   const [editingChatbot, setEditingChatbot] = useState(null);
@@ -97,6 +103,7 @@ const Dashboard = () => {
 
     // Check if user is admin
     const user = JSON.parse(localStorage.getItem("user") || "{}");
+    setCurrentUser(user);
     setIsAdmin(user.isAdmin || false);
 
     loadChatbots();
@@ -141,6 +148,7 @@ const Dashboard = () => {
     }
   };
 
+  
   const loadChatbots = async () => {
     try {
       setLoading(true);
@@ -300,7 +308,7 @@ const Dashboard = () => {
       } else {
         setError(
           response.error ||
-            `Failed to ${editingChatbot ? "update" : "create"} chatbot`
+          `Failed to ${editingChatbot ? "update" : "create"} chatbot`
         );
       }
     } catch (err) {
@@ -309,8 +317,7 @@ const Dashboard = () => {
         err
       );
       setError(
-        `Failed to ${
-          editingChatbot ? "update" : "create"
+        `Failed to ${editingChatbot ? "update" : "create"
         } chatbot. Please try again.`
       );
     } finally {
@@ -336,6 +343,28 @@ const Dashboard = () => {
     }
   };
 
+  const handleCreateChatbotClick = () => {
+    // 🔓 Admin: unlimited
+    if (currentUser?.isAdmin) {
+      setShowTrainingModal(true);
+      return;
+    }
+
+    const plan = currentUser?.subscriptionPlan || "Basic";
+    const limit = CHATBOT_LIMITS[plan] ?? 1;
+
+    if (chatbots.length >= limit) {
+      alert(
+        `🚫 You’ve reached your chatbot limit.\n\n` +
+        `Your ${plan} plan allows up to ${limit} chatbot(s).\n\n` +
+        `👉 Upgrade your subscription to create more chatbots.`
+      );
+      return;
+    }
+
+    setShowTrainingModal(true);
+  };
+
   const handleTestChatbot = (chatbot) => {
     setSelectedChatbot(chatbot);
     setShowChatInterface(true);
@@ -356,7 +385,7 @@ const Dashboard = () => {
     setChatbotPersonality(chatbot.personality || "friendly");
     setSelectedModel(
       chatbot.modelName ||
-        (availableModels.length > 0 ? availableModels[0].name : "")
+      (availableModels.length > 0 ? availableModels[0].name : "")
     );
 
     // Use array-based training data for edit mode
@@ -392,11 +421,10 @@ const Dashboard = () => {
               whileHover={{ scale: 1.03, x: 5 }}
               whileTap={{ scale: 0.98 }}
               onClick={() => setActiveSection("models")}
-              className={`w-full text-left px-4 py-3 rounded-lg transition ${
-                activeSection === "models"
+              className={`w-full text-left px-4 py-3 rounded-lg transition ${activeSection === "models"
                   ? "bg-gradient-to-r from-blue-600 to-violet-600 font-semibold"
                   : "bg-neutral-700 hover:bg-neutral-600"
-              }`}
+                }`}
             >
               Models
             </motion.button>
@@ -405,11 +433,10 @@ const Dashboard = () => {
               whileHover={{ scale: 1.03, x: 5 }}
               whileTap={{ scale: 0.98 }}
               onClick={() => setActiveSection("usage")}
-              className={`w-full text-left px-4 py-3 rounded-lg transition ${
-                activeSection === "usage"
+              className={`w-full text-left px-4 py-3 rounded-lg transition ${activeSection === "usage"
                   ? "bg-gradient-to-r from-blue-600 to-violet-600 font-semibold"
                   : "bg-neutral-700 hover:bg-neutral-600"
-              }`}
+                }`}
             >
               Usage
             </motion.button>
@@ -418,11 +445,10 @@ const Dashboard = () => {
               whileHover={{ scale: 1.03, x: 5 }}
               whileTap={{ scale: 0.98 }}
               onClick={() => setActiveSection("settings")}
-              className={`w-full text-left px-4 py-3 rounded-lg transition ${
-                activeSection === "settings"
+              className={`w-full text-left px-4 py-3 rounded-lg transition ${activeSection === "settings"
                   ? "bg-gradient-to-r from-blue-600 to-violet-600 font-semibold"
                   : "bg-neutral-700 hover:bg-neutral-600"
-              }`}
+                }`}
             >
               Workspace setting
             </motion.button>
@@ -434,11 +460,10 @@ const Dashboard = () => {
                 setActiveSection("notification");
                 setNotificationCount(0);
               }}
-              className={`w-full text-left px-4 py-3 rounded-lg transition ${
-                activeSection === "notification"
+              className={`w-full text-left px-4 py-3 rounded-lg transition ${activeSection === "notification"
                   ? "bg-gradient-to-r from-blue-600 to-violet-600 font-semibold"
                   : "bg-neutral-700 hover:bg-neutral-600"
-              }`}
+                }`}
             >
               Notification
               {notificationCount > 0 && (
@@ -482,7 +507,7 @@ const Dashboard = () => {
             <ModelsSection
               loading={loading}
               chatbots={chatbots}
-              onCreateChatbot={() => setShowTrainingModal(true)}
+              onCreateChatbot={handleCreateChatbotClick}
               onDeleteChatbot={handleDeleteChatbot}
               onTestChatbot={handleTestChatbot}
               onEditChatbot={handleEditChatbot}
@@ -648,9 +673,8 @@ const Dashboard = () => {
                     <textarea
                       value={welcomeMessage}
                       onChange={(e) => setWelcomeMessage(e.target.value)}
-                      placeholder={`Hi! I'm ${
-                        chatbotName || "your assistant"
-                      }. How can I help you today?`}
+                      placeholder={`Hi! I'm ${chatbotName || "your assistant"
+                        }. How can I help you today?`}
                       rows="2"
                       className="w-full bg-neutral-700 border border-gray-600 rounded-lg p-3 text-white placeholder-gray-500 focus:outline-none focus:border-blue-500 resize-none"
                     />
@@ -746,8 +770,8 @@ const Dashboard = () => {
                         <p className="text-gray-400 text-xs">
                           {chatbotType
                             ? `${chatbotType
-                                .charAt(0)
-                                .toUpperCase()}${chatbotType.slice(1)}`
+                              .charAt(0)
+                              .toUpperCase()}${chatbotType.slice(1)}`
                             : "General Purpose"}
                         </p>
                       </div>
