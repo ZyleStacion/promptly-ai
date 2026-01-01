@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import { LuBrain } from "react-icons/lu";
 import { useNavigate, Link } from "react-router-dom";
 import { loginUser } from "../../api/auth";
+import { API_URL } from '../../api/api';
 
 const SignIn = () => {
   const [email, setEmail] = useState("");
@@ -22,7 +23,7 @@ const SignIn = () => {
     window.google.accounts.id.initialize({
       client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID,
       callback: async (response) => {
-        const res = await fetch("http://localhost:3000/auth/google", {
+        const res = await fetch(`${API_URL}/auth/google`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ credential: response.credential }),
