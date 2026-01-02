@@ -5,12 +5,24 @@ import { Copy } from "lucide-react";
 
 const WorkspaceSettings = () => {
   const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:3000";
+  const user = JSON.parse(localStorage.getItem("user") || "{}");
+  const isAdmin = user?.isAdmin === true;
+
   const navigate = useNavigate();
 
   const settingsOptions = [
-    { title: "Plans", description: "Manage and upgrade your Promptly AI plan", path: "/dashboard/plans" },
-    { title: "Billing", description: "View your billing history", path: "/dashboard/billing" },
-  ];
+    !isAdmin && {
+      title: "Plans",
+      description: "Manage and upgrade your Promptly AI plan",
+      path: "/dashboard/plans",
+    },
+    !isAdmin && {
+      title: "Billing",
+      description: "View your billing history",
+      path: "/dashboard/billing",
+    },
+  ].filter(Boolean);
+
   const [availableModels, setAvailableModels] = useState([]);
   const [loadingModels, setLoadingModels] = useState(false);
 
@@ -118,6 +130,20 @@ const WorkspaceSettings = () => {
       >
         Workspace Settings
       </motion.h2>
+      {isAdmin && (
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mb-6 bg-neutral-800 border border-gray-700 rounded-xl p-6"
+        >
+          <h3 className="text-xl font-bold mb-2">Admin Account</h3>
+          <p className="text-gray-400 text-sm">
+            Subscription plans and billing are disabled for admin accounts.
+            You have unlimited access to all features.
+          </p>
+        </motion.div>
+      )}
+
 
       <div className="space-y-4">
         {settingsOptions.map((option, index) => (
@@ -130,7 +156,11 @@ const WorkspaceSettings = () => {
               scale: 1.02,
               borderColor: "rgba(156, 163, 175, 0.5)",
             }}
-            onClick={() => option.path && navigate(option.path)}
+            onClick={() => {
+              if (isAdmin) return;
+              option.path && navigate(option.path);
+            }}
+
             className="bg-neutral-800 p-5 rounded-xl border border-gray-700 hover:border-gray-600 transition cursor-pointer"
           >
             <h3 className="text-lg font-semibold">{option.title}</h3>

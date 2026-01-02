@@ -12,6 +12,8 @@ import ChatInterface from "./ChatInterface.jsx";
 import { api, USE_MOCK_API } from "../../api/mockApi";
 import FeedbackButton from "../Feedback/FeedbackButton.jsx";
 import Notification from "./Notification.jsx";
+import UpgradeModal from "./UpgradeModal";
+
 
 import { API_URL } from "../../api/api.js";
 
@@ -30,8 +32,8 @@ const MobileButton = ({ label, onClick, isActive, badge }) => (
     whileTap={{ scale: 0.98 }}
     onClick={onClick}
     className={`w-full text-left px-4 py-3 rounded-lg transition ${isActive
-        ? "bg-gradient-to-r from-blue-600 to-violet-600 font-semibold"
-        : "bg-neutral-700 hover:bg-neutral-600"
+      ? "bg-gradient-to-r from-blue-600 to-violet-600 font-semibold"
+      : "bg-neutral-700 hover:bg-neutral-600"
       }`}
   >
     {label}
@@ -68,6 +70,9 @@ const Dashboard = () => {
   const [creating, setCreating] = useState(false);
   const [editingChatbot, setEditingChatbot] = useState(null);
   const [showEditModal, setShowEditModal] = useState(false);
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
+  const [limitInfo, setLimitInfo] = useState({ plan: "Basic", limit: 1 });
+
 
   // Training form state
   const [trainingFiles, setTrainingFiles] = useState([]);
@@ -102,11 +107,29 @@ const Dashboard = () => {
     if (!isAuthenticated()) navigate("/signin");
 
     // Check if user is admin
-    const user = JSON.parse(localStorage.getItem("user") || "{}");
-    setCurrentUser(user);
-    setIsAdmin(user.isAdmin || false);
+    const loadCurrentUser = async () => {
+      const token = localStorage.getItem("token");
+      if (!token) return;
+
+      const res = await fetch(`${API_URL}/user/me`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      const data = await res.json();
+      if (data?.user) {
+        setCurrentUser(data.user);
+        setIsAdmin(data.user.isAdmin || false);
+        localStorage.setItem("user", JSON.stringify(data.user));
+      }
+    };
+
+
+    // admin flag will be set after user is loaded
 
     loadChatbots();
+    loadCurrentUser();
     loadOllamaModels();
     loadNotificationCount();
   }, []);
@@ -148,7 +171,7 @@ const Dashboard = () => {
     }
   };
 
-  
+
   const loadChatbots = async () => {
     try {
       setLoading(true);
@@ -282,6 +305,13 @@ const Dashboard = () => {
         // Create new chatbot
         response = await api.createChatbot(payload);
       }
+      if (!response.success && response.error === "CHATBOT_LIMIT_REACHED") {
+        setError(
+          `Your ${response.plan} plan allows ${response.limit} chatbots. Upgrade to continue.`
+        );
+        return;
+      }
+
 
       if (response.success) {
         // Reload chatbots
@@ -344,7 +374,7 @@ const Dashboard = () => {
   };
 
   const handleCreateChatbotClick = () => {
-    // 🔓 Admin: unlimited
+    // 🔓 Admin: unlimited, no billing, no modal
     if (currentUser?.isAdmin) {
       setShowTrainingModal(true);
       return;
@@ -354,16 +384,14 @@ const Dashboard = () => {
     const limit = CHATBOT_LIMITS[plan] ?? 1;
 
     if (chatbots.length >= limit) {
-      alert(
-        `🚫 You’ve reached your chatbot limit.\n\n` +
-        `Your ${plan} plan allows up to ${limit} chatbot(s).\n\n` +
-        `👉 Upgrade your subscription to create more chatbots.`
-      );
+      setLimitInfo({ plan, limit });
+      setShowUpgradeModal(true);
       return;
     }
 
     setShowTrainingModal(true);
   };
+
 
   const handleTestChatbot = (chatbot) => {
     setSelectedChatbot(chatbot);
@@ -422,8 +450,8 @@ const Dashboard = () => {
               whileTap={{ scale: 0.98 }}
               onClick={() => setActiveSection("models")}
               className={`w-full text-left px-4 py-3 rounded-lg transition ${activeSection === "models"
-                  ? "bg-gradient-to-r from-blue-600 to-violet-600 font-semibold"
-                  : "bg-neutral-700 hover:bg-neutral-600"
+                ? "bg-gradient-to-r from-blue-600 to-violet-600 font-semibold"
+                : "bg-neutral-700 hover:bg-neutral-600"
                 }`}
             >
               Models
@@ -434,8 +462,8 @@ const Dashboard = () => {
               whileTap={{ scale: 0.98 }}
               onClick={() => setActiveSection("usage")}
               className={`w-full text-left px-4 py-3 rounded-lg transition ${activeSection === "usage"
-                  ? "bg-gradient-to-r from-blue-600 to-violet-600 font-semibold"
-                  : "bg-neutral-700 hover:bg-neutral-600"
+                ? "bg-gradient-to-r from-blue-600 to-violet-600 font-semibold"
+                : "bg-neutral-700 hover:bg-neutral-600"
                 }`}
             >
               Usage
@@ -446,8 +474,8 @@ const Dashboard = () => {
               whileTap={{ scale: 0.98 }}
               onClick={() => setActiveSection("settings")}
               className={`w-full text-left px-4 py-3 rounded-lg transition ${activeSection === "settings"
-                  ? "bg-gradient-to-r from-blue-600 to-violet-600 font-semibold"
-                  : "bg-neutral-700 hover:bg-neutral-600"
+                ? "bg-gradient-to-r from-blue-600 to-violet-600 font-semibold"
+                : "bg-neutral-700 hover:bg-neutral-600"
                 }`}
             >
               Workspace setting
@@ -461,8 +489,8 @@ const Dashboard = () => {
                 setNotificationCount(0);
               }}
               className={`w-full text-left px-4 py-3 rounded-lg transition ${activeSection === "notification"
-                  ? "bg-gradient-to-r from-blue-600 to-violet-600 font-semibold"
-                  : "bg-neutral-700 hover:bg-neutral-600"
+                ? "bg-gradient-to-r from-blue-600 to-violet-600 font-semibold"
+                : "bg-neutral-700 hover:bg-neutral-600"
                 }`}
             >
               Notification
@@ -494,6 +522,21 @@ const Dashboard = () => {
           transition={{ duration: 0.5, delay: 0.3 }}
           className="lg:ml-64 flex-1 p-4 lg:p-8 pt-20"
         >
+          {/* 🔐 ADMIN INFO MESSAGE */}
+          {isAdmin && activeSection === "settings" && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="mb-6 bg-neutral-800 border border-gray-700 rounded-xl p-6"
+            >
+              <h2 className="text-2xl font-bold mb-2">Admin Workspace</h2>
+              <p className="text-gray-400 text-sm">
+                Admin accounts do not use subscription plans or billing.
+                Workspace settings here control defaults for all chatbots.
+              </p>
+            </motion.div>
+          )}
+
           {error && (
             <motion.div
               initial={{ opacity: 0, y: -10 }}
@@ -954,6 +997,13 @@ const Dashboard = () => {
           apiUrl={import.meta.env.VITE_API_URL || "http://localhost:3000"}
         />
       )}
+      <UpgradeModal
+        isOpen={showUpgradeModal}
+        onClose={() => setShowUpgradeModal(false)}
+        plan={limitInfo.plan}
+        limit={limitInfo.limit}
+      />
+
     </div>
   );
 };

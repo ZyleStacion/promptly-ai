@@ -12,11 +12,13 @@ const AccountSettings = () => {
   const location = useLocation();
   const [activeTab, setActiveTab] = useState(
     location.state?.activeTab ||
-      (location.pathname === "/dashboard/billing" ? "billing" : "profile")
+    (location.pathname === "/dashboard/billing" ? "billing" : "profile")
   );
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   const [user, setUser] = useState(null);
+  const isAdmin = user?.isAdmin === true;
+
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
@@ -93,6 +95,18 @@ const AccountSettings = () => {
 
     loadUser();
   }, []);
+
+  // Redirect admin users away from Subscription/Billing tabs
+  useEffect(() => {
+    if (!user) return;
+
+    if (
+      isAdmin &&
+      (activeTab === "subscription" || activeTab === "billing")
+    ) {
+      setActiveTab("profile");
+    }
+  }, [user, activeTab, isAdmin]);
 
   // Track changes
   useEffect(() => {
@@ -262,7 +276,7 @@ const AccountSettings = () => {
       setUser(updated);
       try {
         localStorage.setItem("user", JSON.stringify(updated));
-      } catch (e) {}
+      } catch (e) { }
 
       alert(data.message || "Subscription canceled");
       // navigate to subscription tab for further actions
@@ -293,9 +307,10 @@ const AccountSettings = () => {
       }
     };
 
-    if (activeTab === "billing") {
+    if (activeTab === "billing" && !isAdmin) {
       fetchPayments();
     }
+
   }, [activeTab]);
 
   if (!user) return <p className="text-white">Loading...</p>;
@@ -378,23 +393,27 @@ const AccountSettings = () => {
                 {[
                   { id: "profile", label: "Profile", icon: FaUser },
                   { id: "security", label: "Security", icon: FaLock },
-                  {
+                  !isAdmin && {
                     id: "subscription",
                     label: "Subscription",
                     icon: FaCreditCard,
                   },
-                  { id: "billing", label: "Billing", icon: FaFileInvoice },
-                ].map((tab) => (
+                  !isAdmin && {
+                    id: "billing",
+                    label: "Billing",
+                    icon: FaFileInvoice,
+                  },
+                ].filter(Boolean).map((tab) => (
+
                   <motion.button
                     key={tab.id}
                     whileHover={{ scale: 1.03, x: 5 }}
                     whileTap={{ scale: 0.98 }}
                     onClick={() => setActiveTab(tab.id)}
-                    className={`w-full text-left px-4 py-3 rounded-lg transition flex items-center gap-3 ${
-                      activeTab === tab.id
-                        ? "bg-gradient-to-r from-blue-600 to-violet-600 text-white font-semibold"
-                        : "text-gray-400 hover:bg-neutral-700 hover:text-white"
-                    }`}
+                    className={`w-full text-left px-4 py-3 rounded-lg transition flex items-center gap-3 ${activeTab === tab.id
+                      ? "bg-gradient-to-r from-blue-600 to-violet-600 text-white font-semibold"
+                      : "text-gray-400 hover:bg-neutral-700 hover:text-white"
+                      }`}
                   >
                     <tab.icon className="text-xl" />
                     <span className="font-medium">{tab.label}</span>
@@ -410,17 +429,32 @@ const AccountSettings = () => {
               <motion.div
                 initial={{ opacity: 0, y: -20 }}
                 animate={{ opacity: 1, y: 0 }}
-                className={`mb-4 px-4 py-3 rounded-lg border ${
-                  message.toLowerCase().includes("incorrect") ||
-                  message.toLowerCase().includes("error") ||
-                  message.toLowerCase().includes("failed")
+                className={`mb-4 px-4 py-3 rounded-lg border ${message.toLowerCase().includes("incorrect") ||
+                    message.toLowerCase().includes("error") ||
+                    message.toLowerCase().includes("failed")
                     ? "bg-red-600/20 text-red-400 border-red-600/50"
                     : "bg-green-600/20 text-green-400 border-green-600/50"
-                }`}
+                  }`}
               >
                 {message}
               </motion.div>
             )}
+
+            {/* 🔐 ADMIN INFO MESSAGE */}
+            {isAdmin && (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="mb-6 bg-neutral-800 border border-gray-700 rounded-xl p-6"
+              >
+                <h2 className="text-2xl font-bold mb-2">Admin Account</h2>
+                <p className="text-gray-400 text-sm">
+                  Admin accounts do not require subscriptions or billing.
+                  You have unlimited access to all features.
+                </p>
+              </motion.div>
+            )}
+
 
             {/* Profile Section */}
             {activeTab === "profile" && (
@@ -523,11 +557,10 @@ const AccountSettings = () => {
                   <button
                     onClick={handleUpdateProfile}
                     disabled={!hasChanges}
-                    className={`w-full py-3 rounded-lg font-semibold transition ${
-                      hasChanges
-                        ? "bg-gradient-to-r from-blue-600 to-violet-600 hover:opacity-90 text-white cursor-pointer"
-                        : "bg-gray-700 text-gray-500 cursor-not-allowed"
-                    }`}
+                    className={`w-full py-3 rounded-lg font-semibold transition ${hasChanges
+                      ? "bg-gradient-to-r from-blue-600 to-violet-600 hover:opacity-90 text-white cursor-pointer"
+                      : "bg-gray-700 text-gray-500 cursor-not-allowed"
+                      }`}
                   >
                     Save Changes
                   </button>
@@ -625,14 +658,12 @@ const AccountSettings = () => {
                     </div>
                     <button
                       onClick={() => setTwoFactorEnabled(!twoFactorEnabled)}
-                      className={`relative inline-flex h-8 w-14 items-center rounded-full transition-colors ${
-                        twoFactorEnabled ? "bg-blue-600" : "bg-gray-600"
-                      }`}
+                      className={`relative inline-flex h-8 w-14 items-center rounded-full transition-colors ${twoFactorEnabled ? "bg-blue-600" : "bg-gray-600"
+                        }`}
                     >
                       <span
-                        className={`inline-block h-6 w-6 transform rounded-full bg-white transition-transform ${
-                          twoFactorEnabled ? "translate-x-7" : "translate-x-1"
-                        }`}
+                        className={`inline-block h-6 w-6 transform rounded-full bg-white transition-transform ${twoFactorEnabled ? "translate-x-7" : "translate-x-1"
+                          }`}
                       />
                     </button>
                   </div>
@@ -658,7 +689,8 @@ const AccountSettings = () => {
             )}
 
             {/* Subscription Section */}
-            {activeTab === "subscription" && (
+            {activeTab === "subscription" && !isAdmin && (
+
               <motion.div
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
@@ -678,21 +710,21 @@ const AccountSettings = () => {
                           {currentPlan === "Free" || currentPlan === "Basic"
                             ? "Perfect for getting started"
                             : currentPlan === "Pro"
-                            ? "Great for growing teams"
-                            : "Enterprise features and support"}
+                              ? "Great for growing teams"
+                              : "Enterprise features and support"}
                         </p>
                       </div>
                       <span className="text-2xl font-bold text-white">
                         {currentPlan === "Free" || currentPlan === "Basic"
                           ? "$0"
                           : currentPlan === "Pro"
-                          ? "$29"
-                          : "$99"}
+                            ? "$29"
+                            : "$99"}
                       </span>
                     </div>
                     <ul className="space-y-2 text-gray-300">
                       {currentPlan.toLowerCase() === "free" ||
-                      currentPlan.toLowerCase() === "basic" ? (
+                        currentPlan.toLowerCase() === "basic" ? (
                         <>
                           {/* Free description */}
                           <li className="flex items-center gap-2">
@@ -763,21 +795,19 @@ const AccountSettings = () => {
                     <div className="flex items-center gap-2">
                       <button
                         onClick={() => setBillingCycle("monthly")}
-                        className={`px-3 py-1 rounded-full text-sm font-medium transition ${
-                          billingCycle === "monthly"
-                            ? "bg-white text-black"
-                            : "bg-neutral-700 text-gray-300"
-                        }`}
+                        className={`px-3 py-1 rounded-full text-sm font-medium transition ${billingCycle === "monthly"
+                          ? "bg-white text-black"
+                          : "bg-neutral-700 text-gray-300"
+                          }`}
                       >
                         Monthly
                       </button>
                       <button
                         onClick={() => setBillingCycle("yearly")}
-                        className={`px-3 py-1 rounded-full text-sm font-medium transition ${
-                          billingCycle === "yearly"
-                            ? "bg-white text-black"
-                            : "bg-neutral-700 text-gray-300"
-                        }`}
+                        className={`px-3 py-1 rounded-full text-sm font-medium transition ${billingCycle === "yearly"
+                          ? "bg-white text-black"
+                          : "bg-neutral-700 text-gray-300"
+                          }`}
                       >
                         Yearly
                       </button>
@@ -827,16 +857,15 @@ const AccountSettings = () => {
                           Current Plan
                         </button>
                       ) : (
-                        <CheckoutButton
-                          priceId={
-                            billingCycle === "monthly"
-                              ? "price_1Sk0ju3tBDM4Uh8AID3qhu5S"
-                              : "price_1Sk0s13tBDM4Uh8Ag7oIwytw"
-                          }
-                          userId={user.id || user._id}
-                          planName="Pro"
-                        />
+                        !isAdmin && (
+                          <CheckoutButton
+                            priceId="..."
+                            userId={user.id || user._id}
+                            planName="Pro"
+                          />
+                        )
                       )}
+
                     </div>
 
                     {/* Enterprise Plan */}
@@ -882,16 +911,19 @@ const AccountSettings = () => {
                           Current Plan
                         </button>
                       ) : (
-                        <CheckoutButton
-                          priceId={
-                            billingCycle === "monthly"
-                              ? "price_1SjxRI3tBDM4Uh8AU9CbUNeI"
-                              : "price_1Sk0tE3tBDM4Uh8AZFTTWsWW"
-                          }
-                          userId={user.id || user._id}
-                          planName="Enterprise"
-                        />
+                        !isAdmin && (
+                          <CheckoutButton
+                            priceId={
+                              billingCycle === "monthly"
+                                ? "price_1SjxRI3tBDM4Uh8AU9CbUNeI"
+                                : "price_1Sk0tE3tBDM4Uh8AZFTTWsWW"
+                            }
+                            userId={user.id || user._id}
+                            planName="Enterprise"
+                          />
+                        )
                       )}
+
                     </div>
                   </div>
                 </div>
@@ -899,7 +931,8 @@ const AccountSettings = () => {
             )}
 
             {/* Billing Section */}
-            {activeTab === "billing" && (
+            {activeTab === "billing" && !isAdmin && (
+
               <motion.div
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
@@ -947,8 +980,8 @@ const AccountSettings = () => {
                             const date = p.createdAtStripe
                               ? new Date(p.createdAtStripe * 1000)
                               : p.createdAt
-                              ? new Date(p.createdAt)
-                              : null;
+                                ? new Date(p.createdAt)
+                                : null;
                             const amount =
                               p.amountPaid != null
                                 ? (p.amountPaid / 100).toFixed(2)
@@ -1076,13 +1109,18 @@ const AccountSettings = () => {
                   {[
                     { id: "profile", label: "Profile", icon: FaUser },
                     { id: "security", label: "Security", icon: FaLock },
-                    {
+                    !isAdmin && {
                       id: "subscription",
                       label: "Subscription",
                       icon: FaCreditCard,
                     },
-                    { id: "billing", label: "Billing", icon: FaFileInvoice },
-                  ].map((tab) => (
+                    !isAdmin && {
+                      id: "billing",
+                      label: "Billing",
+                      icon: FaFileInvoice,
+                    },
+                  ].filter(Boolean).map((tab) => (
+
                     <motion.button
                       key={tab.id}
                       whileHover={{ scale: 1.03, x: 5 }}
@@ -1091,11 +1129,10 @@ const AccountSettings = () => {
                         setActiveTab(tab.id);
                         setIsSidebarOpen(false);
                       }}
-                      className={`w-full text-left px-4 py-3 rounded-lg transition flex items-center gap-3 ${
-                        activeTab === tab.id
-                          ? "bg-gradient-to-r from-blue-600 to-violet-600 text-white font-semibold"
-                          : "text-gray-400 hover:bg-neutral-700 hover:text-white"
-                      }`}
+                      className={`w-full text-left px-4 py-3 rounded-lg transition flex items-center gap-3 ${activeTab === tab.id
+                        ? "bg-gradient-to-r from-blue-600 to-violet-600 text-white font-semibold"
+                        : "text-gray-400 hover:bg-neutral-700 hover:text-white"
+                        }`}
                     >
                       <tab.icon className="text-xl" />
                       <span className="font-medium">{tab.label}</span>
