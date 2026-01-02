@@ -54,10 +54,10 @@ const AdminDashboard = () => {
         <StatCard label="Admin Accounts" value={stats.totalAdmins} />
         <StatCard label="Total Chatbots" value={stats.totalChatbots} />
         <StatCard
-          label="User Growth (7 days)"
-          value={`${stats.growthPercentage}%`}
-          positive={stats.growthPercentage >= 0}
+          label="Total Transactions"
+          value={stats.totalTransactions}
         />
+
       </div>
 
       {/* ================= USER SIGNUPS ================= */}
@@ -115,13 +115,12 @@ const StatCard = ({ label, value, positive }) => (
   <div className="bg-neutral-800 p-6 rounded-xl border border-gray-700">
     <p className="text-gray-400 text-sm mb-1">{label}</p>
     <p
-      className={`text-4xl font-bold ${
-        positive === undefined
+      className={`text-4xl font-bold ${positive === undefined
           ? "text-white"
           : positive
-          ? "text-green-400"
-          : "text-red-400"
-      }`}
+            ? "text-green-400"
+            : "text-red-400"
+        }`}
     >
       {value ?? 0}
     </p>

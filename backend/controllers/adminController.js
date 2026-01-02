@@ -1,5 +1,7 @@
 import User from "../models/user.js";
 import Chatbot from "../models/chatbot.js";
+import Payment from "../models/payment.js";
+
 
 /* =====================================================
    USERS
@@ -100,6 +102,9 @@ export const getAdminStats = async (req, res) => {
     const totalUsers = await User.countDocuments();
     const totalAdmins = await User.countDocuments({ isAdmin: true });
     const totalChatbots = await Chatbot.countDocuments();
+    const totalTransactions = await Payment.countDocuments({
+      status: "paid", // recommended
+    });
 
     // Activity (Last 14 Days)
     const days = 14;
@@ -168,10 +173,12 @@ export const getAdminStats = async (req, res) => {
       totalUsers,
       totalAdmins,
       totalChatbots,
+      totalTransactions, 
       dailySignups,
       dailyChatbots,
-      growthPercentage,
+      growthPercentage, //removable
     });
+
   } catch (err) {
     console.error("Admin stats error:", err);
     res.status(500).json({ error: "Failed to load admin stats" });
