@@ -15,6 +15,7 @@ import paymentRoutes from "./routes/payment.js";
 import { handleWebhook } from "./controllers/paymentController.js";
 import feedbackRoutes from "./routes/feedback.js";
 import adminFeedbackRoutes from "./routes/adminFeedback.js";
+import usageRoutes from "./routes/usage.js";
 
 dotenv.config();
 
@@ -40,6 +41,8 @@ app.use("/admin", adminRoutes);
 app.use("/payment", paymentRoutes);
 app.use("/feedback", feedbackRoutes);
 app.use("/admin/feedback", adminFeedbackRoutes);
+app.use("/usage", usageRoutes);
+
 
 // Connect to MongoDB
 connectDB();
