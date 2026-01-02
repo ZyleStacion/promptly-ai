@@ -556,7 +556,13 @@ const Dashboard = () => {
               onEditChatbot={handleEditChatbot}
             />
           )}
-          {activeSection === "usage" && <UsageSection chatbots={chatbots} />}
+          {activeSection === "usage" && (
+            <UsageSection
+              chatbots={chatbots}
+              user={currentUser}
+            />
+          )}
+
           {activeSection === "settings" && <WorkspaceSettings />}
           {activeSection === "notification" && (
             <Notification onViewed={() => setNotificationCount(0)} />
