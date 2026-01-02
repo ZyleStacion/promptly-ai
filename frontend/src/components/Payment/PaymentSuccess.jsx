@@ -30,6 +30,26 @@ const PaymentSuccess = () => {
     };
 
     finalizeSession();
+    const refreshUser = async () => {
+      const token = localStorage.getItem("token");
+      if (!token) return;
+
+      const res = await fetch(
+        `${import.meta.env.VITE_API_URL}/user/me`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+
+      const data = await res.json();
+      if (data?.user) {
+        localStorage.setItem("user", JSON.stringify(data.user));
+      }
+    };
+
+    await finalizeSession();
+    await refreshUser();
+
 
     // Show toast notification
     const showToast = () => {
