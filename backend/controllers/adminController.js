@@ -110,6 +110,8 @@ export const getAdminStats = async (req, res) => {
     const days = 14;
     const dailySignups = [];
     const dailyChatbots = [];
+    const dailyTransactions = [];
+
     const now = new Date();
 
     for (let i = days - 1; i >= 0; i--) {
@@ -138,6 +140,15 @@ export const getAdminStats = async (req, res) => {
 
       const chatbotCount = await Chatbot.countDocuments({
         createdAt: { $gte: start, $lte: end },
+      });
+      const transactionCount = await Payment.countDocuments({
+        status: "paid",
+        createdAt: { $gte: start, $lte: end },
+      });
+
+      dailyTransactions.push({
+        date: start.toLocaleDateString(),
+        count: transactionCount,
       });
 
       dailySignups.push({
@@ -173,11 +184,13 @@ export const getAdminStats = async (req, res) => {
       totalUsers,
       totalAdmins,
       totalChatbots,
-      totalTransactions, 
+      totalTransactions,
       dailySignups,
       dailyChatbots,
-      growthPercentage, //removable
+      dailyTransactions, 
+      growthPercentage, // removable
     });
+
 
   } catch (err) {
     console.error("Admin stats error:", err);

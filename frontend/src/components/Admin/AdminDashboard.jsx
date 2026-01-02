@@ -43,6 +43,8 @@ const AdminDashboard = () => {
 
   const hasChatbotActivity =
     stats.dailyChatbots?.some((d) => d.count > 0);
+  const hasTransactionActivity =
+    stats.dailyTransactions?.some((d) => d.count > 0);
 
   return (
     <div className="text-white">
@@ -103,6 +105,29 @@ const AdminDashboard = () => {
           <Placeholder message="No chatbot activity yet" />
         )}
       </Section>
+
+      {/* ================= TRANSACTION ACTIVITY ================= */}
+      <Section title="Transaction Activity (Last 14 Days)">
+        {hasTransactionActivity ? (
+          <ResponsiveContainer width="100%" height={300}>
+            <LineChart data={stats.dailyTransactions}>
+              <XAxis dataKey="date" stroke="#9ca3af" />
+              <YAxis stroke="#9ca3af" />
+              <Tooltip />
+              <Line
+                type="monotone"
+                dataKey="count"
+                stroke="#f59e0b"
+                strokeWidth={3}
+                dot={false}
+              />
+            </LineChart>
+          </ResponsiveContainer>
+        ) : (
+          <Placeholder message="No transactions yet" />
+        )}
+      </Section>
+
     </div>
   );
 };
@@ -116,10 +141,10 @@ const StatCard = ({ label, value, positive }) => (
     <p className="text-gray-400 text-sm mb-1">{label}</p>
     <p
       className={`text-4xl font-bold ${positive === undefined
-          ? "text-white"
-          : positive
-            ? "text-green-400"
-            : "text-red-400"
+        ? "text-white"
+        : positive
+          ? "text-green-400"
+          : "text-red-400"
         }`}
     >
       {value ?? 0}
