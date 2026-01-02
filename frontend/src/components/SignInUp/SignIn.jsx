@@ -82,7 +82,8 @@ const SignIn = () => {
         if (data.user?.isAdmin) navigate("/admin");
         else navigate("/dashboard");
       }, 1200);
-    } catch {
+    } catch (err) {
+      console.error(err);
       setError("Sign in failed. Try again later.");
     } finally {
       setLoading(false);

@@ -2,9 +2,9 @@ import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { motion } from "framer-motion";
 import { FaUser, FaLock, FaCreditCard, FaFileInvoice } from "react-icons/fa";
-import { mockApi, USE_MOCK_API } from "../../api/mockApi";
 import { getInvoices } from "../../api/payments";
 import CheckoutButton from "../Payment/CheckoutButton";
+import UnsubscribeButton from "../Payment/UnsubscribeButton";
 import { API_URL } from "../../api/api";
 
 const AccountSettings = () => {
@@ -36,7 +36,6 @@ const AccountSettings = () => {
   const [payments, setPayments] = useState([]);
   const [paymentsLoading, setPaymentsLoading] = useState(false);
   const [paymentsError, setPaymentsError] = useState("");
-  const [unsubLoading, setUnsubLoading] = useState(false);
 
   // Clear message when switching tabs
   useEffect(() => {
@@ -50,23 +49,18 @@ const AccountSettings = () => {
     const loadUser = async () => {
       try {
         let data;
+        const token = localStorage.getItem("token");
+        console.log("Token:", token ? "exists" : "missing");
 
-        if (USE_MOCK_API) {
-          data = await mockApi.getUserProfile();
-        } else {
-          const token = localStorage.getItem("token");
-          console.log("Token:", token ? "exists" : "missing");
+        const res = await fetch(`${API_URL}/user/me`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
 
-          const res = await fetch(`${API_URL}/user/me`, {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          });
-
-          console.log("Response status:", res.status);
-          data = await res.json();
-          console.log("User data:", data);
-        }
+        console.log("Response status:", res.status);
+        data = await res.json();
+        console.log("User data:", data);
 
         const u = data.user;
         setUser(u);
@@ -133,18 +127,14 @@ const AccountSettings = () => {
 
       let data;
 
-      if (USE_MOCK_API) {
-        data = await mockApi.updateUserProfile(formData);
-      } else {
-        const res = await fetch(`${API_URL}/user/update-info`, {
-          method: "PUT",
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-          body: formData,
-        });
-        data = await res.json();
-      }
+      const res = await fetch(`${API_URL}/user/update-info`, {
+        method: "PUT",
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+        body: formData,
+      });
+      data = await res.json();
 
       setMessage(data.message);
 
@@ -177,19 +167,15 @@ const AccountSettings = () => {
     try {
       let data;
 
-      if (USE_MOCK_API) {
-        data = await mockApi.changePassword({ currentPassword, newPassword });
-      } else {
-        const res = await fetch(`${API_URL}/user/change-password`, {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-          body: JSON.stringify({ currentPassword, newPassword }),
-        });
-        data = await res.json();
-      }
+      const res = await fetch(`${API_URL}/user/change-password`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+        body: JSON.stringify({ currentPassword, newPassword }),
+      });
+      data = await res.json();
 
       setMessage(data.message);
 
@@ -208,14 +194,10 @@ const AccountSettings = () => {
   // --------------------------------------------------
   const handleDeleteAccount = async () => {
     try {
-      if (USE_MOCK_API) {
-        await mockApi.deleteAccount();
-      } else {
-        await fetch(`${API_URL}/user/delete`, {
-          method: "DELETE",
-          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-        });
-      }
+      await fetch(`${API_URL}/user/delete`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+      });
 
       localStorage.removeItem("token");
       localStorage.removeItem("user");
@@ -225,48 +207,6 @@ const AccountSettings = () => {
       setMessage("Error deleting account");
     }
     setShowDeleteModal(false);
-  };
-
-  const handleUnsubscribe = async (planName) => {
-    const ok = window.confirm(`Are you sure you want to cancel your ${planName} subscription?`);
-    if (!ok) return;
-
-    try {
-      setUnsubLoading(true);
-      const token = localStorage.getItem('token');
-      const res = await fetch(`${API_URL}/payment/cancel-subscription`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ planName }),
-      });
-
-      if (!res.ok) {
-        const err = await res.json().catch(() => ({}));
-        throw new Error(err.error || 'Failed to cancel subscription');
-      }
-
-      const data = await res.json().catch(() => ({}));
-
-      // update local user state to reflect cancellation
-      const updated = Object.assign({}, user || {}, {
-        subscriptionStatus: 'canceled',
-        subscriptionPlan: 'Free',
-      });
-      setUser(updated);
-      try { localStorage.setItem('user', JSON.stringify(updated)); } catch (e) {}
-
-      alert(data.message || 'Subscription canceled');
-      // navigate to subscription tab for further actions
-      navigate('/dashboard/settings', { state: { activeTab: 'subscriptions' } });
-    } catch (err) {
-      console.error('Unsubscribe error:', err);
-      alert(err.message || 'Failed to cancel subscription');
-    } finally {
-      setUnsubLoading(false);
-    }
   };
 
     // Fetch invoices when Billing tab is active
@@ -698,13 +638,19 @@ const AccountSettings = () => {
                 </div>
 
                 {/* Unsubscribe button */}
-                <button
-                  onClick={() => handleUnsubscribe(currentPlan)}
-                  disabled={unsubLoading}
-                  className="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 mt-4 rounded disabled:opacity-60"
-                >
-                  {unsubLoading ? 'Cancelling...' : 'Unsubscribe'}
-                </button>
+                <UnsubscribeButton
+                  planName={currentPlan}
+                  onSuccess={(data) => {
+                    const updated = Object.assign({}, user || {}, {
+                      subscriptionStatus: 'canceled',
+                      subscriptionPlan: 'Free',
+                    });
+                    setUser(updated);
+                    try { localStorage.setItem('user', JSON.stringify(updated)); } catch (e) {}
+                    alert(data?.message || 'Subscription canceled');
+                    navigate('/dashboard/settings', { state: { activeTab: 'subscriptions' } });
+                  }}
+                />
               </div>
 
               {/* Available Plans */}

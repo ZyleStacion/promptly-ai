@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import CheckoutButton from '../Payment/CheckoutButton';
+import UnsubscribeButton from '../Payment/UnsubscribeButton';
 
 const BillingPage = ({ userId }) => {
   const navigate = useNavigate();
@@ -52,53 +53,6 @@ const BillingPage = ({ userId }) => {
     if (!name || !currentPlan) return false;
     return String(currentPlan).toLowerCase() === String(name).toLowerCase();
   };
-
-  const handleUnsubscribe = (planName) => {
-    (async () => {
-      const ok = window.confirm(`Are you sure you want to cancel your ${planName} subscription?`);
-      if (!ok) return;
-      try {
-        setUnsubLoading(true);
-        const token = localStorage.getItem('token');
-        const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
-        const res = await fetch(`${API_URL}/payment/cancel-subscription`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({ planName }),
-        });
-
-        if (!res.ok) {
-          const err = await res.json().catch(() => ({}));
-          throw new Error(err.error || 'Failed to cancel subscription');
-        }
-
-        const data = await res.json().catch(() => ({}));
-
-        // Update local user state to reflect cancellation so UI updates immediately
-        const updated = Object.assign({}, user || {}, {
-          subscriptionStatus: 'canceled',
-          subscriptionPlan: 'Free',
-        });
-        setUser(updated);
-        try { localStorage.setItem('user', JSON.stringify(updated)); } catch (e) {}
-
-        alert(data.message || 'Subscription canceled');
-        
-        // Navigate to subscription settings to view the change
-        navigate('/dashboard/settings', { state: { activeTab: 'subscription' } });
-      } catch (err) {
-        console.error('Unsubscribe error:', err);
-        alert(err.message || 'Failed to cancel subscription');
-      } finally {
-        setUnsubLoading(false);
-      }
-    })();
-  };
-
-  const [unsubLoading, setUnsubLoading] = useState(false);
 
   const plans = [
     {
@@ -244,12 +198,19 @@ const BillingPage = ({ userId }) => {
                       Current Plan
                     </button>
                     {(plan.monthlyPrice > 0 || plan.annualPrice > 0) && (
-                      <button
-                        onClick={() => handleUnsubscribe(plan.name)}
-                        className="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
-                      >
-                        Unsubscribe
-                      </button>
+                      <UnsubscribeButton
+                        planName={plan.name}
+                        onSuccess={(data) => {
+                          const updated = Object.assign({}, user || {}, {
+                            subscriptionStatus: 'canceled',
+                            subscriptionPlan: 'Free',
+                          });
+                          setUser(updated);
+                          try { localStorage.setItem('user', JSON.stringify(updated)); } catch (e) {}
+                          alert(data?.message || 'Subscription canceled');
+                          navigate('/dashboard/settings', { state: { activeTab: 'subscription' } });
+                        }}
+                      />
                     )}
                   </div>
                 ) : plan.monthlyPrice === 0 && plan.annualPrice === 0 ? (

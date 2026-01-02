@@ -11,7 +11,7 @@ import {
 } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { USE_MOCK_API } from "../../api/mockApi";
+import { API_URL } from "../../api/api";
 
 const DashboardNavbar = ({ onFeedbackClick, onMenuClick }) => {
   const navigate = useNavigate();
@@ -57,6 +57,16 @@ const DashboardNavbar = ({ onFeedbackClick, onMenuClick }) => {
     navigate("/signin");
   };
 
+  const profileSrc = (() => {
+    try {
+      if (!user || !user.profileImage) return null;
+      if (String(user.profileImage).startsWith('http')) return user.profileImage;
+      return `${API_URL}${user.profileImage}`;
+    } catch (e) {
+      return null;
+    }
+  })();
+
   return (
     <nav className="w-full bg-neutral-900 border-b border-gray-800 px-6 py-4 flex items-center justify-between fixed top-0 left-0 z-20">
       {/* LEFT — Menu Button and Logo */}
@@ -89,13 +99,9 @@ const DashboardNavbar = ({ onFeedbackClick, onMenuClick }) => {
 
       {/* RIGHT — Profile Icon */}
       <div className="relative" ref={dropdownRef}>
-        {user.profileImage ? (
+        {profileSrc ? (
           <img
-            src={
-              USE_MOCK_API
-                ? user.profileImage
-                : `http://localhost:3000${user.profileImage}`
-            }
+            src={profileSrc}
             alt="Profile"
             className="w-10 h-10 rounded-full object-cover cursor-pointer border border-gray-700"
             onClick={() => setDropdownOpen(!dropdownOpen)}
@@ -121,13 +127,9 @@ const DashboardNavbar = ({ onFeedbackClick, onMenuClick }) => {
               {/* User Info Section */}
               <div className="px-4 py-4 bg-gradient-to-r from-blue-600/10 to-violet-600/10 border-b border-gray-700">
                 <div className="flex items-center gap-3">
-                  {user.profileImage ? (
+                  {profileSrc ? (
                     <img
-                      src={
-                        USE_MOCK_API
-                          ? user.profileImage
-                          : `http://localhost:3000${user.profileImage}`
-                      }
+                      src={profileSrc}
                       alt="Profile"
                       className="w-12 h-12 rounded-full object-cover border-2 border-blue-500"
                     />

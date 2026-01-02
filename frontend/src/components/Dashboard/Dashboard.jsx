@@ -9,11 +9,11 @@ import WorkspaceSettings from "./WorkspaceSettings.jsx";
 import TrainingSourcesModal from "./TrainingSourcesModal.jsx";
 import EditChatbotModal from "./EditChatbotModal.jsx";
 import ChatInterface from "./ChatInterface.jsx";
-import { api, USE_MOCK_API } from "../../api/mockApi";
 import FeedbackButton from "../Feedback/FeedbackButton.jsx";
 import Notification from "./Notification.jsx";
 
 import { API_URL } from "../../api/api.js";
+import api from '../../api/chatbot';
 
 const isAuthenticated = () => !!localStorage.getItem("token");
 
@@ -97,8 +97,7 @@ const Dashboard = () => {
   const loadOllamaModels = async () => {
     try {
       setLoadingModels(true);
-      const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:3000";
-      const response = await fetch(`${apiUrl}/chat/models`);
+      const response = await fetch(`${API_URL}/chat/models`);
       const data = await response.json();
 
       if (data.success && data.models) {
@@ -125,12 +124,9 @@ const Dashboard = () => {
     try {
       setLoading(true);
       setError("");
-      const response = await api.getChatbots();
-      if (response.success) {
-        setChatbots(response.chatbots || []);
-      } else {
-        setError(response.error || "Failed to load chatbots");
-      }
+      const token = localStorage.getItem("token");
+      const resp = await api.getChatbots();
+      setChatbots(resp.chatbots || []);
     } catch (error) {
       console.error("Error loading chatbots:", error);
       setError("Failed to load chatbots. Please try again.");
@@ -251,29 +247,25 @@ const Dashboard = () => {
         response = await api.createChatbot(payload);
       }
 
-      if (response.success) {
-        // Reload chatbots
-        await loadChatbots();
+      // If API call succeeded (helper throws on non-OK), refresh list and reset form
+      await loadChatbots();
 
-        // Reset forms
-        setShowChatbotUIModal(false);
-        setEditingChatbot(null);
-        setEditingTrainingData([]);
-        setTrainingFiles([]);
-        setTrainingText("");
-        setSelectedModel(availableModels.length > 0 ? availableModels[0].name : "");
-        setChatbotType("general");
-        setChatbotPersonality("friendly");
-        setChatbotName("");
-        setDescription("");
-        setWelcomeMessage("");
-        setPrimaryColor("#3B82F6");
-        setProfilePicture(null);
-        setProfilePreview("");
-        setProfileDeleted(false);
-      } else {
-        setError(response.error || `Failed to ${editingChatbot ? 'update' : 'create'} chatbot`);
-      }
+      // Reset forms
+      setShowChatbotUIModal(false);
+      setEditingChatbot(null);
+      setEditingTrainingData([]);
+      setTrainingFiles([]);
+      setTrainingText("");
+      setSelectedModel(availableModels.length > 0 ? availableModels[0].name : "");
+      setChatbotType("general");
+      setChatbotPersonality("friendly");
+      setChatbotName("");
+      setDescription("");
+      setWelcomeMessage("");
+      setPrimaryColor("#3B82F6");
+      setProfilePicture(null);
+      setProfilePreview("");
+      setProfileDeleted(false);
     } catch (err) {
       console.error(`Error ${editingChatbot ? 'updating' : 'creating'} chatbot:`, err);
       setError(`Failed to ${editingChatbot ? 'update' : 'create'} chatbot. Please try again.`);
@@ -288,15 +280,11 @@ const Dashboard = () => {
     }
 
     try {
-      const response = await api.deleteChatbot(id);
-      if (response.success) {
-        await loadChatbots();
-      } else {
-        setError(response.error || "Failed to delete chatbot");
-      }
+      await api.deleteChatbot(id);
+      await loadChatbots();
     } catch (err) {
       console.error("Error deleting chatbot:", err);
-      setError("Failed to delete chatbot");
+      setError(err.message || "Failed to delete chatbot");
     }
   };
 
@@ -780,22 +768,20 @@ const Dashboard = () => {
                 profilePicture: profileDeleted ? null : (profilePreview || null),
                 trainingData: editingTrainingData,
               };
-              const response = await api.updateChatbot(editingChatbot._id, payload);
-              if (response.success) {
-                await loadChatbots();
-                setShowEditModal(false);
-                setEditingChatbot(null);
-                setEditingTrainingData([]);
-                setProfilePreview("");
-                setProfileDeleted(false);
-                setChatbotName("");
-                setDescription("");
-                setWelcomeMessage("");
-                setSelectedModel(availableModels.length > 0 ? availableModels[0].name : "");
-                setChatbotType("general");
-                setChatbotPersonality("friendly");
-                setPrimaryColor("#3B82F6");
-              }
+              await api.updateChatbot(editingChatbot._id, payload);
+              await loadChatbots();
+              setShowEditModal(false);
+              setEditingChatbot(null);
+              setEditingTrainingData([]);
+              setProfilePreview("");
+              setProfileDeleted(false);
+              setChatbotName("");
+              setDescription("");
+              setWelcomeMessage("");
+              setSelectedModel(availableModels.length > 0 ? availableModels[0].name : "");
+              setChatbotType("general");
+              setChatbotPersonality("friendly");
+              setPrimaryColor("#3B82F6");
             } finally {
               setCreating(false);
             }
