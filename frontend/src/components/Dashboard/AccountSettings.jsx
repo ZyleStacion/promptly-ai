@@ -225,48 +225,6 @@ const AccountSettings = () => {
     setShowDeleteModal(false);
   };
 
-  const handleUnsubscribe = async (planName) => {
-    const ok = window.confirm(`Are you sure you want to cancel your ${planName} subscription?`);
-    if (!ok) return;
-
-    try {
-      setUnsubLoading(true);
-      const token = localStorage.getItem('token');
-      const res = await fetch(`${API_URL}/payment/cancel-subscription`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ planName }),
-      });
-
-      if (!res.ok) {
-        const err = await res.json().catch(() => ({}));
-        throw new Error(err.error || 'Failed to cancel subscription');
-      }
-
-      const data = await res.json().catch(() => ({}));
-
-      // update local user state to reflect cancellation
-      const updated = Object.assign({}, user || {}, {
-        subscriptionStatus: 'canceled',
-        subscriptionPlan: 'Free',
-      });
-      setUser(updated);
-      try { localStorage.setItem('user', JSON.stringify(updated)); } catch (e) {}
-
-      alert(data.message || 'Subscription canceled');
-      // navigate to subscription tab for further actions
-      navigate('/dashboard/settings', { state: { activeTab: 'subscriptions' } });
-    } catch (err) {
-      console.error('Unsubscribe error:', err);
-      alert(err.message || 'Failed to cancel subscription');
-    } finally {
-      setUnsubLoading(false);
-    }
-  };
-
   // Fetch invoices when Billing tab is active
   useEffect(() => {
     const fetchPayments = async () => {
