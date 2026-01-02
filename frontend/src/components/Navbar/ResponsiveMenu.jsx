@@ -52,7 +52,7 @@ const ResponsiveMenu = ({ isOpen, setIsOpen }) => {
             ))}
 
             {/* Mobile Auth Buttons */}
-            <div className="mt-4 bg-gray-800 rounded-xl p-4 inline-flex flex-col space-y-4">
+            <div className="mt-4 bg-gray-800 dark:bg-gray-100 rounded-xl p-4 inline-flex flex-col space-y-4">
               {!isLoggedIn ? (
                 <>
                   <button
@@ -102,7 +102,7 @@ const ResponsiveMenu = ({ isOpen, setIsOpen }) => {
 
                   <button
                     onClick={handleLogout}
-                    className="font-semibold text-white"
+                    className="font-semibold text-white dark:text-black"
                   >
                     Logout
                   </button>

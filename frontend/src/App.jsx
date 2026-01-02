@@ -17,6 +17,7 @@ import Documentation from "./components/Documentation/Documentation";
 import IntegrationDemo from "./components/IntegrationDemo/IntegrationDemo";
 import ChatbotWidget from "./components/Chatbot/ChatbotWidget";
 import FeedbackButton from "./components/Feedback/FeedbackButton";
+import { ThemeProvider } from "./context/ThemeContext";
 
 // Admin pages
 import AdminLayout from "./components/Admin/AdminLayout";
@@ -31,7 +32,9 @@ import AdminBlockRoute from "./components/Admin/AdminBlockRoute";
 // Stripe
 import { loadStripe } from "@stripe/stripe-js";
 
-const stripePromise = loadStripe('pk_test_51O6acYKS89qhN4fbUWEj4DgDtfJZLJ19QKbGPJq9pQ0y8UVbn1mQ3XlFczGuGnkrC3zyRY3i2V5yaMT0XVO4CN4M00Mpy2QUPK');
+const stripePromise = loadStripe(
+  "pk_test_51O6acYKS89qhN4fbUWEj4DgDtfJZLJ19QKbGPJq9pQ0y8UVbn1mQ3XlFczGuGnkrC3zyRY3i2V5yaMT0XVO4CN4M00Mpy2QUPK"
+);
 
 // Get user from localStorage
 const getUserId = () => {
@@ -42,9 +45,8 @@ const getUserId = () => {
 import ChatbotManagement from "./components/Admin/ChatbotManagement";
 import AdminFeedback from "./components/Admin/AdminFeedback";
 
-
 const HomePage = () => (
-  <main className="overflow-x-hidden bg-gray-900">
+  <main className="overflow-x-hidden bg-gray-900 dark:bg-white transition-colors duration-300">
     <Navbar />
     <Hero />
     <HowItWorks />
@@ -90,21 +92,22 @@ export const App = () => {
         <Route path="/documentation" element={<Documentation />} />
         <Route path="/integration-demo" element={<IntegrationDemo />} />
 
-        <Route
-          path="/admin"
-          element={
-            <AdminRoute>
-              <AdminLayout />
-            </AdminRoute>
-          }
-        >
-          <Route index element={<AdminDashboard />} />
-          <Route path="users" element={<UserManagement />} />
-          <Route path="chatbots" element={<ChatbotManagement />} />
-          <Route path="/admin/feedback" element={<AdminFeedback />} />
-        </Route>
-      </Routes>
-    </Router>
+          <Route
+            path="/admin"
+            element={
+              <AdminRoute>
+                <AdminLayout />
+              </AdminRoute>
+            }
+          >
+            <Route index element={<AdminDashboard />} />
+            <Route path="users" element={<UserManagement />} />
+            <Route path="chatbots" element={<ChatbotManagement />} />
+            <Route path="/admin/feedback" element={<AdminFeedback />} />
+          </Route>
+        </Routes>
+      </Router>
+    </ThemeProvider>
   );
 };
 

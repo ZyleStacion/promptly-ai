@@ -27,7 +27,7 @@ const Hero = () => {
   const handleEnded = () => setIsPlaying(false);
 
   return (
-    <div className=" bg-gray-900 containers grid grid-cols-1 md:grid-cols-2 min-h-[650px] md:px-5 relative">
+    <div className="bg-gray-900 dark:bg-gradient-to-br dark:from-gray-50 dark:to-blue-50 containers grid grid-cols-1 md:grid-cols-2 min-h-[650px] md:px-5 relative transition-colors duration-300 pb-10">
       {/* brand infor */}
       <div className=" flex flex-col mt-5 xl:pt-24 md:pt-24 px-8 pb-10 md:pr-10 xl:pr-30 ">
         <div className=" text-center md:text-left space-y-6">
@@ -35,7 +35,7 @@ const Hero = () => {
             initial={{ opacity: 0, x: -100 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.2 }}
-            className=" text-blue-400 font-bold flex items-center "
+            className="text-blue-400 dark:text-blue-600 font-bold flex items-center"
           >
             <LuBrain />
             AI Model Training Platform
@@ -45,7 +45,7 @@ const Hero = () => {
             initial={{ opacity: 0, x: -100 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.4 }}
-            className=" text-white text-5xl font-semibold"
+            className="text-white dark:text-gray-900 text-5xl font-semibold"
           >
             Train Your Own{" "}
             <p className=" font-bold inline-block bg-gradient-to-r from-blue-600 to-violet-600 text-transparent bg-clip-text">
@@ -58,7 +58,7 @@ const Hero = () => {
             initial={{ opacity: 0, x: -100 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.6 }}
-            className=" text-white pr-5"
+            className="text-white dark:text-gray-700 pr-5"
           >
             Chat with our AI, upload your business data, and get a customized AI
             model trained specifically for your needs. Download and deploy it
@@ -84,7 +84,7 @@ const Hero = () => {
             </button>
             <button
               onClick={() => navigate("/documentation")}
-              className="text-white underline"
+              className="text-white dark:text-gray-900 dark:hover:text-blue-600 underline transition-colors duration-300"
             >
               Learn More
             </button>
@@ -95,7 +95,7 @@ const Hero = () => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.5 }}
-            className="   flex space-x-10 text-white justify-center md:justify-start xl:jus"
+            className="flex space-x-10 text-white dark:text-gray-900 justify-center md:justify-start xl:jus"
           >
             <div>
               <p className=" font-bold text-3xl">
