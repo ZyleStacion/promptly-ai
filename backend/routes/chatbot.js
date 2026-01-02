@@ -7,14 +7,15 @@ import {
   deleteChatbot,
 } from "../controllers/chatbotController.js";
 import auth from "../middleware/userMiddleware.js";
+import checkChatbotLimit from "../middleware/checkChatbotLimit.js";
 
 const router = express.Router();
 
 // All routes require authentication
 router.use(auth);
 
-// Create chatbot
-router.post("/", createChatbot);
+// Create chatbot (plan-limited)
+router.post("/", checkChatbotLimit, createChatbot);
 
 // Get all chatbots for logged-in user
 router.get("/", getChatbots);

@@ -26,6 +26,8 @@ import UserManagement from "./components/Admin/UseraManagement";
 import AdminRoute from "./components/Admin/AdminProtectedRoute";
 import PaymentSuccess from "./components/Payment/PaymentSuccess";
 import PaymentCanceled from "./components/Payment/PaymentCanceled";
+import AdminBlockRoute from "./components/Admin/AdminBlockRoute";
+
 
 // Stripe
 import { loadStripe } from "@stripe/stripe-js";
@@ -57,26 +59,38 @@ const HomePage = () => (
 
 export const App = () => {
   return (
-    <ThemeProvider>
-      <Router>
-        <FeedbackButton />
-        <Routes>
-          <Route path="/" element={<HomePage />} />
-          <Route path="/signin" element={<SignIn />} />
-          <Route path="/signup" element={<SignUp />} />
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/dashboard/settings" element={<AccountSetting />} />
-          <Route path="/dashboard/billing" element={<AccountSetting />} />
-          <Route
-            path="/dashboard/plans"
-            element={<PlansPage userId={getUserId()} />}
-          />
-          <Route path="/success" element={<PaymentSuccess />} />
-          <Route path="/cancel" element={<PaymentCanceled />} />
-          <Route path="/forgot-password" element={<ForgotPassword />} />
-          <Route path="/reset-password/:token" element={<ResetPassword />} />
-          <Route path="/documentation" element={<Documentation />} />
-          <Route path="/integration-demo" element={<IntegrationDemo />} />
+    <Router>
+      <FeedbackButton />
+      <Routes>
+        <Route path="/" element={<HomePage />} />
+        <Route path="/signin" element={<SignIn />} />
+        <Route path="/signup" element={<SignUp />} />
+        <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/dashboard/settings" element={<AccountSetting />} />
+        <Route
+          path="/dashboard/billing"
+          element={
+            <AdminBlockRoute>
+              <AccountSetting />
+            </AdminBlockRoute>
+          }
+        />
+
+        <Route
+          path="/dashboard/plans"
+          element={
+            <AdminBlockRoute>
+              <PlansPage userId={getUserId()} />
+            </AdminBlockRoute>
+          }
+        />
+
+        <Route path="/success" element={<PaymentSuccess />} />
+        <Route path="/cancel" element={<PaymentCanceled />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/reset-password/:token" element={<ResetPassword />} />
+        <Route path="/documentation" element={<Documentation />} />
+        <Route path="/integration-demo" element={<IntegrationDemo />} />
 
           <Route
             path="/admin"
