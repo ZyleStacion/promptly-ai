@@ -59,9 +59,10 @@ const HomePage = () => (
 
 export const App = () => {
   return (
-    <Router>
-      <FeedbackButton />
-      <Routes>
+    <ThemeProvider>
+      <Router>
+        <FeedbackButton />
+        <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/signin" element={<SignIn />} />
         <Route path="/signup" element={<SignUp />} />
