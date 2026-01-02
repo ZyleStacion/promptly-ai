@@ -17,6 +17,7 @@ import Documentation from "./components/Documentation/Documentation";
 import IntegrationDemo from "./components/IntegrationDemo/IntegrationDemo";
 import ChatbotWidget from "./components/Chatbot/ChatbotWidget";
 import FeedbackButton from "./components/Feedback/FeedbackButton";
+import { ThemeProvider } from "./context/ThemeContext";
 
 // Admin pages
 import AdminLayout from "./components/Admin/AdminLayout";
@@ -25,11 +26,15 @@ import UserManagement from "./components/Admin/UseraManagement";
 import AdminRoute from "./components/Admin/AdminProtectedRoute";
 import PaymentSuccess from "./components/Payment/PaymentSuccess";
 import PaymentCanceled from "./components/Payment/PaymentCanceled";
+import AdminBlockRoute from "./components/Admin/AdminBlockRoute";
+
 
 // Stripe
 import { loadStripe } from "@stripe/stripe-js";
 
-const stripePromise = loadStripe('pk_test_51O6acYKS89qhN4fbUWEj4DgDtfJZLJ19QKbGPJq9pQ0y8UVbn1mQ3XlFczGuGnkrC3zyRY3i2V5yaMT0XVO4CN4M00Mpy2QUPK');
+const stripePromise = loadStripe(
+  "pk_test_51O6acYKS89qhN4fbUWEj4DgDtfJZLJ19QKbGPJq9pQ0y8UVbn1mQ3XlFczGuGnkrC3zyRY3i2V5yaMT0XVO4CN4M00Mpy2QUPK"
+);
 
 // Get user from localStorage
 const getUserId = () => {
@@ -40,31 +45,47 @@ const getUserId = () => {
 import ChatbotManagement from "./components/Admin/ChatbotManagement";
 import AdminFeedback from "./components/Admin/AdminFeedback";
 
-
 const HomePage = () => (
-  <main className="overflow-x-hidden bg-gray-900">
+  <main className="overflow-x-hidden bg-gray-900 dark:bg-white transition-colors duration-300">
     <Navbar />
     <Hero />
     <HowItWorks />
     <WhyChooseOurPlatform />
     <Footer />
     {/* Promptly Chatbot Widget - Shows how to integrate on React sites */}
-    <ChatbotWidget chatbotId="6951ca5594649fca1064b26e" />
+    <ChatbotWidget chatbotId="6957fd16615a6c30d9d3238f" />
   </main>
 );
 
 export const App = () => {
   return (
-    <Router>
-      <FeedbackButton />
-      <Routes>
+    <ThemeProvider>
+      <Router>
+        <FeedbackButton />
+        <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/signin" element={<SignIn />} />
         <Route path="/signup" element={<SignUp />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/dashboard/settings" element={<AccountSetting />} />
-        <Route path="/dashboard/billing" element={<AccountSetting />} />
-        <Route path="/dashboard/plans" element={<PlansPage userId={getUserId()} />} />
+        <Route
+          path="/dashboard/billing"
+          element={
+            <AdminBlockRoute>
+              <AccountSetting />
+            </AdminBlockRoute>
+          }
+        />
+
+        <Route
+          path="/dashboard/plans"
+          element={
+            <AdminBlockRoute>
+              <PlansPage userId={getUserId()} />
+            </AdminBlockRoute>
+          }
+        />
+
         <Route path="/success" element={<PaymentSuccess />} />
         <Route path="/cancel" element={<PaymentCanceled />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
@@ -72,21 +93,22 @@ export const App = () => {
         <Route path="/documentation" element={<Documentation />} />
         <Route path="/integration-demo" element={<IntegrationDemo />} />
 
-        <Route
-          path="/admin"
-          element={
-            <AdminRoute>
-              <AdminLayout />
-            </AdminRoute>
-          }
-        >
-          <Route index element={<AdminDashboard />} />
-          <Route path="users" element={<UserManagement />} />
-          <Route path="chatbots" element={<ChatbotManagement />} />
-          <Route path="/admin/feedback" element={<AdminFeedback />} />
-        </Route>
-      </Routes>
-    </Router>
+          <Route
+            path="/admin"
+            element={
+              <AdminRoute>
+                <AdminLayout />
+              </AdminRoute>
+            }
+          >
+            <Route index element={<AdminDashboard />} />
+            <Route path="users" element={<UserManagement />} />
+            <Route path="chatbots" element={<ChatbotManagement />} />
+            <Route path="/admin/feedback" element={<AdminFeedback />} />
+          </Route>
+        </Routes>
+      </Router>
+    </ThemeProvider>
   );
 };
 

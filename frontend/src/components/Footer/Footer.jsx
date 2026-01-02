@@ -6,7 +6,10 @@ import { motion } from "framer-motion";
 
 const Footer = () => {
   return (
-    <footer id="contact-us" className="bg-neutral-950 text-white pt-12 pb-8 ">
+    <footer
+      id="contact-us"
+      className="bg-neutral-950 dark:bg-gray-100 text-white dark:text-gray-900 pt-12 pb-8 transition-colors duration-300"
+    >
       <div className="containers ">
         {/* Top Section */}
         <div className="md:flex  px-10 md:px-20 md:justify-between">
@@ -22,7 +25,7 @@ const Footer = () => {
                 Promptly AI
               </h2>
             </div>
-            <p className="text-gray-400 max-w-md">
+            <p className="text-gray-400 dark:text-gray-600 max-w-md">
               Empower your business with custom AI models. Train locally, keep
               control, and unlock intelligence.
             </p>
@@ -36,11 +39,11 @@ const Footer = () => {
               transition={{ duration: 0.5, delay: 0.1 }}
             >
               <h3 className="font-bold text-lg mb-4">Resources</h3>
-              <ul className="space-y-2 text-gray-400">
+              <ul className="space-y-2 text-gray-400 dark:text-gray-600">
                 <li>
                   <a
                     href="/"
-                    className="hover:text-secondary transition-colors duration-300"
+                    className="hover:text-secondary dark:hover:text-blue-600 transition-colors duration-300"
                   >
                     About Us
                   </a>
@@ -48,7 +51,7 @@ const Footer = () => {
                 <li>
                   <a
                     href="/documentation"
-                    className="hover:text-secondary transition-colors duration-300"
+                    className="hover:text-secondary dark:hover:text-blue-600 transition-colors duration-300"
                   >
                     Documentation
                   </a>
@@ -63,7 +66,7 @@ const Footer = () => {
               transition={{ duration: 0.5, delay: 0.2 }}
             >
               <h3 className="font-bold text-lg mb-4">Contact</h3>
-              <ul className="space-y-2 text-gray-400">
+              <ul className="space-y-2 text-gray-400 dark:text-gray-600">
                 <li className="flex items-center gap-2">
                   <HiLocationMarker className="text-secondary" />
                   <span>2025 SEPM Street, RMIT City</span>
@@ -71,7 +74,7 @@ const Footer = () => {
                 <li>
                   <a
                     href="mailto:hello@promptly.ai"
-                    className="hover:text-secondary transition-colors duration-300"
+                    className="hover:text-secondary dark:hover:text-blue-600 transition-colors duration-300"
                   >
                     contact@promptlyai.com
                   </a>
@@ -79,7 +82,7 @@ const Footer = () => {
                 <li>
                   <a
                     href="tel:+1234567890"
-                    className="hover:text-secondary transition-colors duration-300"
+                    className="hover:text-secondary dark:hover:text-blue-600 transition-colors duration-300"
                   >
                     +1 (234) 567-890
                   </a>
@@ -91,7 +94,7 @@ const Footer = () => {
                   href="https://facebook.com"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-gray-400 hover:text-secondary transition-colors duration-300"
+                  className="text-gray-400 dark:text-gray-600 hover:text-secondary dark:hover:text-blue-600 transition-colors duration-300"
                 >
                   <FaFacebook className="text-2xl" />
                 </a>
@@ -99,7 +102,7 @@ const Footer = () => {
                   href="https://instagram.com"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-gray-400 hover:text-secondary transition-colors duration-300"
+                  className="text-gray-400 dark:text-gray-600 hover:text-secondary dark:hover:text-blue-600 transition-colors duration-300"
                 >
                   <FaInstagram className="text-2xl" />
                 </a>
@@ -113,10 +116,10 @@ const Footer = () => {
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
           transition={{ duration: 0.5, delay: 0.4 }}
-          className="border-t border-gray-700 pt-8 "
+          className="border-t border-gray-700 dark:border-gray-300 pt-8"
         >
           <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-            <p className="text-gray-400 text-sm">
+            <p className="text-gray-400 dark:text-gray-600 text-sm">
               &copy; 2025 Promptly AI. All rights reserved.
             </p>
           </div>

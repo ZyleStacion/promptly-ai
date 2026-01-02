@@ -36,10 +36,10 @@ const WhyChooseOurPlatform = () => {
   return (
     <div
       id="why-choose-our-platform"
-      className=" bg-gray-900 containers grid grid-cols-1 md:grid-cols-2 min-h-[650px] md:px-5 relative"
+      className="bg-gray-900 dark:bg-gradient-to-br dark:from-blue-50 dark:to-gray-50 containers grid grid-cols-1 md:grid-cols-2 min-h-[650px] md:px-5 relative transition-colors duration-300 pt-20 pb-10"
     >
       {/* brand infor */}
-      <div className=" flex flex-col mt-5 xl:pt-4 md:pt-4 px-8 pb-10 md:pr-10 xl:pr-30 ">
+      <div className="flex flex-col justify-center px-8 md:pr-10 xl:pr-30">
         <div className=" text-center md:text-left space-y-6">
           <motion.h1
             initial={{ opacity: 0, x: -100 }}
@@ -57,16 +57,16 @@ const WhyChooseOurPlatform = () => {
                   initial={{ opacity: 0, x: -200 }}
                   whileInView={{ opacity: 1, x: 0 }}
                   transition={{ delay: item.delay }}
-                  className=" bg-neutral-950 mx-3 text-white my-5 space-y-4 p-6 rounded-xl shadow-[0_0_22px_rgba(0,0,0,0.15)] hover:shadow-[0_0_20px_rgba(59,130,246,0.7)] transition-all duration-300 text-center    "
+                  className="bg-neutral-950 dark:bg-white dark:border dark:border-gray-200 mx-3 text-white dark:text-gray-900 my-3 space-y-3 p-4 rounded-xl shadow-[0_0_22px_rgba(0,0,0,0.15)] dark:shadow-lg hover:shadow-[0_0_20px_rgba(59,130,246,0.7)] dark:hover:shadow-xl dark:hover:border-blue-300 transition-all duration-300 text-center"
                 >
                   {/* icon section */}
                   <div>
-                    <div className=" bg-gray-900 w-12 h-12 rounded-lg flex items-center text-center">
+                    <div className="bg-gray-900 dark:bg-gray-100 w-10 h-10 rounded-lg flex items-center text-center">
                       {item.icon}
                     </div>
                   </div>
-                  <p className=" font-bold text-2xl">{item.title}</p>
-                  <p>{item.description}</p>
+                  <p className="font-bold text-xl">{item.title}</p>
+                  <p className="text-sm">{item.description}</p>
                 </motion.div>
               );
             })}

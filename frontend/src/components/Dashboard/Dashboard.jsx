@@ -11,11 +11,39 @@ import EditChatbotModal from "./EditChatbotModal.jsx";
 import ChatInterface from "./ChatInterface.jsx";
 import FeedbackButton from "../Feedback/FeedbackButton.jsx";
 import Notification from "./Notification.jsx";
+import UpgradeModal from "./UpgradeModal";
+
 
 import { API_URL } from "../../api/api.js";
 import api from '../../api/chatbot';
 
 const isAuthenticated = () => !!localStorage.getItem("token");
+
+const CHATBOT_LIMITS = {
+  Basic: 1,
+  Pro: 5,
+  Enterprise: 20,
+};
+
+// Mobile Button Component - matches desktop sidebar design
+const MobileButton = ({ label, onClick, isActive, badge }) => (
+  <motion.button
+    whileHover={{ scale: 1.03, x: 5 }}
+    whileTap={{ scale: 0.98 }}
+    onClick={onClick}
+    className={`w-full text-left px-4 py-3 rounded-lg transition ${isActive
+      ? "bg-gradient-to-r from-blue-600 to-violet-600 font-semibold"
+      : "bg-neutral-700 hover:bg-neutral-600"
+      }`}
+  >
+    {label}
+    {badge && (
+      <span className="ml-2 bg-red-500 text-xs px-2 py-0.5 rounded-full">
+        {badge}
+      </span>
+    )}
+  </motion.button>
+);
 
 // Helper function to read file as text
 const readFileAsText = (file) => {
@@ -37,10 +65,14 @@ const Dashboard = () => {
   const [showTrainingModal, setShowTrainingModal] = useState(false);
   const [showChatbotUIModal, setShowChatbotUIModal] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [currentUser, setCurrentUser] = useState(null);
   const [error, setError] = useState("");
   const [creating, setCreating] = useState(false);
   const [editingChatbot, setEditingChatbot] = useState(null);
   const [showEditModal, setShowEditModal] = useState(false);
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
+  const [limitInfo, setLimitInfo] = useState({ plan: "Basic", limit: 1 });
+
 
   // Training form state
   const [trainingFiles, setTrainingFiles] = useState([]);
@@ -71,20 +103,36 @@ const Dashboard = () => {
   const [notificationCount, setNotificationCount] = useState(0);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
-
   useEffect(() => {
     if (!isAuthenticated()) navigate("/signin");
 
     // Check if user is admin
-    const user = JSON.parse(localStorage.getItem("user") || "{}");
-    setIsAdmin(user.isAdmin || false);
+    const loadCurrentUser = async () => {
+      const token = localStorage.getItem("token");
+      if (!token) return;
+
+      const res = await fetch(`${API_URL}/user/me`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      const data = await res.json();
+      if (data?.user) {
+        setCurrentUser(data.user);
+        setIsAdmin(data.user.isAdmin || false);
+        localStorage.setItem("user", JSON.stringify(data.user));
+      }
+    };
+
+
+    // admin flag will be set after user is loaded
 
     loadChatbots();
+    loadCurrentUser();
     loadOllamaModels();
     loadNotificationCount();
-
   }, []);
-
 
   // Prefill from workspace settings
   useEffect(() => {
@@ -102,7 +150,9 @@ const Dashboard = () => {
 
       if (data.success && data.models) {
         setAvailableModels(data.models);
-        const saved = JSON.parse(localStorage.getItem("workspaceSettings") || "{}");
+        const saved = JSON.parse(
+          localStorage.getItem("workspaceSettings") || "{}"
+        );
         const savedDefault = saved.defaultModel;
         if (savedDefault && data.models.some((m) => m.name === savedDefault)) {
           setSelectedModel(savedDefault);
@@ -119,6 +169,7 @@ const Dashboard = () => {
       setLoadingModels(false);
     }
   };
+
 
   const loadChatbots = async () => {
     try {
@@ -152,7 +203,6 @@ const Dashboard = () => {
       console.error("Failed to load notifications", err);
     }
   };
-
 
   const handleFileChange = (e) => {
     const newFiles = Array.from(e.target.files);
@@ -223,11 +273,16 @@ const Dashboard = () => {
 
       // Create chatbot payload
       const ws = JSON.parse(localStorage.getItem("workspaceSettings") || "{}");
-      const systemPromptStr = ws.systemPrompt || `You are ${chatbotName}, a helpful AI assistant. Answer questions based on the provided information.`;
+      const systemPromptStr =
+        ws.systemPrompt ||
+        `You are ${chatbotName}, a helpful AI assistant. Answer questions based on the provided information.`;
       const payload = {
         name: chatbotName,
         description: description || chatbotName,
-        welcomeMessage: welcomeMessage || ws.welcomeMessage || `Hi! I'm ${chatbotName}. How can I help you today?`,
+        welcomeMessage:
+          welcomeMessage ||
+          ws.welcomeMessage ||
+          `Hi! I'm ${chatbotName}. How can I help you today?`,
         businessName: chatbotName,
         businessDescription: description,
         chatbotType: chatbotType,
@@ -247,28 +302,50 @@ const Dashboard = () => {
         response = await api.createChatbot(payload);
       }
 
-      // If API call succeeded (helper throws on non-OK), refresh list and reset form
-      await loadChatbots();
+      if (!response.success && response.error === "CHATBOT_LIMIT_REACHED") {
+        setError(
+          `Your ${response.plan} plan allows ${response.limit} chatbots. Upgrade to continue.`
+        );
+        return;
+      }
+      
+      if (response.success ) {
+        // Reload chatbots
+        await loadChatbots();
 
-      // Reset forms
-      setShowChatbotUIModal(false);
-      setEditingChatbot(null);
-      setEditingTrainingData([]);
-      setTrainingFiles([]);
-      setTrainingText("");
-      setSelectedModel(availableModels.length > 0 ? availableModels[0].name : "");
-      setChatbotType("general");
-      setChatbotPersonality("friendly");
-      setChatbotName("");
-      setDescription("");
-      setWelcomeMessage("");
-      setPrimaryColor("#3B82F6");
-      setProfilePicture(null);
-      setProfilePreview("");
-      setProfileDeleted(false);
+        // Reset forms
+        setShowChatbotUIModal(false);
+        setEditingChatbot(null);
+        setEditingTrainingData([]);
+        setTrainingFiles([]);
+        setTrainingText("");
+        setSelectedModel(
+          availableModels.length > 0 ? availableModels[0].name : ""
+        );
+        setChatbotType("general");
+        setChatbotPersonality("friendly");
+        setChatbotName("");
+        setDescription("");
+        setWelcomeMessage("");
+        setPrimaryColor("#3B82F6");
+        setProfilePicture(null);
+        setProfilePreview("");
+        setProfileDeleted(false);
+      } else {
+        setError(
+          response.error ||
+          `Failed to ${editingChatbot ? "update" : "create"} chatbot`
+        );
+      }
     } catch (err) {
-      console.error(`Error ${editingChatbot ? 'updating' : 'creating'} chatbot:`, err);
-      setError(`Failed to ${editingChatbot ? 'update' : 'create'} chatbot. Please try again.`);
+      console.error(
+        `Error ${editingChatbot ? "updating" : "creating"} chatbot:`,
+        err
+      );
+      setError(
+        `Failed to ${editingChatbot ? "update" : "create"
+        } chatbot. Please try again.`
+      );
     } finally {
       setCreating(false);
     }
@@ -288,6 +365,26 @@ const Dashboard = () => {
     }
   };
 
+  const handleCreateChatbotClick = () => {
+    // 🔓 Admin: unlimited, no billing, no modal
+    if (currentUser?.isAdmin) {
+      setShowTrainingModal(true);
+      return;
+    }
+
+    const plan = currentUser?.subscriptionPlan || "Basic";
+    const limit = CHATBOT_LIMITS[plan] ?? 1;
+
+    if (chatbots.length >= limit) {
+      setLimitInfo({ plan, limit });
+      setShowUpgradeModal(true);
+      return;
+    }
+
+    setShowTrainingModal(true);
+  };
+
+
   const handleTestChatbot = (chatbot) => {
     setSelectedChatbot(chatbot);
     setShowChatInterface(true);
@@ -306,7 +403,10 @@ const Dashboard = () => {
     setProfileDeleted(false);
     setChatbotType(chatbot.chatbotType || "general");
     setChatbotPersonality(chatbot.personality || "friendly");
-    setSelectedModel(chatbot.modelName || (availableModels.length > 0 ? availableModels[0].name : ""));
+    setSelectedModel(
+      chatbot.modelName ||
+      (availableModels.length > 0 ? availableModels[0].name : "")
+    );
 
     // Use array-based training data for edit mode
     setEditingTrainingData(chatbot.trainingData || []);
@@ -328,14 +428,13 @@ const Dashboard = () => {
         onMenuClick={() => setIsSidebarOpen(true)}
       />
 
-
       <div className="flex pt-10">
         {/* Left Sidebar Navigation */}
         <motion.div
           initial={{ x: -100, opacity: 0 }}
           animate={{ x: 0, opacity: 1 }}
           transition={{ duration: 0.5 }}
-          className="w-64 min-h-screen bg-neutral-900 border-r border-gray-700 p-6 fixed left-0"
+          className="hidden lg:block w-64 min-h-screen bg-neutral-900 border-r border-gray-700 p-6 fixed left-0"
         >
           <nav className="space-y-3 pt-10">
             <motion.button
@@ -394,7 +493,6 @@ const Dashboard = () => {
               )}
             </motion.button>
 
-
             {/* Admin Panel Button - Only visible for admins */}
             {isAdmin && (
               <motion.button
@@ -414,8 +512,23 @@ const Dashboard = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.3 }}
-          className="ml-64 flex-1 p-8 pt-20"
+          className="lg:ml-64 flex-1 p-4 lg:p-8 pt-20"
         >
+          {/* 🔐 ADMIN INFO MESSAGE */}
+          {isAdmin && activeSection === "settings" && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="mb-6 bg-neutral-800 border border-gray-700 rounded-xl p-6"
+            >
+              <h2 className="text-2xl font-bold mb-2">Admin Workspace</h2>
+              <p className="text-gray-400 text-sm">
+                Admin accounts do not use subscription plans or billing.
+                Workspace settings here control defaults for all chatbots.
+              </p>
+            </motion.div>
+          )}
+
           {error && (
             <motion.div
               initial={{ opacity: 0, y: -10 }}
@@ -429,18 +542,23 @@ const Dashboard = () => {
             <ModelsSection
               loading={loading}
               chatbots={chatbots}
-              onCreateChatbot={() => setShowTrainingModal(true)}
+              onCreateChatbot={handleCreateChatbotClick}
               onDeleteChatbot={handleDeleteChatbot}
               onTestChatbot={handleTestChatbot}
               onEditChatbot={handleEditChatbot}
             />
           )}
-          {activeSection === "usage" && <UsageSection chatbots={chatbots} />}
+          {activeSection === "usage" && (
+            <UsageSection
+              chatbots={chatbots}
+              user={currentUser}
+            />
+          )}
+
           {activeSection === "settings" && <WorkspaceSettings />}
           {activeSection === "notification" && (
             <Notification onViewed={() => setNotificationCount(0)} />
           )}
-
         </motion.div>
       </div>
 
@@ -451,31 +569,69 @@ const Dashboard = () => {
             onClick={() => setIsSidebarOpen(false)}
           >
             <motion.div
-              initial={{ x: -20, opacity: 0 }}
+              initial={{ x: -100, opacity: 0 }}
               animate={{ x: 0, opacity: 1 }}
-              exit={{ x: -20, opacity: 0 }}
-              className="w-64 h-full bg-neutral-900 p-6"
+              exit={{ x: -100, opacity: 0 }}
+              transition={{ duration: 0.3 }}
+              className="w-64 h-full bg-neutral-900 border-r border-gray-700 p-6"
               onClick={(e) => e.stopPropagation()}
             >
-              <nav className="space-y-3 pt-6">
-                <MobileButton label="Models" onClick={() => setActiveSection("models")} />
-                <MobileButton label="Usage" onClick={() => setActiveSection("usage")} />
-                <MobileButton label="Workspace setting" onClick={() => setActiveSection("settings")} />
+              <nav className="space-y-3 pt-10">
                 <MobileButton
-                  label={`Notification ${notificationCount > 0 ? `(${notificationCount})` : ""}`}
+                  label="Models"
+                  isActive={activeSection === "models"}
+                  onClick={() => {
+                    setActiveSection("models");
+                    setIsSidebarOpen(false);
+                  }}
+                />
+                <MobileButton
+                  label="Usage"
+                  isActive={activeSection === "usage"}
+                  onClick={() => {
+                    setActiveSection("usage");
+                    setIsSidebarOpen(false);
+                  }}
+                />
+                <MobileButton
+                  label="Workspace setting"
+                  isActive={activeSection === "settings"}
+                  onClick={() => {
+                    setActiveSection("settings");
+                    setIsSidebarOpen(false);
+                  }}
+                />
+                <MobileButton
+                  label="Notification"
+                  isActive={activeSection === "notification"}
+                  badge={notificationCount > 0 ? notificationCount : null}
                   onClick={() => {
                     setActiveSection("notification");
                     setNotificationCount(0);
+                    setIsSidebarOpen(false);
                   }}
                 />
+
+                {/* Admin Panel Button - Only visible for admins */}
+                {isAdmin && (
+                  <motion.button
+                    whileHover={{ scale: 1.03, x: 5 }}
+                    whileTap={{ scale: 0.98 }}
+                    onClick={() => {
+                      navigate("/admin");
+                      setIsSidebarOpen(false);
+                    }}
+                    className="w-full text-left px-4 py-3 rounded-lg transition bg-amber-600 hover:bg-amber-700 font-semibold"
+                  >
+                    Admin Panel
+                  </motion.button>
+                )}
               </nav>
             </motion.div>
           </div>
         )}
       </AnimatePresence>
       <FeedbackButton ref={feedbackRef} />
-
-
 
       {/* Add Training Sources Modal */}
       <TrainingSourcesModal
@@ -558,7 +714,8 @@ const Dashboard = () => {
                     <textarea
                       value={welcomeMessage}
                       onChange={(e) => setWelcomeMessage(e.target.value)}
-                      placeholder={`Hi! I'm ${chatbotName || 'your assistant'}. How can I help you today?`}
+                      placeholder={`Hi! I'm ${chatbotName || "your assistant"
+                        }. How can I help you today?`}
                       rows="2"
                       className="w-full bg-neutral-700 border border-gray-600 rounded-lg p-3 text-white placeholder-gray-500 focus:outline-none focus:border-blue-500 resize-none"
                     />
@@ -705,7 +862,10 @@ const Dashboard = () => {
       {showEditModal && editingChatbot && (
         <EditChatbotModal
           isOpen={showEditModal}
-          onClose={() => { setShowEditModal(false); setEditingChatbot(null); }}
+          onClose={() => {
+            setShowEditModal(false);
+            setEditingChatbot(null);
+          }}
           chatbot={editingChatbot}
           chatbotName={chatbotName}
           setChatbotName={setChatbotName}
@@ -733,7 +893,10 @@ const Dashboard = () => {
               reader.readAsDataURL(file);
             }
           }}
-          onDeleteProfile={() => { setProfilePreview(""); setProfileDeleted(true); }}
+          onDeleteProfile={() => {
+            setProfilePreview("");
+            setProfileDeleted(true);
+          }}
           availableModels={availableModels}
           editingTrainingData={editingTrainingData}
           onRemoveTrainingItem={(idx) => {
@@ -742,46 +905,80 @@ const Dashboard = () => {
           onAddFiles={async (files) => {
             for (const file of files) {
               const content = await readFileAsText(file);
-              setEditingTrainingData((prev) => [...prev, { type: "file", filename: file.name, content }]);
+              setEditingTrainingData((prev) => [
+                ...prev,
+                { type: "file", filename: file.name, content },
+              ]);
             }
           }}
-          onAddText={(text) => {
-            const t = (text || "").trim();
-            if (t) setEditingTrainingData((prev) => [...prev, { type: "text", content: t }]);
+          onAddText={(snippet) => {
+            // Handle both string (old format) and object (new format from TextSnippetModal)
+            if (typeof snippet === "string") {
+              const t = snippet.trim();
+              if (t)
+                setEditingTrainingData((prev) => [
+                  ...prev,
+                  { type: "text", content: t },
+                ]);
+            } else if (snippet && snippet.content) {
+              // New format from TextSnippetModal with title and content
+              setEditingTrainingData((prev) => [
+                ...prev,
+                {
+                  type: "text",
+                  title: snippet.title || "Text snippet",
+                  content: snippet.content,
+                },
+              ]);
+            }
           }}
           onSave={async () => {
             if (!chatbotName.trim()) return;
             try {
               setCreating(true);
-              const ws = JSON.parse(localStorage.getItem("workspaceSettings") || "{}");
-              const systemPromptStr = ws.systemPrompt || `You are ${chatbotName}, a helpful AI assistant. Answer questions based on the provided information.`;
+              const ws = JSON.parse(
+                localStorage.getItem("workspaceSettings") || "{}"
+              );
+              const systemPromptStr =
+                ws.systemPrompt ||
+                `You are ${chatbotName}, a helpful AI assistant. Answer questions based on the provided information.`;
               const payload = {
                 name: chatbotName,
                 description: description || chatbotName,
-                welcomeMessage: welcomeMessage || ws.welcomeMessage || `Hi! I'm ${chatbotName}. How can I help you today?`,
+                welcomeMessage:
+                  welcomeMessage ||
+                  ws.welcomeMessage ||
+                  `Hi! I'm ${chatbotName}. How can I help you today?`,
                 businessName: chatbotName,
                 businessDescription: description,
                 chatbotType: chatbotType,
                 modelName: selectedModel,
                 systemPrompt: systemPromptStr,
                 primaryColor,
-                profilePicture: profileDeleted ? null : (profilePreview || null),
+                profilePicture: profileDeleted ? null : profilePreview || null,
                 trainingData: editingTrainingData,
               };
-              await api.updateChatbot(editingChatbot._id, payload);
-              await loadChatbots();
-              setShowEditModal(false);
-              setEditingChatbot(null);
-              setEditingTrainingData([]);
-              setProfilePreview("");
-              setProfileDeleted(false);
-              setChatbotName("");
-              setDescription("");
-              setWelcomeMessage("");
-              setSelectedModel(availableModels.length > 0 ? availableModels[0].name : "");
-              setChatbotType("general");
-              setChatbotPersonality("friendly");
-              setPrimaryColor("#3B82F6");
+              const response = await api.updateChatbot(
+                editingChatbot._id,
+                payload
+              );
+              if (response.success) {
+                await loadChatbots();
+                setShowEditModal(false);
+                setEditingChatbot(null);
+                setEditingTrainingData([]);
+                setProfilePreview("");
+                setProfileDeleted(false);
+                setChatbotName("");
+                setDescription("");
+                setWelcomeMessage("");
+                setSelectedModel(
+                  availableModels.length > 0 ? availableModels[0].name : ""
+                );
+                setChatbotType("general");
+                setChatbotPersonality("friendly");
+                setPrimaryColor("#3B82F6");
+              }
             } finally {
               setCreating(false);
             }
@@ -798,6 +995,13 @@ const Dashboard = () => {
           apiUrl={import.meta.env.VITE_API_URL || "http://localhost:3000"}
         />
       )}
+      <UpgradeModal
+        isOpen={showUpgradeModal}
+        onClose={() => setShowUpgradeModal(false)}
+        plan={limitInfo.plan}
+        limit={limitInfo.limit}
+      />
+
     </div>
   );
 };
