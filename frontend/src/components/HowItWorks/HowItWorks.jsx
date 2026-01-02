@@ -33,10 +33,10 @@ const HowItWorksMenu = [
 
 const HowItWorks = () => {
   return (
-    <div className=" bg-gray-900">
+    <div className="bg-gray-900 dark:bg-white transition-colors duration-300 pb-20 pt-12">
       <div id="how-it-works" className="containers py-24">
         {/* header section */}
-        <div className=" text-white space-y-4 p-6 text-center max-w-[500px] mx-auto mb-5">
+        <div className="text-white dark:text-gray-900 space-y-4 p-6 text-center max-w-[500px] mx-auto mb-5">
           <h1 className=" text-5xl font-bold inline-block bg-gradient-to-r from-blue-600 to-violet-600 text-transparent bg-clip-text">
             How It Works ?
           </h1>
@@ -51,11 +51,11 @@ const HowItWorks = () => {
                 initial={{ opacity: 0, x: -200 }}
                 whileInView={{ opacity: 1, x: 0 }}
                 transition={{ delay: item.delay }}
-                className=" bg-neutral-950 mx-3 text-white space-y-4 p-6 rounded-xl shadow-[0_0_22px_rgba(0,0,0,0.15)] hover:shadow-[0_0_20px_rgba(59,130,246,0.7)] transition-all duration-300 text-center    "
+                className="bg-neutral-950 dark:bg-white dark:border dark:border-gray-200 mx-3 text-white dark:text-gray-900 space-y-4 p-6 rounded-xl shadow-[0_0_22px_rgba(0,0,0,0.15)] dark:shadow-lg hover:shadow-[0_0_20px_rgba(59,130,246,0.7)] dark:hover:shadow-xl dark:hover:border-blue-300 transition-all duration-300 text-center"
               >
                 {/* icon section */}
                 <div>
-                  <div className=" bg-gray-900 w-12 h-12 rounded-lg flex items-center text-center">
+                  <div className="bg-gray-900 dark:bg-gray-100 w-12 h-12 rounded-lg flex items-center text-center">
                     {item.icon}
                   </div>
                 </div>
