@@ -1,9 +1,22 @@
 /* eslint-disable no-unused-vars */
 import React, { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { MessageCircle, Link as LinkIcon, Pencil, Trash2, Copy } from "lucide-react";
+import {
+  MessageCircle,
+  Link as LinkIcon,
+  Pencil,
+  Trash2,
+  Copy,
+} from "lucide-react";
 
-const ModelsSection = ({ loading, chatbots, onCreateChatbot, onDeleteChatbot, onTestChatbot, onEditChatbot }) => {
+const ModelsSection = ({
+  loading,
+  chatbots,
+  onCreateChatbot,
+  onDeleteChatbot,
+  onTestChatbot,
+  onEditChatbot,
+}) => {
   const [openMenuId, setOpenMenuId] = useState(null);
   const [showEmbedCode, setShowEmbedCode] = useState(null);
   const menuRef = useRef(null);
@@ -33,8 +46,11 @@ const ModelsSection = ({ loading, chatbots, onCreateChatbot, onDeleteChatbot, on
   const withAlpha = (hex, alpha) => {
     try {
       if (!hex || typeof hex !== "string") return hex;
-      if (!hex.startsWith("#") || (hex.length !== 7 && hex.length !== 9)) return hex;
-      const a = Math.round(alpha * 255).toString(16).padStart(2, "0");
+      if (!hex.startsWith("#") || (hex.length !== 7 && hex.length !== 9))
+        return hex;
+      const a = Math.round(alpha * 255)
+        .toString(16)
+        .padStart(2, "0");
       // if already has alpha (#RRGGBBAA), keep original
       return hex.length === 9 ? hex : `${hex}${a}`;
     } catch {
@@ -50,7 +66,9 @@ const ModelsSection = ({ loading, chatbots, onCreateChatbot, onDeleteChatbot, on
         transition={{ duration: 0.4 }}
         className="flex justify-between items-center mb-6"
       >
-        <h2 className="text-2xl font-bold">Your Models</h2>
+        <h2 className="text-2xl font-bold text-white dark:text-gray-900">
+          Your Models
+        </h2>
         <motion.button
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
@@ -67,7 +85,7 @@ const ModelsSection = ({ loading, chatbots, onCreateChatbot, onDeleteChatbot, on
             <motion.p
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              className="text-gray-400"
+              className="text-gray-400 dark:text-gray-600"
             >
               Loading...
             </motion.p>
@@ -80,10 +98,12 @@ const ModelsSection = ({ loading, chatbots, onCreateChatbot, onDeleteChatbot, on
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.3 }}
-              className="bg-neutral-800 p-8 rounded-xl border border-gray-700 text-center"
+              className="bg-neutral-800 dark:bg-white p-8 rounded-xl border border-gray-700 dark:border-gray-200 text-center"
             >
-              <p className="text-gray-400 mb-4">You don't have any chatbots yet.</p>
-              <p className="text-gray-500 text-sm">
+              <p className="text-gray-400 dark:text-gray-600 mb-4">
+                You don't have any chatbots yet.
+              </p>
+              <p className="text-gray-500 dark:text-gray-500 text-sm">
                 Click "Create Chatbot" to get started!
               </p>
             </motion.div>
@@ -103,13 +123,16 @@ const ModelsSection = ({ loading, chatbots, onCreateChatbot, onDeleteChatbot, on
                   boxShadow: "0 0 20px rgba(59,130,246,0.5)",
                   transition: { duration: 0.1 },
                 }}
-                className="bg-neutral-800 p-5 rounded-xl border border-gray-700 hover:border-gray-600 transition cursor-pointer"
+                className="bg-neutral-800 dark:bg-white p-5 rounded-xl border border-gray-700 dark:border-gray-200 hover:border-gray-600 dark:hover:border-gray-300 transition cursor-pointer"
               >
                 {/* Top Part - Profile Picture */}
                 <div
                   className="w-full h-32 mb-3 rounded-lg flex items-center justify-center overflow-hidden"
                   style={{
-                    background: `linear-gradient(90deg, ${withAlpha(bot.primaryColor || "#3B82F6", 1)}, ${withAlpha(bot.primaryColor || "#3B82F6", 0.6)})`,
+                    background: `linear-gradient(90deg, ${withAlpha(
+                      bot.primaryColor || "#3B82F6",
+                      1
+                    )}, ${withAlpha(bot.primaryColor || "#3B82F6", 0.6)})`,
                   }}
                 >
                   {bot.profilePicture ? (
@@ -127,14 +150,21 @@ const ModelsSection = ({ loading, chatbots, onCreateChatbot, onDeleteChatbot, on
 
                 {/* Bottom Part - Info */}
                 <div className="space-y-2">
-                  <h3 className="text-lg font-semibold">{bot.name}</h3>
-                  <p className="text-gray-400 text-xs">{bot.description}</p>
+                  <h3 className="text-lg font-semibold text-white dark:text-gray-900">
+                    {bot.name}
+                  </h3>
+                  <p className="text-gray-400 dark:text-gray-600 text-xs">
+                    {bot.description}
+                  </p>
                   <div className="flex justify-between items-center pt-2">
                     {(() => {
                       const isActive = (bot.status || "active") === "active";
                       const activeStyle = isActive
                         ? {
-                            backgroundColor: withAlpha(bot.primaryColor || "#3B82F6", 0.18),
+                            backgroundColor: withAlpha(
+                              bot.primaryColor || "#3B82F6",
+                              0.18
+                            ),
                             color: bot.primaryColor || "#3B82F6",
                           }
                         : undefined;
@@ -158,9 +188,11 @@ const ModelsSection = ({ loading, chatbots, onCreateChatbot, onDeleteChatbot, on
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
-                          setOpenMenuId(openMenuId === bot._id ? null : bot._id);
+                          setOpenMenuId(
+                            openMenuId === bot._id ? null : bot._id
+                          );
                         }}
-                        className="text-gray-400 hover:text-white p-1 rounded hover:bg-neutral-700 transition"
+                        className="text-gray-400 dark:text-gray-600 hover:text-white dark:hover:text-gray-900 p-1 rounded hover:bg-neutral-700 dark:hover:bg-gray-100 transition"
                       >
                         <svg
                           className="w-5 h-5"
@@ -181,7 +213,7 @@ const ModelsSection = ({ loading, chatbots, onCreateChatbot, onDeleteChatbot, on
                             animate={{ opacity: 1, scale: 1, y: 0 }}
                             exit={{ opacity: 0, scale: 0.95, y: -10 }}
                             transition={{ duration: 0.15 }}
-                            className="absolute right-0 bottom-full mb-2 w-48 bg-neutral-700 rounded-lg shadow-xl border border-gray-600 py-1 z-10"
+                            className="absolute right-0 bottom-full mb-2 w-48 bg-neutral-700 dark:bg-white rounded-lg shadow-xl border border-gray-600 dark:border-gray-200 py-1 z-10"
                             onClick={(e) => e.stopPropagation()}
                           >
                             <button
@@ -199,14 +231,14 @@ const ModelsSection = ({ loading, chatbots, onCreateChatbot, onDeleteChatbot, on
                                 setShowEmbedCode(bot._id);
                                 setOpenMenuId(null);
                               }}
-                              className="w-full text-left px-4 py-2 text-sm text-white hover:bg-neutral-600 transition flex items-center gap-2"
+                              className="w-full text-left px-4 py-2 text-sm text-white dark:text-gray-900 hover:bg-neutral-600 dark:hover:bg-gray-100 transition flex items-center gap-2"
                             >
                               <LinkIcon className="w-4 h-4" />
                               <span>Get Embed Code</span>
                             </button>
                             <button
                               onClick={() => handleEditChatbot(bot)}
-                              className="w-full text-left px-4 py-2 text-sm text-white hover:bg-neutral-600 transition flex items-center gap-2"
+                              className="w-full text-left px-4 py-2 text-sm text-white dark:text-gray-900 hover:bg-neutral-600 dark:hover:bg-gray-100 transition flex items-center gap-2"
                             >
                               <Pencil className="w-4 h-4" />
                               <span>Edit Chatbot</span>
@@ -216,7 +248,7 @@ const ModelsSection = ({ loading, chatbots, onCreateChatbot, onDeleteChatbot, on
                                 onDeleteChatbot(bot._id);
                                 setOpenMenuId(null);
                               }}
-                              className="w-full text-left px-4 py-2 text-sm hover:bg-neutral-600 transition flex items-center gap-2 text-red-400"
+                              className="w-full text-left px-4 py-2 text-sm hover:bg-neutral-600 dark:hover:bg-gray-100 transition flex items-center gap-2 text-red-400 dark:text-red-600\"
                             >
                               <Trash2 className="w-4 h-4" />
                               <span>Delete Chatbot</span>
@@ -248,14 +280,17 @@ const ModelsSection = ({ loading, chatbots, onCreateChatbot, onDeleteChatbot, on
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.9, opacity: 0 }}
               onClick={(e) => e.stopPropagation()}
-              className="bg-neutral-800 rounded-xl p-6 max-w-2xl w-full border border-gray-700"
+              className="bg-neutral-800 dark:bg-white rounded-xl p-6 max-w-2xl w-full border border-gray-700 dark:border-gray-200"
             >
-              <h3 className="text-xl font-bold mb-4">Embed Code</h3>
-              <p className="text-gray-400 text-sm mb-4">
-                Copy and paste this code into your website's HTML to embed your chatbot:
+              <h3 className="text-xl font-bold mb-4 text-white dark:text-gray-900">
+                Embed Code
+              </h3>
+              <p className="text-gray-400 dark:text-gray-600 text-sm mb-4">
+                Copy and paste this code into your website's HTML to embed your
+                chatbot:
               </p>
-              <div className="bg-neutral-900 p-4 rounded-lg mb-4 border border-gray-700">
-                <pre className="text-sm text-green-400 overflow-x-auto">
+              <div className="bg-neutral-900 dark:bg-gray-50 p-4 rounded-lg mb-4 border border-gray-700 dark:border-gray-200">
+                <pre className="text-sm text-green-400 dark:text-green-600 overflow-x-auto">
                   {`<!-- Promptly Chatbot Widget -->
 <div data-promptly-chatbot-id="${showEmbedCode}"></div>
 <script>
@@ -270,7 +305,7 @@ const ModelsSection = ({ loading, chatbots, onCreateChatbot, onDeleteChatbot, on
                   onClick={() => {
                     const code = `<!-- Promptly Chatbot Widget -->\n<div data-promptly-chatbot-id="${showEmbedCode}"></div>\n<script>\n  globalThis.PROMPTLY_API_URL = '${globalThis.location.protocol}//${globalThis.location.hostname}:3000';\n  // Adjust :3000 to your backend port if different\n</script>\n<script src="${globalThis.location.protocol}//${globalThis.location.hostname}:5173/promptly-widget.js"></script>`;
                     navigator.clipboard.writeText(code);
-                    alert('Embed code copied to clipboard!');
+                    alert("Embed code copied to clipboard!");
                   }}
                   className="flex-1 px-4 py-2 bg-gradient-to-r from-blue-600 to-violet-600 rounded-lg hover:opacity-90 transition flex items-center gap-2"
                 >
@@ -279,7 +314,7 @@ const ModelsSection = ({ loading, chatbots, onCreateChatbot, onDeleteChatbot, on
                 </button>
                 <button
                   onClick={() => setShowEmbedCode(null)}
-                  className="px-4 py-2 bg-neutral-700 rounded-lg hover:bg-neutral-600 transition"
+                  className="px-4 py-2 bg-neutral-700 dark:bg-gray-100 rounded-lg hover:bg-neutral-600 dark:hover:bg-gray-200 transition text-white dark:text-gray-900"
                 >
                   Close
                 </button>

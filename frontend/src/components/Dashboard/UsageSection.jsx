@@ -30,9 +30,7 @@ const UsageSection = ({ chatbots = [], user }) => {
   }, []);
 
   const plan = isAdmin ? "Admin" : usage?.plan || "Basic";
-  const chatbotLimit = isAdmin
-    ? Infinity
-    : CHATBOT_LIMITS[plan] ?? 1;
+  const chatbotLimit = isAdmin ? Infinity : CHATBOT_LIMITS[plan] ?? 1;
 
   const chatbotUsed = chatbots.length;
   const percentUsed = isAdmin
@@ -46,7 +44,7 @@ const UsageSection = ({ chatbots = [], user }) => {
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4 }}
-        className="text-2xl font-bold mb-6"
+        className="text-2xl font-bold mb-6 text-white dark:text-gray-900"
       >
         Usage
       </motion.h2>
@@ -59,13 +57,17 @@ const UsageSection = ({ chatbots = [], user }) => {
           animate={{ opacity: 1, x: 0 }}
           transition={{ delay: 0.2, duration: 0.4 }}
           whileHover={{ scale: 1.02 }}
-          className={`bg-neutral-800 p-6 rounded-xl border ${
-            isAdmin ? "border-amber-500/50" : "border-gray-700"
+          className={`bg-neutral-800 dark:bg-white p-6 rounded-xl border ${
+            isAdmin
+              ? "border-amber-500/50 dark:border-amber-400"
+              : "border-gray-700 dark:border-gray-200"
           }`}
         >
           <h3
             className={`text-sm mb-2 ${
-              isAdmin ? "text-amber-400" : "text-gray-400"
+              isAdmin
+                ? "text-amber-400 dark:text-amber-600"
+                : "text-gray-400 dark:text-gray-600"
             }`}
           >
             {isAdmin ? "Admin Access" : "Plan Capacity"}
@@ -75,18 +77,16 @@ const UsageSection = ({ chatbots = [], user }) => {
             <span className="text-3xl font-bold">
               {isAdmin ? "Unlimited" : chatbotLimit}
             </span>
-            {!isAdmin && (
-              <span className="text-gray-400">max chatbots</span>
-            )}
+            {!isAdmin && <span className="text-gray-400">max chatbots</span>}
           </div>
 
-          <p className="text-sm text-gray-400 mt-3">
+          <p className="text-sm text-gray-400 dark:text-gray-600 mt-3">
             {isAdmin ? (
               "Admin accounts are not restricted by subscription plans."
             ) : (
               <>
                 You are currently on the{" "}
-                <span className="font-semibold capitalize text-white">
+                <span className="font-semibold capitalize text-white dark:text-gray-900">
                   {plan}
                 </span>{" "}
                 plan.
@@ -94,7 +94,7 @@ const UsageSection = ({ chatbots = [], user }) => {
             )}
           </p>
 
-          <p className="text-xs text-gray-500 mt-2">
+          <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
             {isAdmin
               ? "Full access to all chatbot features."
               : "Upgrade your plan to increase chatbot capacity."}
@@ -107,22 +107,24 @@ const UsageSection = ({ chatbots = [], user }) => {
           animate={{ opacity: 1, x: 0 }}
           transition={{ delay: 0.3, duration: 0.4 }}
           whileHover={{ scale: 1.02 }}
-          className="bg-neutral-800 p-6 rounded-xl border border-gray-700"
+          className="bg-neutral-800 dark:bg-white p-6 rounded-xl border border-gray-700 dark:border-gray-200"
         >
-          <h3 className="text-gray-400 text-sm mb-2">
+          <h3 className="text-gray-400 dark:text-gray-600 text-sm mb-2">
             {isAdmin ? "Total Chatbots (System)" : "Chatbots Used"}
           </h3>
 
           <div className="flex items-baseline gap-2">
-            <span className="text-3xl font-bold">{chatbotUsed}</span>
+            <span className="text-3xl font-bold text-white dark:text-gray-900">
+              {chatbotUsed}
+            </span>
             {!isAdmin && (
-              <span className="text-gray-400">
+              <span className="text-gray-400 dark:text-gray-600">
                 / {chatbotLimit}
               </span>
             )}
           </div>
 
-          <div className="mt-4 bg-gray-700 rounded-full h-2 overflow-hidden">
+          <div className="mt-4 bg-gray-700 dark:bg-gray-200 rounded-full h-2 overflow-hidden">
             <div
               className={`h-full transition-all ${
                 isAdmin
@@ -133,10 +135,8 @@ const UsageSection = ({ chatbots = [], user }) => {
             />
           </div>
 
-          <p className="text-xs text-gray-500 mt-2">
-            {isAdmin
-              ? "System-wide chatbot count"
-              : `Current plan: ${plan}`}
+          <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
+            {isAdmin ? "System-wide chatbot count" : `Current plan: ${plan}`}
           </p>
         </motion.div>
       </div>
@@ -146,27 +146,25 @@ const UsageSection = ({ chatbots = [], user }) => {
         initial={{ opacity: 0, y: 50 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.4, duration: 0.4 }}
-        className="bg-neutral-800 p-6 rounded-xl border border-gray-700"
+        className="bg-neutral-800 dark:bg-white p-6 rounded-xl border border-gray-700 dark:border-gray-200"
       >
-        <h3 className="text-xl font-semibold mb-4">
+        <h3 className="text-xl font-semibold mb-4 text-white dark:text-gray-900">
           {isAdmin ? "System Activity" : "Usage History"}
         </h3>
 
         <div className="space-y-3">
           {chatbots.length === 0 ? (
-            <p className="text-gray-400 text-center py-8">
+            <p className="text-gray-400 dark:text-gray-600 text-center py-8">
               No usage history yet
             </p>
           ) : (
             chatbots.map((bot) => (
               <div
                 key={bot._id}
-                className="flex justify-between text-sm text-gray-300 border-b border-gray-700 pb-2"
+                className="flex justify-between text-sm text-gray-300 dark:text-gray-700 border-b border-gray-700 dark:border-gray-200 pb-2"
               >
                 <span>{bot.name}</span>
-                <span>
-                  {new Date(bot.createdAt).toLocaleDateString()}
-                </span>
+                <span>{new Date(bot.createdAt).toLocaleDateString()}</span>
               </div>
             ))
           )}

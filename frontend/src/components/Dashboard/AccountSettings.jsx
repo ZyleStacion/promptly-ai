@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { FaUser, FaLock, FaCreditCard, FaFileInvoice } from "react-icons/fa";
+import { HiSun, HiMoon } from "react-icons/hi";
+import { useTheme } from "../../context/ThemeContext";
 import { getInvoices } from "../../api/payments";
 import CheckoutButton from "../Payment/CheckoutButton";
 import UnsubscribeButton from "../Payment/UnsubscribeButton";
@@ -10,9 +12,10 @@ import { API_URL } from "../../api/api";
 const AccountSettings = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { theme, toggleTheme } = useTheme();
   const [activeTab, setActiveTab] = useState(
     location.state?.activeTab ||
-    (location.pathname === "/dashboard/billing" ? "billing" : "profile")
+      (location.pathname === "/dashboard/billing" ? "billing" : "profile")
   );
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
@@ -56,6 +59,12 @@ const AccountSettings = () => {
         const token = localStorage.getItem("token");
         console.log("Token:", token ? "exists" : "missing");
 
+        if (!token) {
+          console.error("No token found, redirecting to login");
+          navigate("/signin");
+          return;
+        }
+
         const res = await fetch(`${API_URL}/user/me`, {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -63,10 +72,25 @@ const AccountSettings = () => {
         });
 
         console.log("Response status:", res.status);
+
+        if (!res.ok) {
+          console.error("Failed to fetch user:", res.status);
+          if (res.status === 401) {
+            localStorage.removeItem("token");
+            navigate("/signin");
+            return;
+          }
+          throw new Error(`HTTP error! status: ${res.status}`);
+        }
+
         data = await res.json();
         console.log("User data:", data);
 
         const u = data.user;
+        if (!u) {
+          throw new Error("No user data in response");
+        }
+
         setUser(u);
         setUsername(u.username);
         setEmail(u.email);
@@ -74,30 +98,29 @@ const AccountSettings = () => {
         setBusinessName(u.businessName || "");
 
         // existing db image
-        const fullImg = u.profileImage
-          ? USE_MOCK_API
-            ? u.profileImage
-            : `${API_URL}/${u.profileImage}`
-          : "";
+        const fullImg = u.profileImage ? `${API_URL}/${u.profileImage}` : "";
 
         setProfileImage(fullImg);
         setPreviewImage(fullImg);
       } catch (error) {
         console.error("Error loading user:", error);
+        // Set a dummy user to prevent infinite loading
+        setUser({
+          username: "Error",
+          email: "error@example.com",
+          isAdmin: false,
+        });
       }
     };
 
     loadUser();
-  }, []);
+  }, [navigate]);
 
   // Redirect admin users away from Subscription/Billing tabs
   useEffect(() => {
     if (!user) return;
 
-    if (
-      isAdmin &&
-      (activeTab === "subscription" || activeTab === "billing")
-    ) {
+    if (isAdmin && (activeTab === "subscription" || activeTab === "billing")) {
       setActiveTab("profile");
     }
   }, [user, activeTab, isAdmin]);
@@ -244,10 +267,9 @@ const AccountSettings = () => {
     if (activeTab === "billing" && !isAdmin) {
       fetchPayments();
     }
-
   }, [activeTab]);
 
-  if (!user) return <p className="text-white">Loading...</p>;
+  if (!user) return <p className="text-white dark:text-gray-900">Loading...</p>;
 
   // Determine current subscription plan from user object
   const currentPlan =
@@ -270,14 +292,14 @@ const AccountSettings = () => {
   // FRONTEND UI
   // --------------------------------------------------
   return (
-    <div className="min-h-screen bg-gray-900 text-white">
+    <div className="min-h-screen bg-gray-900 dark:bg-white text-white dark:text-gray-900">
       {/* Header with Back Button - Sticky */}
-      <div className="sticky top-0 z-30 bg-gray-900 px-4 lg:px-6 py-6 border-b border-gray-800">
+      <div className="sticky top-0 z-30 bg-gray-900 dark:bg-white px-4 lg:px-6 py-6 border-b border-gray-800 dark:border-gray-200">
         <div className="flex items-center gap-4">
           {/* Mobile Menu Button */}
           <button
             onClick={() => setIsSidebarOpen(true)}
-            className="md:hidden text-gray-400 hover:text-white transition p-2"
+            className="md:hidden text-gray-400 dark:text-gray-600 hover:text-white dark:hover:text-gray-900 transition p-2"
           >
             <svg
               className="w-6 h-6"
@@ -296,7 +318,7 @@ const AccountSettings = () => {
 
           <button
             onClick={() => navigate("/dashboard")}
-            className="flex items-center gap-2 text-gray-400 hover:text-white transition"
+            className="flex items-center gap-2 text-gray-400 dark:text-gray-600 hover:text-white dark:hover:text-gray-900 transition"
           >
             <svg
               className="w-5 h-5"
@@ -313,8 +335,23 @@ const AccountSettings = () => {
             </svg>
             Back to Dashboard
           </button>
-          <div className="h-6 w-px bg-gray-700"></div>
-          <h1 className="text-3xl font-bold">Account Settings</h1>
+          <div className="h-6 w-px bg-gray-700 dark:bg-gray-300"></div>
+          <h1 className="text-3xl font-bold text-white dark:text-gray-900">
+            Account Settings
+          </h1>
+          <div className="ml-auto">
+            <button
+              onClick={toggleTheme}
+              className="p-2 rounded-lg bg-neutral-800 dark:bg-gray-100 hover:bg-neutral-700 dark:hover:bg-gray-200 transition-colors"
+              aria-label="Toggle theme"
+            >
+              {theme === "dark" ? (
+                <HiSun className="w-5 h-5  text-gray-700" />
+              ) : (
+                <HiMoon className="w-5 h-5 text-yellow-400" />
+              )}
+            </button>
+          </div>
         </div>
       </div>
 
@@ -322,7 +359,7 @@ const AccountSettings = () => {
         <div className="flex flex-col md:flex-row gap-6">
           {/* Desktop Sidebar */}
           <div className="hidden md:block md:w-64 flex-shrink-0">
-            <div className="bg-neutral-800 rounded-xl p-4 border border-gray-700 sticky top-32">
+            <div className="bg-neutral-800 dark:bg-white rounded-xl p-4 border border-gray-700 dark:border-gray-200 sticky top-32">
               <nav className="space-y-2">
                 {[
                   { id: "profile", label: "Profile", icon: FaUser },
@@ -337,22 +374,24 @@ const AccountSettings = () => {
                     label: "Billing",
                     icon: FaFileInvoice,
                   },
-                ].filter(Boolean).map((tab) => (
-
-                  <motion.button
-                    key={tab.id}
-                    whileHover={{ scale: 1.03, x: 5 }}
-                    whileTap={{ scale: 0.98 }}
-                    onClick={() => setActiveTab(tab.id)}
-                    className={`w-full text-left px-4 py-3 rounded-lg transition flex items-center gap-3 ${activeTab === tab.id
-                      ? "bg-gradient-to-r from-blue-600 to-violet-600 text-white font-semibold"
-                      : "text-gray-400 hover:bg-neutral-700 hover:text-white"
+                ]
+                  .filter(Boolean)
+                  .map((tab) => (
+                    <motion.button
+                      key={tab.id}
+                      whileHover={{ scale: 1.03, x: 5 }}
+                      whileTap={{ scale: 0.98 }}
+                      onClick={() => setActiveTab(tab.id)}
+                      className={`w-full text-left px-4 py-3 rounded-lg transition flex items-center gap-3 ${
+                        activeTab === tab.id
+                          ? "bg-gradient-to-r from-blue-600 to-violet-600 text-white font-semibold"
+                          : "text-gray-400 dark:text-gray-600 hover:bg-neutral-700 dark:hover:bg-gray-100 hover:text-white dark:hover:text-gray-900"
                       }`}
-                  >
-                    <tab.icon className="text-xl" />
-                    <span className="font-medium">{tab.label}</span>
-                  </motion.button>
-                ))}
+                    >
+                      <tab.icon className="text-xl" />
+                      <span className="font-medium">{tab.label}</span>
+                    </motion.button>
+                  ))}
               </nav>
             </div>
           </div>
@@ -363,12 +402,13 @@ const AccountSettings = () => {
               <motion.div
                 initial={{ opacity: 0, y: -20 }}
                 animate={{ opacity: 1, y: 0 }}
-                className={`mb-4 px-4 py-3 rounded-lg border ${message.toLowerCase().includes("incorrect") ||
-                    message.toLowerCase().includes("error") ||
-                    message.toLowerCase().includes("failed")
+                className={`mb-4 px-4 py-3 rounded-lg border ${
+                  message.toLowerCase().includes("incorrect") ||
+                  message.toLowerCase().includes("error") ||
+                  message.toLowerCase().includes("failed")
                     ? "bg-red-600/20 text-red-400 border-red-600/50"
                     : "bg-green-600/20 text-green-400 border-green-600/50"
-                  }`}
+                }`}
               >
                 {message}
               </motion.div>
@@ -379,16 +419,17 @@ const AccountSettings = () => {
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="mb-6 bg-neutral-800 border border-gray-700 rounded-xl p-6"
+                className="mb-6 bg-neutral-800 dark:bg-white border border-gray-700 dark:border-gray-200 rounded-xl p-6"
               >
-                <h2 className="text-2xl font-bold mb-2">Admin Account</h2>
-                <p className="text-gray-400 text-sm">
-                  Admin accounts do not require subscriptions or billing.
-                  You have unlimited access to all features.
+                <h2 className="text-2xl font-bold mb-2 text-white dark:text-gray-900">
+                  Admin Account
+                </h2>
+                <p className="text-gray-400 dark:text-gray-600 text-sm">
+                  Admin accounts do not require subscriptions or billing. You
+                  have unlimited access to all features.
                 </p>
               </motion.div>
             )}
-
 
             {/* Profile Section */}
             {activeTab === "profile" && (
@@ -397,27 +438,29 @@ const AccountSettings = () => {
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.3 }}
               >
-                <div className="bg-neutral-800 rounded-xl p-6 border border-gray-700">
-                  <h2 className="text-2xl font-bold mb-2">
+                <div className="bg-neutral-800 dark:bg-white rounded-xl p-6 border border-gray-700 dark:border-gray-200">
+                  <h2 className="text-2xl font-bold mb-2 text-white dark:text-gray-900">
                     Profile Information
                   </h2>
-                  <p className="text-gray-400 text-sm mb-6">
+                  <p className="text-gray-400 dark:text-gray-600 text-sm mb-6">
                     Update your personal information and profile picture
                   </p>
 
                   {/* Profile Picture */}
                   <div className="mb-6">
-                    <label className="block mb-3 text-gray-300 font-medium">
+                    <label className="block mb-3 text-gray-300 dark:text-gray-700 font-medium">
                       Profile Picture
                     </label>
                     <div className="flex items-center gap-4">
                       <img
                         src={previewImage || "https://via.placeholder.com/120"}
                         alt="Profile"
-                        className="w-24 h-24 rounded-full object-cover border-2 border-gray-600"
+                        className="w-24 h-24 rounded-full object-cover border-2 border-gray-600 dark:border-gray-300"
                       />
-                      <label className="px-4 py-2 bg-neutral-700 hover:bg-neutral-600 rounded-lg cursor-pointer transition border border-gray-600">
-                        <span className="text-white">Upload New Picture</span>
+                      <label className="px-4 py-2 bg-neutral-700 dark:bg-gray-100 hover:bg-neutral-600 dark:hover:bg-gray-200 rounded-lg cursor-pointer transition border border-gray-600 dark:border-gray-300">
+                        <span className="text-white dark:text-gray-900">
+                          Upload New Picture
+                        </span>
                         <input
                           type="file"
                           accept="image/*"
@@ -432,56 +475,56 @@ const AccountSettings = () => {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                     {/* Full Name */}
                     <div>
-                      <label className="block mb-2 text-gray-300 font-medium">
+                      <label className="block mb-2 text-gray-300 dark:text-gray-700 font-medium">
                         Full Name
                       </label>
                       <input
                         type="text"
                         value={username}
                         onChange={(e) => setUsername(e.target.value)}
-                        className="w-full bg-neutral-700 border border-gray-600 p-3 rounded-lg text-white focus:outline-none focus:border-blue-500"
+                        className="w-full bg-neutral-700 dark:bg-gray-100 border border-gray-600 dark:border-gray-300 p-3 rounded-lg text-white dark:text-gray-900 placeholder:text-gray-500 dark:placeholder:text-gray-400 focus:outline-none focus:border-blue-500"
                         placeholder="Enter your full name"
                       />
                     </div>
 
                     {/* Email Address */}
                     <div>
-                      <label className="block mb-2 text-gray-300 font-medium">
+                      <label className="block mb-2 text-gray-300 dark:text-gray-700 font-medium">
                         Email Address
                       </label>
                       <input
                         type="email"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
-                        className="w-full bg-neutral-700 border border-gray-600 p-3 rounded-lg text-white focus:outline-none focus:border-blue-500"
+                        className="w-full bg-neutral-700 dark:bg-gray-100 border border-gray-600 dark:border-gray-300 p-3 rounded-lg text-white dark:text-gray-900 placeholder:text-gray-500 dark:placeholder:text-gray-400 focus:outline-none focus:border-blue-500"
                         placeholder="Enter your email"
                       />
                     </div>
 
                     {/* Phone Number */}
                     <div>
-                      <label className="block mb-2 text-gray-300 font-medium">
+                      <label className="block mb-2 text-gray-300 dark:text-gray-700 font-medium">
                         Phone Number
                       </label>
                       <input
                         type="tel"
                         value={phone}
                         onChange={(e) => setPhone(e.target.value)}
-                        className="w-full bg-neutral-700 border border-gray-600 p-3 rounded-lg text-white focus:outline-none focus:border-blue-500"
+                        className="w-full bg-neutral-700 dark:bg-gray-100 border border-gray-600 dark:border-gray-300 p-3 rounded-lg text-white dark:text-gray-900 placeholder:text-gray-500 dark:placeholder:text-gray-400 focus:outline-none focus:border-blue-500"
                         placeholder="Enter your phone number"
                       />
                     </div>
 
                     {/* Business Name */}
                     <div>
-                      <label className="block mb-2 text-gray-300 font-medium">
+                      <label className="block mb-2 text-gray-300 dark:text-gray-700 font-medium">
                         Business Name
                       </label>
                       <input
                         type="text"
                         value={businessName}
                         onChange={(e) => setBusinessName(e.target.value)}
-                        className="w-full bg-neutral-700 border border-gray-600 p-3 rounded-lg text-white focus:outline-none focus:border-blue-500"
+                        className="w-full bg-neutral-700 dark:bg-gray-100 border border-gray-600 dark:border-gray-300 p-3 rounded-lg text-white dark:text-gray-900 placeholder:text-gray-500 dark:placeholder:text-gray-400 focus:outline-none focus:border-blue-500"
                         placeholder="Enter your business name"
                       />
                     </div>
@@ -491,10 +534,11 @@ const AccountSettings = () => {
                   <button
                     onClick={handleUpdateProfile}
                     disabled={!hasChanges}
-                    className={`w-full py-3 rounded-lg font-semibold transition ${hasChanges
-                      ? "bg-gradient-to-r from-blue-600 to-violet-600 hover:opacity-90 text-white cursor-pointer"
-                      : "bg-gray-700 text-gray-500 cursor-not-allowed"
-                      }`}
+                    className={`w-full py-3 rounded-lg font-semibold transition ${
+                      hasChanges
+                        ? "bg-gradient-to-r from-blue-600 to-violet-600 hover:opacity-90 text-white cursor-pointer"
+                        : "bg-gray-700 text-gray-500 cursor-not-allowed"
+                    }`}
                   >
                     Save Changes
                   </button>
@@ -511,22 +555,24 @@ const AccountSettings = () => {
                 className="space-y-6"
               >
                 {/* Change Password Box */}
-                <div className="bg-neutral-800 rounded-xl p-6 border border-gray-700">
-                  <h2 className="text-2xl font-bold mb-2">Change Password</h2>
-                  <p className="text-gray-400 text-sm mb-6">
+                <div className="bg-neutral-800 dark:bg-white rounded-xl p-6 border border-gray-700 dark:border-gray-200">
+                  <h2 className="text-2xl font-bold mb-2 text-white dark:text-gray-900">
+                    Change Password
+                  </h2>
+                  <p className="text-gray-400 dark:text-gray-600 text-sm mb-6">
                     Update your password to keep your account secure
                   </p>
 
                   <div className="space-y-4">
                     <div>
-                      <label className="block mb-2 text-gray-300 font-medium">
+                      <label className="block mb-2 text-gray-300 dark:text-gray-700 font-medium">
                         Current Password
                       </label>
                       <input
                         type="password"
                         value={currentPassword}
                         onChange={(e) => setCurrentPassword(e.target.value)}
-                        className="w-full bg-neutral-700 border border-gray-600 p-3 rounded-lg text-white focus:outline-none focus:border-blue-500"
+                        className="w-full bg-neutral-700 dark:bg-gray-100 border border-gray-600 dark:border-gray-300 p-3 rounded-lg text-white dark:text-gray-900 placeholder:text-gray-500 dark:placeholder:text-gray-400 focus:outline-none focus:border-blue-500"
                         placeholder="Enter current password"
                       />
                     </div>
@@ -540,27 +586,27 @@ const AccountSettings = () => {
                     </div>
 
                     <div>
-                      <label className="block mb-2 text-gray-300 font-medium">
+                      <label className="block mb-2 text-gray-300 dark:text-gray-700 font-medium">
                         New Password
                       </label>
                       <input
                         type="password"
                         value={newPassword}
                         onChange={(e) => setNewPassword(e.target.value)}
-                        className="w-full bg-neutral-700 border border-gray-600 p-3 rounded-lg text-white focus:outline-none focus:border-blue-500"
+                        className="w-full bg-neutral-700 dark:bg-gray-100 border border-gray-600 dark:border-gray-300 p-3 rounded-lg text-white dark:text-gray-900 placeholder:text-gray-500 dark:placeholder:text-gray-400 focus:outline-none focus:border-blue-500"
                         placeholder="Enter new password"
                       />
                     </div>
 
                     <div>
-                      <label className="block mb-2 text-gray-300 font-medium">
+                      <label className="block mb-2 text-gray-300 dark:text-gray-700 font-medium">
                         Confirm New Password
                       </label>
                       <input
                         type="password"
                         value={confirmPassword}
                         onChange={(e) => setConfirmPassword(e.target.value)}
-                        className="w-full bg-neutral-700 border border-gray-600 p-3 rounded-lg text-white focus:outline-none focus:border-blue-500"
+                        className="w-full bg-neutral-700 dark:bg-gray-100 border border-gray-600 dark:border-gray-300 p-3 rounded-lg text-white dark:text-gray-900 placeholder:text-gray-500 dark:placeholder:text-gray-400 focus:outline-none focus:border-blue-500"
                         placeholder="Confirm new password"
                       />
                     </div>
@@ -575,16 +621,16 @@ const AccountSettings = () => {
                 </div>
 
                 {/* Two-Factor Authentication */}
-                <div className="bg-neutral-800 rounded-xl p-6 border border-gray-700">
+                <div className="bg-neutral-800 dark:bg-white rounded-xl p-6 border border-gray-700 dark:border-gray-200">
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
-                      <h2 className="text-2xl font-bold mb-2">
+                      <h2 className="text-2xl font-bold mb-2 text-white dark:text-gray-900">
                         Two-Step Authentication
                       </h2>
-                      <p className="text-gray-400 text-sm mb-4">
+                      <p className="text-gray-400 dark:text-gray-600 text-sm mb-4">
                         Add an extra layer of security to your account
                       </p>
-                      <p className="text-gray-500 text-xs">
+                      <p className="text-gray-500 dark:text-gray-400 text-xs">
                         {twoFactorEnabled
                           ? "Two-factor authentication is currently enabled"
                           : "Two-factor authentication is currently disabled"}
@@ -592,23 +638,25 @@ const AccountSettings = () => {
                     </div>
                     <button
                       onClick={() => setTwoFactorEnabled(!twoFactorEnabled)}
-                      className={`relative inline-flex h-8 w-14 items-center rounded-full transition-colors ${twoFactorEnabled ? "bg-blue-600" : "bg-gray-600"
-                        }`}
+                      className={`relative inline-flex h-8 w-14 items-center rounded-full transition-colors ${
+                        twoFactorEnabled ? "bg-blue-600" : "bg-gray-600"
+                      }`}
                     >
                       <span
-                        className={`inline-block h-6 w-6 transform rounded-full bg-white transition-transform ${twoFactorEnabled ? "translate-x-7" : "translate-x-1"
-                          }`}
+                        className={`inline-block h-6 w-6 transform rounded-full bg-white transition-transform ${
+                          twoFactorEnabled ? "translate-x-7" : "translate-x-1"
+                        }`}
                       />
                     </button>
                   </div>
                 </div>
 
                 {/* Delete Account */}
-                <div className="bg-neutral-800 rounded-xl p-6 border border-red-700/50">
-                  <h2 className="text-2xl font-bold mb-2 text-red-400">
+                <div className="bg-neutral-800 dark:bg-white rounded-xl p-6 border border-red-700/50 dark:border-red-400/50">
+                  <h2 className="text-2xl font-bold mb-2 text-red-400 dark:text-red-600">
                     Delete Account
                   </h2>
-                  <p className="text-gray-400 text-sm mb-4">
+                  <p className="text-gray-400 dark:text-gray-600 text-sm mb-4">
                     Permanently delete your account and all associated data.
                     This action cannot be undone.
                   </p>
@@ -624,7 +672,6 @@ const AccountSettings = () => {
 
             {/* Subscription Section */}
             {activeTab === "subscription" && !isAdmin && (
-
               <motion.div
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
@@ -632,33 +679,35 @@ const AccountSettings = () => {
                 className="space-y-6"
               >
                 {/* Current Plan */}
-                <div className="bg-neutral-800 rounded-xl p-6 border border-gray-700">
-                  <h2 className="text-2xl font-bold mb-4">Current Plan</h2>
-                  <div className="bg-neutral-900 rounded-lg p-6 border border-gray-600">
+                <div className="bg-neutral-800 dark:bg-white rounded-xl p-6 border border-gray-700 dark:border-gray-200">
+                  <h2 className="text-2xl font-bold mb-4 text-white dark:text-gray-900">
+                    Current Plan
+                  </h2>
+                  <div className="bg-neutral-900 dark:bg-gray-50 rounded-lg p-6 border border-gray-600 dark:border-gray-200">
                     <div className="flex items-center justify-between mb-4">
                       <div>
-                        <h3 className="text-xl font-bold text-white">
+                        <h3 className="text-xl font-bold text-white dark:text-gray-900">
                           {currentPlan} Plan
                         </h3>
-                        <p className="text-gray-400 text-sm">
+                        <p className="text-gray-400 dark:text-gray-600 text-sm">
                           {currentPlan === "Free" || currentPlan === "Basic"
                             ? "Perfect for getting started"
                             : currentPlan === "Pro"
-                              ? "Great for growing teams"
-                              : "Enterprise features and support"}
+                            ? "Great for growing teams"
+                            : "Enterprise features and support"}
                         </p>
                       </div>
-                      <span className="text-2xl font-bold text-white">
+                      <span className="text-2xl font-bold text-white dark:text-gray-900">
                         {currentPlan === "Free" || currentPlan === "Basic"
                           ? "$0"
                           : currentPlan === "Pro"
-                            ? "$29"
-                            : "$99"}
+                          ? "$29"
+                          : "$99"}
                       </span>
                     </div>
-                    <ul className="space-y-2 text-gray-300">
+                    <ul className="space-y-2 text-gray-300 dark:text-gray-700">
                       {currentPlan.toLowerCase() === "free" ||
-                        currentPlan.toLowerCase() === "basic" ? (
+                      currentPlan.toLowerCase() === "basic" ? (
                         <>
                           {/* Free description */}
                           <li className="flex items-center gap-2">
@@ -709,45 +758,53 @@ const AccountSettings = () => {
                     </ul>
                   </div>
 
-                {/* Unsubscribe button */}
-                <UnsubscribeButton
-                  planName={currentPlan}
-                  onSuccess={(data) => {
-                    const updated = Object.assign({}, user || {}, {
-                      subscriptionStatus: 'canceled',
-                      subscriptionPlan: 'Free',
-                    });
-                    setUser(updated);
-                    try { localStorage.setItem('user', JSON.stringify(updated)); } catch (e) {}
-                    alert(data?.message || 'Subscription canceled');
-                    navigate('/dashboard/settings', { state: { activeTab: 'subscriptions' } });
-                  }}
-                />
-              </div>
+                  {/* Unsubscribe button */}
+                  <UnsubscribeButton
+                    planName={currentPlan}
+                    onSuccess={(data) => {
+                      const updated = Object.assign({}, user || {}, {
+                        subscriptionStatus: "canceled",
+                        subscriptionPlan: "Free",
+                      });
+                      setUser(updated);
+                      try {
+                        localStorage.setItem("user", JSON.stringify(updated));
+                      } catch (e) {}
+                      alert(data?.message || "Subscription canceled");
+                      navigate("/dashboard/settings", {
+                        state: { activeTab: "subscriptions" },
+                      });
+                    }}
+                  />
+                </div>
 
                 {/* Available Plans */}
-                <div className="bg-neutral-800 rounded-xl p-6 border border-gray-700">
-                  <h2 className="text-2xl font-bold mb-4">Available Plans</h2>
+                <div className="bg-neutral-800 dark:bg-white rounded-xl p-6 border border-gray-700 dark:border-gray-200">
+                  <h2 className="text-2xl font-bold mb-4 text-white dark:text-gray-900">
+                    Available Plans
+                  </h2>
                   <div className="flex items-center justify-between mb-4">
-                    <div className="text-sm text-gray-400">
+                    <div className="text-sm text-gray-400 dark:text-gray-600">
                       Select billing cycle
                     </div>
                     <div className="flex items-center gap-2">
                       <button
                         onClick={() => setBillingCycle("monthly")}
-                        className={`px-3 py-1 rounded-full text-sm font-medium transition ${billingCycle === "monthly"
-                          ? "bg-white text-black"
-                          : "bg-neutral-700 text-gray-300"
-                          }`}
+                        className={`px-3 py-1 rounded-full text-sm font-medium transition ${
+                          billingCycle === "monthly"
+                            ? "bg-white dark:bg-gray-900 text-black dark:text-white"
+                            : "bg-neutral-700 dark:bg-gray-200 text-gray-300 dark:text-gray-700"
+                        }`}
                       >
                         Monthly
                       </button>
                       <button
                         onClick={() => setBillingCycle("yearly")}
-                        className={`px-3 py-1 rounded-full text-sm font-medium transition ${billingCycle === "yearly"
-                          ? "bg-white text-black"
-                          : "bg-neutral-700 text-gray-300"
-                          }`}
+                        className={`px-3 py-1 rounded-full text-sm font-medium transition ${
+                          billingCycle === "yearly"
+                            ? "bg-white dark:bg-gray-900 text-black dark:text-white"
+                            : "bg-neutral-700 dark:bg-gray-200 text-gray-300 dark:text-gray-700"
+                        }`}
                       >
                         Yearly
                       </button>
@@ -755,19 +812,21 @@ const AccountSettings = () => {
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {/* Pro Plan */}
-                    <div className="bg-neutral-900 rounded-lg p-6 border border-blue-500/50 hover:border-blue-500 transition">
+                    <div className="bg-neutral-900 dark:bg-gray-50 rounded-lg p-6 border border-blue-500/50 hover:border-blue-500 transition">
                       <div className="mb-4">
-                        <h3 className="text-xl font-bold text-white mb-1">
+                        <h3 className="text-xl font-bold text-white dark:text-gray-900 mb-1">
                           Pro Plan
                         </h3>
                         <div className="flex items-baseline gap-1">
-                          <span className="text-3xl font-bold text-white">
+                          <span className="text-3xl font-bold text-white dark:text-gray-900">
                             {formatPrice(29)}
                           </span>
-                          <span className="text-gray-400">{billingLabel}</span>
+                          <span className="text-gray-400 dark:text-gray-600">
+                            {billingLabel}
+                          </span>
                         </div>
                       </div>
-                      <ul className="space-y-3 mb-6 text-gray-300">
+                      <ul className="space-y-3 mb-6 text-gray-300 dark:text-gray-700">
                         <li className="flex items-center gap-2">
                           <span className="text-blue-400">✓</span>
                           <span>50,000 API calls/month</span>
@@ -805,23 +864,24 @@ const AccountSettings = () => {
                           />
                         )
                       )}
-
                     </div>
 
                     {/* Enterprise Plan */}
-                    <div className="bg-neutral-900 rounded-lg p-6 border border-violet-500/50 hover:border-violet-500 transition">
+                    <div className="bg-neutral-900 dark:bg-gray-50 rounded-lg p-6 border border-violet-500/50 hover:border-violet-500 transition">
                       <div className="mb-4">
-                        <h3 className="text-xl font-bold text-white mb-1">
+                        <h3 className="text-xl font-bold text-white dark:text-gray-900 mb-1">
                           Enterprise Plan
                         </h3>
                         <div className="flex items-baseline gap-1">
-                          <span className="text-3xl font-bold text-white">
+                          <span className="text-3xl font-bold text-white dark:text-gray-900">
                             {formatPrice(99)}
                           </span>
-                          <span className="text-gray-400">{billingLabel}</span>
+                          <span className="text-gray-400 dark:text-gray-600">
+                            {billingLabel}
+                          </span>
                         </div>
                       </div>
-                      <ul className="space-y-3 mb-6 text-gray-300">
+                      <ul className="space-y-3 mb-6 text-gray-300 dark:text-gray-700">
                         <li className="flex items-center gap-2">
                           <span className="text-violet-400">✓</span>
                           <span>Unlimited API calls</span>
@@ -863,7 +923,6 @@ const AccountSettings = () => {
                           />
                         )
                       )}
-
                     </div>
                   </div>
                 </div>
@@ -872,7 +931,6 @@ const AccountSettings = () => {
 
             {/* Billing Section */}
             {activeTab === "billing" && !isAdmin && (
-
               <motion.div
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
@@ -893,21 +951,23 @@ const AccountSettings = () => {
               </div> */}
 
                 {/* Billing History */}
-                <div className="bg-neutral-800 rounded-xl p-6 border border-gray-700">
-                  <h2 className="text-2xl font-bold mb-4">Billing History</h2>
+                <div className="bg-neutral-800 dark:bg-white rounded-xl p-6 border border-gray-700 dark:border-gray-200">
+                  <h2 className="text-2xl font-bold mb-4 text-white dark:text-gray-900">
+                    Billing History
+                  </h2>
                   {paymentsLoading ? (
-                    <div className="text-center py-8 text-gray-400">
+                    <div className="text-center py-8 text-gray-400 dark:text-gray-600">
                       Loading...
                     </div>
                   ) : paymentsError ? (
-                    <div className="text-center py-8 text-red-400">
+                    <div className="text-center py-8 text-red-400 dark:text-red-600">
                       {paymentsError}
                     </div>
                   ) : payments && payments.length > 0 ? (
                     <div className="overflow-x-auto">
                       <table className="w-full text-left">
                         <thead>
-                          <tr className="text-gray-400 text-sm">
+                          <tr className="text-gray-400 dark:text-gray-600 text-sm">
                             <th className="pb-2">Date</th>
                             <th className="pb-2">Amount</th>
                             <th className="pb-2">Status</th>
@@ -920,8 +980,8 @@ const AccountSettings = () => {
                             const date = p.createdAtStripe
                               ? new Date(p.createdAtStripe * 1000)
                               : p.createdAt
-                                ? new Date(p.createdAt)
-                                : null;
+                              ? new Date(p.createdAt)
+                              : null;
                             const amount =
                               p.amountPaid != null
                                 ? (p.amountPaid / 100).toFixed(2)
@@ -939,29 +999,29 @@ const AccountSettings = () => {
                             return (
                               <tr
                                 key={p._id || p.stripeInvoiceId}
-                                className="border-t border-gray-700"
+                                className="border-t border-gray-700 dark:border-gray-200"
                               >
-                                <td className="py-3 text-sm text-gray-300">
+                                <td className="py-3 text-sm text-gray-300 dark:text-gray-700">
                                   {date ? date.toLocaleDateString() : "-"}
                                 </td>
-                                <td className="py-3 text-sm text-gray-300">
+                                <td className="py-3 text-sm text-gray-300 dark:text-gray-700">
                                   {currency} {amount}
                                 </td>
-                                <td className="py-3 text-sm text-gray-300">
+                                <td className="py-3 text-sm text-gray-300 dark:text-gray-700">
                                   {p.status || "-"}
                                 </td>
-                                <td className="py-3 text-sm text-gray-300">
+                                <td className="py-3 text-sm text-gray-300 dark:text-gray-700">
                                   {periodStart && periodEnd
                                     ? `${periodStart.toLocaleDateString()} — ${periodEnd.toLocaleDateString()}`
                                     : "-"}
                                 </td>
-                                <td className="py-3 text-sm text-gray-300">
+                                <td className="py-3 text-sm text-gray-300 dark:text-gray-700">
                                   {p.hostedInvoiceUrl ? (
                                     <a
                                       href={p.hostedInvoiceUrl}
                                       target="_blank"
                                       rel="noreferrer"
-                                      className="text-blue-400 hover:underline"
+                                      className="text-blue-400 dark:text-blue-600 hover:underline"
                                     >
                                       View
                                     </a>
@@ -970,12 +1030,14 @@ const AccountSettings = () => {
                                       href={p.invoicePdf}
                                       target="_blank"
                                       rel="noreferrer"
-                                      className="text-blue-400 hover:underline"
+                                      className="text-blue-400 dark:text-blue-600 hover:underline"
                                     >
                                       Download
                                     </a>
                                   ) : (
-                                    <span className="text-gray-500">-</span>
+                                    <span className="text-gray-500 dark:text-gray-400">
+                                      -
+                                    </span>
                                   )}
                                 </td>
                               </tr>
@@ -986,7 +1048,7 @@ const AccountSettings = () => {
                     </div>
                   ) : (
                     <div className="text-center py-8">
-                      <p className="text-gray-400">
+                      <p className="text-gray-400 dark:text-gray-600">
                         No billing history available
                       </p>
                     </div>
@@ -1003,19 +1065,19 @@ const AccountSettings = () => {
             <motion.div
               initial={{ scale: 0.8, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
-              className="bg-neutral-800 rounded-xl p-6 max-w-md w-full mx-4 border border-red-700/50"
+              className="bg-neutral-800 dark:bg-white rounded-xl p-6 max-w-md w-full mx-4 border border-red-700/50 dark:border-red-400/50"
             >
-              <h2 className="text-2xl font-bold text-red-400 mb-4">
+              <h2 className="text-2xl font-bold text-red-400 dark:text-red-600 mb-4">
                 Delete Account?
               </h2>
-              <p className="text-gray-300 mb-6">
+              <p className="text-gray-300 dark:text-gray-700 mb-6">
                 Are you sure you want to delete your account? This action is
                 permanent and cannot be undone. All your data will be lost.
               </p>
               <div className="flex gap-3">
                 <button
                   onClick={() => setShowDeleteModal(false)}
-                  className="flex-1 px-4 py-3 bg-neutral-700 hover:bg-neutral-600 rounded-lg text-white font-semibold transition"
+                  className="flex-1 px-4 py-3 bg-neutral-700 dark:bg-gray-200 hover:bg-neutral-600 dark:hover:bg-gray-300 rounded-lg text-white dark:text-gray-900 font-semibold transition"
                 >
                   Cancel
                 </button>
@@ -1042,7 +1104,7 @@ const AccountSettings = () => {
                 animate={{ x: 0, opacity: 1 }}
                 exit={{ x: -100, opacity: 0 }}
                 transition={{ duration: 0.3 }}
-                className="w-64 h-full bg-neutral-800 border-r border-gray-700 p-4"
+                className="w-64 h-full bg-neutral-800 dark:bg-white border-r border-gray-700 dark:border-gray-200 p-4"
                 onClick={(e) => e.stopPropagation()}
               >
                 <nav className="space-y-2 pt-10">
@@ -1059,25 +1121,27 @@ const AccountSettings = () => {
                       label: "Billing",
                       icon: FaFileInvoice,
                     },
-                  ].filter(Boolean).map((tab) => (
-
-                    <motion.button
-                      key={tab.id}
-                      whileHover={{ scale: 1.03, x: 5 }}
-                      whileTap={{ scale: 0.98 }}
-                      onClick={() => {
-                        setActiveTab(tab.id);
-                        setIsSidebarOpen(false);
-                      }}
-                      className={`w-full text-left px-4 py-3 rounded-lg transition flex items-center gap-3 ${activeTab === tab.id
-                        ? "bg-gradient-to-r from-blue-600 to-violet-600 text-white font-semibold"
-                        : "text-gray-400 hover:bg-neutral-700 hover:text-white"
+                  ]
+                    .filter(Boolean)
+                    .map((tab) => (
+                      <motion.button
+                        key={tab.id}
+                        whileHover={{ scale: 1.03, x: 5 }}
+                        whileTap={{ scale: 0.98 }}
+                        onClick={() => {
+                          setActiveTab(tab.id);
+                          setIsSidebarOpen(false);
+                        }}
+                        className={`w-full text-left px-4 py-3 rounded-lg transition flex items-center gap-3 ${
+                          activeTab === tab.id
+                            ? "bg-gradient-to-r from-blue-600 to-violet-600 text-white font-semibold"
+                            : "text-gray-400 dark:text-gray-600 hover:bg-neutral-700 dark:hover:bg-gray-100 hover:text-white dark:hover:text-gray-900"
                         }`}
-                    >
-                      <tab.icon className="text-xl" />
-                      <span className="font-medium">{tab.label}</span>
-                    </motion.button>
-                  ))}
+                      >
+                        <tab.icon className="text-xl" />
+                        <span className="font-medium">{tab.label}</span>
+                      </motion.button>
+                    ))}
                 </nav>
               </motion.div>
             </div>

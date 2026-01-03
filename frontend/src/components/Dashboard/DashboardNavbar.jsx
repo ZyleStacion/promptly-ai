@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { LuBrain } from "react-icons/lu";
 import { FaUserCircle } from "react-icons/fa";
+import { HiSun, HiMoon } from "react-icons/hi";
 import {
   FiSettings,
   FiBook,
@@ -12,9 +13,11 @@ import {
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { API_URL } from "../../api/api";
+import { useTheme } from "../../context/ThemeContext";
 
 const DashboardNavbar = ({ onFeedbackClick, onMenuClick }) => {
   const navigate = useNavigate();
+  const { theme, toggleTheme } = useTheme();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [user, setUser] = useState({ username: "", email: "" });
   const dropdownRef = useRef(null);
@@ -60,7 +63,8 @@ const DashboardNavbar = ({ onFeedbackClick, onMenuClick }) => {
   const profileSrc = (() => {
     try {
       if (!user || !user.profileImage) return null;
-      if (String(user.profileImage).startsWith('http')) return user.profileImage;
+      if (String(user.profileImage).startsWith("http"))
+        return user.profileImage;
       return `${API_URL}${user.profileImage}`;
     } catch (e) {
       return null;
@@ -68,12 +72,12 @@ const DashboardNavbar = ({ onFeedbackClick, onMenuClick }) => {
   })();
 
   return (
-    <nav className="w-full bg-neutral-900 border-b border-gray-800 px-6 py-4 flex items-center justify-between fixed top-0 left-0 z-20">
+    <nav className="w-full bg-neutral-900 dark:bg-neutral-100 border-b border-gray-800 dark:border-gray-200 px-6 py-4 flex items-center justify-between fixed top-0 left-0 z-20 transition-colors duration-300">
       {/* LEFT — Menu Button and Logo */}
       <div className="flex items-center gap-4">
         <button
           onClick={onMenuClick}
-          className="lg:hidden text-gray-400 hover:text-white transition p-2"
+          className="lg:hidden text-gray-400 dark:text-gray-600 hover:text-white dark:hover:text-gray-900 transition p-2"
           title="Toggle Menu"
         >
           <FiMenu className="text-2xl" />
@@ -83,137 +87,154 @@ const DashboardNavbar = ({ onFeedbackClick, onMenuClick }) => {
           className="flex items-center gap-2 cursor-pointer"
         >
           <LuBrain className="text-3xl bg-gradient-to-r from-blue-600 to-violet-600 text-white rounded-lg p-1" />
-          <h1 className="text-xl font-bold text-white">Promptly AI</h1>
+          <h1 className="text-xl font-bold text-white dark:text-gray-900">
+            Promptly AI
+          </h1>
         </div>
       </div>
 
       {/* CENTER — Username's Workspace */}
-      <div className="hidden md:flex items-center gap-2 text-gray-300">
+      <div className="hidden md:flex items-center gap-2 text-gray-300 dark:text-gray-700">
         <span className="font-medium">
           {user.username ? `${user.username}'s Workspace` : "Workspace"}
         </span>
-        <span className="text-xs bg-gray-700 px-2 py-0.5 rounded-full">
+        <span className="text-xs bg-gray-700 dark:bg-gray-200 text-white dark:text-gray-700 px-2 py-0.5 rounded-full">
           Free
         </span>
       </div>
 
-      {/* RIGHT — Profile Icon */}
-      <div className="relative" ref={dropdownRef}>
-        {profileSrc ? (
-          <img
-            src={profileSrc}
-            alt="Profile"
-            className="w-10 h-10 rounded-full object-cover cursor-pointer border border-gray-700"
-            onClick={() => setDropdownOpen(!dropdownOpen)}
-          />
-        ) : (
-          <FaUserCircle
-            className="text-3xl text-white cursor-pointer hover:text-gray-300 transition"
-            onClick={() => setDropdownOpen(!dropdownOpen)}
-            title="Profile Menu"
-          />
-        )}
+      {/* RIGHT — Theme Toggle and Profile Icon */}
+      <div className="flex items-center gap-4">
+        {/* Theme Toggle Button */}
+        <button
+          onClick={toggleTheme}
+          className="p-2 rounded-full bg-gray-800 dark:bg-gray-200 text-yellow-400 dark:text-gray-700 hover:scale-110 transition-all duration-300"
+          aria-label="Toggle theme"
+        >
+          {theme === "dark" ? (
+            <HiSun className="text-2xl" />
+          ) : (
+            <HiMoon className="text-2xl" />
+          )}
+        </button>
 
-        {/* DROPDOWN MENU */}
-        <AnimatePresence>
-          {dropdownOpen && (
-            <motion.div
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              transition={{ duration: 0.2 }}
-              className="absolute right-0 mt-3 w-64 bg-neutral-800 border border-gray-700 rounded-xl shadow-2xl overflow-hidden z-30"
-            >
-              {/* User Info Section */}
-              <div className="px-4 py-4 bg-gradient-to-r from-blue-600/10 to-violet-600/10 border-b border-gray-700">
-                <div className="flex items-center gap-3">
-                  {profileSrc ? (
-                    <img
-                      src={profileSrc}
-                      alt="Profile"
-                      className="w-12 h-12 rounded-full object-cover border-2 border-blue-500"
-                    />
-                  ) : (
-                    <div className="w-12 h-12 rounded-full bg-gradient-to-r from-blue-600 to-violet-600 flex items-center justify-center text-white text-lg font-bold">
-                      {user.username
-                        ? user.username.charAt(0).toUpperCase()
-                        : "U"}
+        <div className="relative" ref={dropdownRef}>
+          {profileSrc ? (
+            <img
+              src={profileSrc}
+              alt="Profile"
+              className="w-10 h-10 rounded-full object-cover cursor-pointer border border-gray-700 dark:border-gray-300"
+              onClick={() => setDropdownOpen(!dropdownOpen)}
+            />
+          ) : (
+            <FaUserCircle
+              className="text-3xl text-white dark:text-gray-900 cursor-pointer hover:text-gray-300 dark:hover:text-gray-700 transition"
+              onClick={() => setDropdownOpen(!dropdownOpen)}
+              title="Profile Menu"
+            />
+          )}
+
+          {/* DROPDOWN MENU */}
+          <AnimatePresence>
+            {dropdownOpen && (
+              <motion.div
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                transition={{ duration: 0.2 }}
+                className="absolute right-0 mt-3 w-64 bg-neutral-800 dark:bg-white border border-gray-700 dark:border-gray-200 rounded-xl shadow-2xl overflow-hidden z-30"
+              >
+                {/* User Info Section */}
+                <div className="px-4 py-4 bg-gradient-to-r from-blue-600/10 to-violet-600/10 border-b border-gray-700 dark:border-gray-200">
+                  <div className="flex items-center gap-3">
+                    {profileSrc ? (
+                      <img
+                        src={profileSrc}
+                        alt="Profile"
+                        className="w-12 h-12 rounded-full object-cover border-2 border-blue-500"
+                      />
+                    ) : (
+                      <div className="w-12 h-12 rounded-full bg-gradient-to-r from-blue-600 to-violet-600 flex items-center justify-center text-white text-lg font-bold">
+                        {user.username
+                          ? user.username.charAt(0).toUpperCase()
+                          : "U"}
+                      </div>
+                    )}
+                    <div className="flex-1 min-w-0">
+                      <p className="text-white dark:text-gray-900 font-semibold truncate">
+                        {user.username || "User"}
+                      </p>
+                      <p className="text-gray-400 dark:text-gray-600 text-xs truncate">
+                        {user.email || "email@example.com"}
+                      </p>
                     </div>
-                  )}
-                  <div className="flex-1 min-w-0">
-                    <p className="text-white font-semibold truncate">
-                      {user.username || "User"}
-                    </p>
-                    <p className="text-gray-400 text-xs truncate">
-                      {user.email || "email@example.com"}
-                    </p>
                   </div>
                 </div>
-              </div>
 
-              {/* Menu Items */}
-              <div className="py-2">
-                <button
-                  onClick={() => {
-                    navigate("/dashboard/settings");
-                    setDropdownOpen(false);
-                  }}
-                  className="w-full flex items-center gap-3 px-4 py-3 text-gray-300 hover:bg-neutral-700 hover:text-white transition"
-                >
-                  <FiSettings className="text-lg" />
-                  <span>Account Settings</span>
-                </button>
+                {/* Menu Items */}
+                <div className="py-2">
+                  <button
+                    onClick={() => {
+                      navigate("/dashboard/settings");
+                      setDropdownOpen(false);
+                    }}
+                    className="w-full flex items-center gap-3 px-4 py-3 text-gray-300 dark:text-gray-700 hover:bg-neutral-700 dark:hover:bg-gray-100 hover:text-white dark:hover:text-gray-900 transition"
+                  >
+                    <FiSettings className="text-lg" />
+                    <span>Account Settings</span>
+                  </button>
 
-                <button
-                  onClick={() => {
-                    navigate("/documentation");
-                    setDropdownOpen(false);
-                  }}
-                  className="w-full flex items-center gap-3 px-4 py-3 text-gray-300 hover:bg-neutral-700 hover:text-white transition"
-                >
-                  <FiBook className="text-lg" />
-                  <span>Documentation</span>
-                </button>
+                  <button
+                    onClick={() => {
+                      navigate("/documentation");
+                      setDropdownOpen(false);
+                    }}
+                    className="w-full flex items-center gap-3 px-4 py-3 text-gray-300 dark:text-gray-700 hover:bg-neutral-700 dark:hover:bg-gray-100 hover:text-white dark:hover:text-gray-900 transition"
+                  >
+                    <FiBook className="text-lg" />
+                    <span>Documentation</span>
+                  </button>
 
-                <button
-                  onClick={() => {
-                    navigate("/dashboard/settings", {
-                      state: { activeTab: "subscription" },
-                    });
-                    setDropdownOpen(false);
-                  }}
-                  className="w-full flex items-center gap-3 px-4 py-3 text-gray-300 hover:bg-neutral-700 hover:text-white transition"
-                >
-                  <FiCreditCard className="text-lg" />
-                  <span>Account Plan</span>
-                </button>
+                  <button
+                    onClick={() => {
+                      navigate("/dashboard/settings", {
+                        state: { activeTab: "subscription" },
+                      });
+                      setDropdownOpen(false);
+                    }}
+                    className="w-full flex items-center gap-3 px-4 py-3 text-gray-300 dark:text-gray-700 hover:bg-neutral-700 dark:hover:bg-gray-100 hover:text-white dark:hover:text-gray-900 transition"
+                  >
+                    <FiCreditCard className="text-lg" />
+                    <span>Account Plan</span>
+                  </button>
 
-                {/* Feedback Button - Mobile Only */}
-                <button
-                  onClick={() => {
-                    onFeedbackClick?.();
-                    setDropdownOpen(false);
-                  }}
-                  className="lg:hidden w-full flex items-center gap-3 px-4 py-3 text-gray-300 hover:bg-neutral-700 hover:text-white transition"
-                >
-                  <FiMessageSquare className="text-lg" />
-                  <span>Feedback</span>
-                </button>
-              </div>
+                  {/* Feedback Button - Mobile Only */}
+                  <button
+                    onClick={() => {
+                      onFeedbackClick?.();
+                      setDropdownOpen(false);
+                    }}
+                    className="lg:hidden w-full flex items-center gap-3 px-4 py-3 text-gray-300 dark:text-gray-700 hover:bg-neutral-700 dark:hover:bg-gray-100 hover:text-white dark:hover:text-gray-900 transition"
+                  >
+                    <FiMessageSquare className="text-lg" />
+                    <span>Feedback</span>
+                  </button>
+                </div>
 
-              {/* Logout Section */}
-              <div className="border-t border-gray-700 py-2">
-                <button
-                  onClick={handleLogout}
-                  className="w-full flex items-center gap-3 px-4 py-3 text-red-400 hover:bg-red-500/10 hover:text-red-300 transition"
-                >
-                  <FiLogOut className="text-lg" />
-                  <span>Log Out</span>
-                </button>
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
+                {/* Logout Section */}
+                <div className="border-t border-gray-700 dark:border-gray-200 py-2">
+                  <button
+                    onClick={handleLogout}
+                    className="w-full flex items-center gap-3 px-4 py-3 text-red-400 hover:bg-red-500/10 hover:text-red-300 transition"
+                  >
+                    <FiLogOut className="text-lg" />
+                    <span>Log Out</span>
+                  </button>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
       </div>
     </nav>
   );

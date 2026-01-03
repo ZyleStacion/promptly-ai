@@ -12,10 +12,10 @@ import ChatInterface from "./ChatInterface.jsx";
 import FeedbackButton from "../Feedback/FeedbackButton.jsx";
 import Notification from "./Notification.jsx";
 import UpgradeModal from "./UpgradeModal";
-
+import { useTheme } from "../../context/ThemeContext";
 
 import { API_URL } from "../../api/api.js";
-import api from '../../api/chatbot';
+import api from "../../api/chatbot";
 
 const isAuthenticated = () => !!localStorage.getItem("token");
 
@@ -31,10 +31,11 @@ const MobileButton = ({ label, onClick, isActive, badge }) => (
     whileHover={{ scale: 1.03, x: 5 }}
     whileTap={{ scale: 0.98 }}
     onClick={onClick}
-    className={`w-full text-left px-4 py-3 rounded-lg transition ${isActive
-      ? "bg-gradient-to-r from-blue-600 to-violet-600 font-semibold"
-      : "bg-neutral-700 hover:bg-neutral-600"
-      }`}
+    className={`w-full text-left px-4 py-3 rounded-lg transition ${
+      isActive
+        ? "bg-gradient-to-r from-blue-600 to-violet-600 text-white font-semibold"
+        : "bg-neutral-700 dark:bg-gray-100 hover:bg-neutral-600 dark:hover:bg-gray-200 text-white dark:text-gray-900"
+    }`}
   >
     {label}
     {badge && (
@@ -58,6 +59,7 @@ const readFileAsText = (file) => {
 const Dashboard = () => {
   const navigate = useNavigate();
   const feedbackRef = useRef(null);
+  const { theme } = useTheme();
 
   const [chatbots, setChatbots] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -72,7 +74,6 @@ const Dashboard = () => {
   const [showEditModal, setShowEditModal] = useState(false);
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   const [limitInfo, setLimitInfo] = useState({ plan: "Basic", limit: 1 });
-
 
   // Training form state
   const [trainingFiles, setTrainingFiles] = useState([]);
@@ -125,7 +126,6 @@ const Dashboard = () => {
       }
     };
 
-
     // admin flag will be set after user is loaded
 
     loadChatbots();
@@ -169,7 +169,6 @@ const Dashboard = () => {
       setLoadingModels(false);
     }
   };
-
 
   const loadChatbots = async () => {
     try {
@@ -308,8 +307,8 @@ const Dashboard = () => {
         );
         return;
       }
-      
-      if (response.success ) {
+
+      if (response.success) {
         // Reload chatbots
         await loadChatbots();
 
@@ -334,7 +333,7 @@ const Dashboard = () => {
       } else {
         setError(
           response.error ||
-          `Failed to ${editingChatbot ? "update" : "create"} chatbot`
+            `Failed to ${editingChatbot ? "update" : "create"} chatbot`
         );
       }
     } catch (err) {
@@ -343,7 +342,8 @@ const Dashboard = () => {
         err
       );
       setError(
-        `Failed to ${editingChatbot ? "update" : "create"
+        `Failed to ${
+          editingChatbot ? "update" : "create"
         } chatbot. Please try again.`
       );
     } finally {
@@ -384,7 +384,6 @@ const Dashboard = () => {
     setShowTrainingModal(true);
   };
 
-
   const handleTestChatbot = (chatbot) => {
     setSelectedChatbot(chatbot);
     setShowChatInterface(true);
@@ -405,7 +404,7 @@ const Dashboard = () => {
     setChatbotPersonality(chatbot.personality || "friendly");
     setSelectedModel(
       chatbot.modelName ||
-      (availableModels.length > 0 ? availableModels[0].name : "")
+        (availableModels.length > 0 ? availableModels[0].name : "")
     );
 
     // Use array-based training data for edit mode
@@ -421,7 +420,7 @@ const Dashboard = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-900 text-white">
+    <div className="min-h-screen bg-gray-900 dark:bg-gradient-to-br dark:from-gray-50 dark:to-blue-50 text-white dark:text-gray-900 transition-colors duration-300">
       <DashboardNavbar
         notificationCount={notificationCount}
         onFeedbackClick={() => feedbackRef.current?.openModal()}
@@ -434,17 +433,18 @@ const Dashboard = () => {
           initial={{ x: -100, opacity: 0 }}
           animate={{ x: 0, opacity: 1 }}
           transition={{ duration: 0.5 }}
-          className="hidden lg:block w-64 min-h-screen bg-neutral-900 border-r border-gray-700 p-6 fixed left-0"
+          className="hidden lg:block w-64 min-h-screen bg-neutral-900 dark:bg-white border-r border-gray-700 dark:border-gray-200 p-6 fixed left-0"
         >
           <nav className="space-y-3 pt-10">
             <motion.button
               whileHover={{ scale: 1.03, x: 5 }}
               whileTap={{ scale: 0.98 }}
               onClick={() => setActiveSection("models")}
-              className={`w-full text-left px-4 py-3 rounded-lg transition ${activeSection === "models"
-                ? "bg-gradient-to-r from-blue-600 to-violet-600 font-semibold"
-                : "bg-neutral-700 hover:bg-neutral-600"
-                }`}
+              className={`w-full text-left px-4 py-3 rounded-lg transition ${
+                activeSection === "models"
+                  ? "bg-gradient-to-r from-blue-600 to-violet-600 text-white font-semibold"
+                  : "bg-neutral-700 dark:bg-gray-100 hover:bg-neutral-600 dark:hover:bg-gray-200 text-white dark:text-gray-900"
+              }`}
             >
               Models
             </motion.button>
@@ -453,10 +453,11 @@ const Dashboard = () => {
               whileHover={{ scale: 1.03, x: 5 }}
               whileTap={{ scale: 0.98 }}
               onClick={() => setActiveSection("usage")}
-              className={`w-full text-left px-4 py-3 rounded-lg transition ${activeSection === "usage"
-                ? "bg-gradient-to-r from-blue-600 to-violet-600 font-semibold"
-                : "bg-neutral-700 hover:bg-neutral-600"
-                }`}
+              className={`w-full text-left px-4 py-3 rounded-lg transition ${
+                activeSection === "usage"
+                  ? "bg-gradient-to-r from-blue-600 to-violet-600 text-white font-semibold"
+                  : "bg-neutral-700 dark:bg-gray-100 hover:bg-neutral-600 dark:hover:bg-gray-200 text-white dark:text-gray-900"
+              }`}
             >
               Usage
             </motion.button>
@@ -465,10 +466,11 @@ const Dashboard = () => {
               whileHover={{ scale: 1.03, x: 5 }}
               whileTap={{ scale: 0.98 }}
               onClick={() => setActiveSection("settings")}
-              className={`w-full text-left px-4 py-3 rounded-lg transition ${activeSection === "settings"
-                ? "bg-gradient-to-r from-blue-600 to-violet-600 font-semibold"
-                : "bg-neutral-700 hover:bg-neutral-600"
-                }`}
+              className={`w-full text-left px-4 py-3 rounded-lg transition ${
+                activeSection === "settings"
+                  ? "bg-gradient-to-r from-blue-600 to-violet-600 text-white font-semibold"
+                  : "bg-neutral-700 dark:bg-gray-100 hover:bg-neutral-600 dark:hover:bg-gray-200 text-white dark:text-gray-900"
+              }`}
             >
               Workspace setting
             </motion.button>
@@ -480,10 +482,11 @@ const Dashboard = () => {
                 setActiveSection("notification");
                 setNotificationCount(0);
               }}
-              className={`w-full text-left px-4 py-3 rounded-lg transition ${activeSection === "notification"
-                ? "bg-gradient-to-r from-blue-600 to-violet-600 font-semibold"
-                : "bg-neutral-700 hover:bg-neutral-600"
-                }`}
+              className={`w-full text-left px-4 py-3 rounded-lg transition ${
+                activeSection === "notification"
+                  ? "bg-gradient-to-r from-blue-600 to-violet-600 text-white font-semibold"
+                  : "bg-neutral-700 dark:bg-gray-100 hover:bg-neutral-600 dark:hover:bg-gray-200 text-white dark:text-gray-900"
+              }`}
             >
               Notification
               {notificationCount > 0 && (
@@ -519,10 +522,12 @@ const Dashboard = () => {
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              className="mb-6 bg-neutral-800 border border-gray-700 rounded-xl p-6"
+              className="mb-6 bg-neutral-800 dark:bg-white border border-gray-700 dark:border-gray-200 rounded-xl p-6"
             >
-              <h2 className="text-2xl font-bold mb-2">Admin Workspace</h2>
-              <p className="text-gray-400 text-sm">
+              <h2 className="text-2xl font-bold mb-2 text-white dark:text-gray-900">
+                Admin Workspace
+              </h2>
+              <p className="text-gray-400 dark:text-gray-600 text-sm">
                 Admin accounts do not use subscription plans or billing.
                 Workspace settings here control defaults for all chatbots.
               </p>
@@ -549,10 +554,7 @@ const Dashboard = () => {
             />
           )}
           {activeSection === "usage" && (
-            <UsageSection
-              chatbots={chatbots}
-              user={currentUser}
-            />
+            <UsageSection chatbots={chatbots} user={currentUser} />
           )}
 
           {activeSection === "settings" && <WorkspaceSettings />}
@@ -573,7 +575,7 @@ const Dashboard = () => {
               animate={{ x: 0, opacity: 1 }}
               exit={{ x: -100, opacity: 0 }}
               transition={{ duration: 0.3 }}
-              className="w-64 h-full bg-neutral-900 border-r border-gray-700 p-6"
+              className="w-64 h-full bg-neutral-900 dark:bg-white border-r border-gray-700 dark:border-gray-200 p-6"
               onClick={(e) => e.stopPropagation()}
             >
               <nav className="space-y-3 pt-10">
@@ -661,17 +663,19 @@ const Dashboard = () => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
+            className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
           >
             <motion.div
               initial={{ scale: 0.8, opacity: 0, y: 50 }}
               animate={{ scale: 1, opacity: 1, y: 0 }}
               exit={{ scale: 0.8, opacity: 0, y: 50 }}
               transition={{ type: "spring", duration: 0.5 }}
-              className="bg-neutral-800 rounded-xl p-8 max-w-4xl w-full mx-4 border border-gray-700"
+              className="bg-neutral-800 dark:bg-white rounded-xl p-6 max-w-3xl w-full max-h-[90vh] overflow-y-auto border border-gray-700 dark:border-gray-200"
             >
-              <h2 className="text-2xl font-bold mb-2">Chatbot UI</h2>
-              <p className="text-gray-400 text-sm mb-6">
+              <h2 className="text-2xl font-bold mb-2 text-white dark:text-gray-900">
+                Chatbot UI
+              </h2>
+              <p className="text-gray-400 dark:text-gray-600 text-sm mb-6">
                 Customize your chatbot appearance and see how it will look.
               </p>
 
@@ -680,7 +684,7 @@ const Dashboard = () => {
                 <div>
                   {/* Chatbot Name */}
                   <div className="mb-4">
-                    <label className="block mb-2 text-sm text-gray-300">
+                    <label className="block mb-2 text-sm text-gray-300 dark:text-gray-700">
                       Chatbot Name *
                     </label>
                     <input
@@ -688,13 +692,13 @@ const Dashboard = () => {
                       value={chatbotName}
                       onChange={(e) => setChatbotName(e.target.value)}
                       placeholder="Enter chatbot name..."
-                      className="w-full bg-neutral-700 border border-gray-600 rounded-lg p-3 text-white placeholder-gray-500 focus:outline-none focus:border-blue-500"
+                      className="w-full bg-neutral-700 dark:bg-gray-100 border border-gray-600 dark:border-gray-300 rounded-lg p-3 text-white dark:text-gray-900 placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:border-blue-500"
                     />
                   </div>
 
                   {/* Description */}
                   <div className="mb-4">
-                    <label className="block mb-2 text-sm text-gray-300">
+                    <label className="block mb-2 text-sm text-gray-300 dark:text-gray-700">
                       Description
                     </label>
                     <textarea
@@ -702,34 +706,35 @@ const Dashboard = () => {
                       onChange={(e) => setDescription(e.target.value)}
                       placeholder="Describe your chatbot..."
                       rows="3"
-                      className="w-full bg-neutral-700 border border-gray-600 rounded-lg p-3 text-white placeholder-gray-500 focus:outline-none focus:border-blue-500 resize-none"
+                      className="w-full bg-neutral-700 dark:bg-gray-100 border border-gray-600 dark:border-gray-300 rounded-lg p-3 text-white dark:text-gray-900 placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:border-blue-500 resize-none"
                     />
                   </div>
 
                   {/* Welcome Message */}
                   <div className="mb-4">
-                    <label className="block mb-2 text-sm text-gray-300">
+                    <label className="block mb-2 text-sm text-gray-300 dark:text-gray-700">
                       Welcome Message
                     </label>
                     <textarea
                       value={welcomeMessage}
                       onChange={(e) => setWelcomeMessage(e.target.value)}
-                      placeholder={`Hi! I'm ${chatbotName || "your assistant"
-                        }. How can I help you today?`}
+                      placeholder={`Hi! I'm ${
+                        chatbotName || "your assistant"
+                      }. How can I help you today?`}
                       rows="2"
-                      className="w-full bg-neutral-700 border border-gray-600 rounded-lg p-3 text-white placeholder-gray-500 focus:outline-none focus:border-blue-500 resize-none"
+                      className="w-full bg-neutral-700 dark:bg-gray-100 border border-gray-600 dark:border-gray-300 rounded-lg p-3 text-white dark:text-gray-900 placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:border-blue-500 resize-none"
                     />
                   </div>
 
                   {/* Appearance Label */}
                   <div className="mb-4">
-                    <label className="block mb-2 text-sm text-gray-300">
+                    <label className="block mb-2 text-sm text-gray-300 dark:text-gray-700">
                       Appearance
                     </label>
 
                     {/* Primary Color */}
                     <div className="mb-3">
-                      <label className="block mb-2 text-xs text-gray-400">
+                      <label className="block mb-2 text-xs text-gray-400 dark:text-gray-600">
                         Primary Color
                       </label>
                       <div className="flex items-center gap-3">
@@ -737,24 +742,24 @@ const Dashboard = () => {
                           type="color"
                           value={primaryColor}
                           onChange={(e) => setPrimaryColor(e.target.value)}
-                          className="w-12 h-12 rounded-lg cursor-pointer bg-neutral-700 border border-gray-600"
+                          className="w-12 h-12 rounded-lg cursor-pointer bg-neutral-700 dark:bg-gray-100 border border-gray-600 dark:border-gray-300"
                         />
                         <input
                           type="text"
                           value={primaryColor}
                           onChange={(e) => setPrimaryColor(e.target.value)}
-                          className="flex-1 bg-neutral-700 border border-gray-600 rounded-lg p-3 text-white focus:outline-none focus:border-blue-500"
+                          className="flex-1 bg-neutral-700 dark:bg-gray-100 border border-gray-600 dark:border-gray-300 rounded-lg p-3 text-white dark:text-gray-900 focus:outline-none focus:border-blue-500"
                         />
                       </div>
                     </div>
 
                     {/* Profile Picture */}
                     <div>
-                      <label className="block mb-2 text-xs text-gray-400">
+                      <label className="block mb-2 text-xs text-gray-400 dark:text-gray-600">
                         Profile Picture
                       </label>
                       <div className="flex items-center gap-4">
-                        <div className="w-16 h-16 rounded-full bg-neutral-700 border border-gray-600 overflow-hidden flex items-center justify-center">
+                        <div className="w-16 h-16 rounded-full bg-neutral-700 dark:bg-gray-100 border border-gray-600 dark:border-gray-300 overflow-hidden flex items-center justify-center">
                           {profilePreview ? (
                             <img
                               src={profilePreview}
@@ -762,12 +767,12 @@ const Dashboard = () => {
                               className="w-full h-full object-cover"
                             />
                           ) : (
-                            <span className="text-gray-500 text-xs">
+                            <span className="text-gray-500 dark:text-gray-400 text-xs">
                               No image
                             </span>
                           )}
                         </div>
-                        <label className="flex-1 px-4 py-2 bg-neutral-700 rounded-lg border border-gray-600 cursor-pointer hover:bg-neutral-600 transition text-center text-sm">
+                        <label className="flex-1 px-4 py-2 bg-neutral-700 dark:bg-gray-100 rounded-lg border border-gray-600 dark:border-gray-300 cursor-pointer hover:bg-neutral-600 dark:hover:bg-gray-200 transition text-center text-sm text-white dark:text-gray-900">
                           Upload
                           <input
                             type="file"
@@ -782,9 +787,11 @@ const Dashboard = () => {
                 </div>
 
                 {/* Right Column - Chatbot Preview */}
-                <div className="bg-neutral-900 rounded-lg p-4 border border-gray-700">
-                  <h3 className="text-lg font-semibold mb-4">Preview</h3>
-                  <div className="bg-neutral-800 p-5 rounded-xl border border-gray-700">
+                <div className="bg-neutral-900 dark:bg-gray-50 rounded-lg p-4 border border-gray-700 dark:border-gray-200">
+                  <h3 className="text-lg font-semibold mb-4 text-white dark:text-gray-900">
+                    Preview
+                  </h3>
+                  <div className="bg-neutral-800 dark:bg-white p-5 rounded-xl border border-gray-700 dark:border-gray-200">
                     <div className="flex items-center gap-3 mb-3">
                       <div
                         className="w-12 h-12 rounded-full flex items-center justify-center text-xl font-bold"
@@ -805,26 +812,28 @@ const Dashboard = () => {
                         )}
                       </div>
                       <div className="flex-1">
-                        <h3 className="text-lg font-semibold">
+                        <h3 className="text-lg font-semibold text-white dark:text-gray-900">
                           {chatbotName || "Untitled Chatbot"}
                         </h3>
-                        <p className="text-gray-400 text-xs">
+                        <p className="text-gray-400 dark:text-gray-600 text-xs">
                           {chatbotType
                             ? `${chatbotType
-                              .charAt(0)
-                              .toUpperCase()}${chatbotType.slice(1)}`
+                                .charAt(0)
+                                .toUpperCase()}${chatbotType.slice(1)}`
                             : "General Purpose"}
                         </p>
                       </div>
                     </div>
-                    <div className="flex justify-between items-center pt-3 border-t border-gray-700">
-                      <span className="text-xs px-3 py-1 rounded-full bg-green-600/20 text-green-400">
+                    <div className="flex justify-between items-center pt-3 border-t border-gray-700 dark:border-gray-200">
+                      <span className="text-xs px-3 py-1 rounded-full bg-green-600/20 text-green-400 dark:text-green-600">
                         active
                       </span>
-                      <span className="text-xs text-gray-400">0 chats</span>
+                      <span className="text-xs text-gray-400 dark:text-gray-600">
+                        0 chats
+                      </span>
                     </div>
                   </div>
-                  <p className="text-xs text-gray-500 mt-3 text-center">
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-3 text-center">
                     This is how your chatbot will appear in the list
                   </p>
                 </div>
@@ -840,7 +849,7 @@ const Dashboard = () => {
                       setEditingChatbot(null);
                     }
                   }}
-                  className="flex-1 px-4 py-3 bg-neutral-700 rounded-lg hover:bg-neutral-600 transition disabled:opacity-50"
+                  className="flex-1 px-4 py-3 bg-neutral-700 dark:bg-gray-200 text-white dark:text-gray-900 rounded-lg hover:bg-neutral-600 dark:hover:bg-gray-300 transition disabled:opacity-50"
                   disabled={creating}
                 >
                   Back
@@ -848,7 +857,7 @@ const Dashboard = () => {
                 <button
                   onClick={handleDone}
                   disabled={creating || !chatbotName.trim()}
-                  className="flex-1 px-4 py-3 bg-gradient-to-r from-blue-600 to-violet-600 rounded-lg font-semibold hover:opacity-90 transition disabled:opacity-50"
+                  className="flex-1 px-4 py-3 bg-gradient-to-r from-blue-600 to-violet-600 text-white rounded-lg font-semibold hover:opacity-90 transition disabled:opacity-50"
                 >
                   {creating ? "Saving..." : "Save"}
                 </button>
@@ -1001,7 +1010,6 @@ const Dashboard = () => {
         plan={limitInfo.plan}
         limit={limitInfo.limit}
       />
-
     </div>
   );
 };
