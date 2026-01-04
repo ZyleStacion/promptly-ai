@@ -1,4 +1,4 @@
-import stripe from "stripe";
+import Stripe from "stripe";
 import User from "../models/user.js";
 import dotenv from "dotenv";
 import mongoose from "mongoose";
@@ -6,7 +6,10 @@ import Payment from "../models/payment.js";
 
 dotenv.config();
 
-const stripeInstance = stripe(process.env.STRIPE_SECRET_KEY);
+const stripeInstance = new Stripe(process.env.STRIPE_SECRET_KEY);
+
+// Helper to convert Stripe epoch seconds to JS Date (or null)
+const toDate = (s) => (s ? new Date(Number(s) * 1000) : null);
 
 // Store payment records
 // Use shared Payment model from ../models/payment.js
@@ -102,6 +105,9 @@ const handleInvoicePaymentSucceeded = async (invoice) => {
       console.warn("No user found for invoice customer:", invoice.customer);
     }
 
+    // Helper to convert Stripe epoch seconds to JS Date (or null)
+    const toDate = (s) => (s ? new Date(Number(s) * 1000) : null);
+
     // Create or update payment record
     const saved = await Payment.findOneAndUpdate(
       { stripeInvoiceId: invoice.id },
@@ -115,9 +121,9 @@ const handleInvoicePaymentSucceeded = async (invoice) => {
         status: invoice.status,
         hostedInvoiceUrl: invoice.hosted_invoice_url,
         invoicePdf: invoice.invoice_pdf,
-        periodStart: invoice.lines?.data?.[0]?.period?.start || invoice.period_start,
-        periodEnd: invoice.lines?.data?.[0]?.period?.end || invoice.period_end,
-        createdAtStripe: invoice.created,
+        periodStart: toDate(invoice.lines?.data?.[0]?.period?.start || invoice.period_start),
+        periodEnd: toDate(invoice.lines?.data?.[0]?.period?.end || invoice.period_end),
+        createdAtStripe: toDate(invoice.created),
         raw: invoice,
       },
       { upsert: true, new: true }
@@ -133,14 +139,18 @@ const handleInvoicePaymentSucceeded = async (invoice) => {
     } catch (e) {
       planName = null;
     }
-    // If user exists, update subscription status/ids as needed
+    // If user exists, update subscription status/ids as needed and set subscription end date
     if (user) {
-      await User.findByIdAndUpdate(user._id, {
+      const subId = invoice.subscription || user.subscriptionId;
+      const endDate = toDate(invoice.lines?.data?.[0]?.period?.end || invoice.period_end);
+      const updates = {
         subscriptionStatus: "active",
-        subscriptionId: invoice.subscription || user.subscriptionId,
+        subscriptionId: subId,
         stripeCustomerId: invoice.customer,
-      });
+      };
       if (planName) updates.subscriptionPlan = planName;
+      if (endDate) updates.subscriptionEndDate = endDate;
+
       await User.findByIdAndUpdate(user._id, updates);
     }
 
@@ -270,6 +280,8 @@ export const finalizeCheckout = async (req, res) => {
       return String(val);
     };
 
+    const toDate = (s) => (s ? new Date(Number(s) * 1000) : null);
+
     const paymentPayload = {
       user: user ? user._id : null,
       stripeInvoiceId: invoiceObj ? invoiceObj.id : null,
@@ -280,9 +292,9 @@ export const finalizeCheckout = async (req, res) => {
       status: invoiceObj ? invoiceObj.status : (fullSession.payment_status || 'paid'),
       hostedInvoiceUrl: invoiceObj ? invoiceObj.hosted_invoice_url : null,
       invoicePdf: invoiceObj ? invoiceObj.invoice_pdf : null,
-      periodStart: invoiceObj ? (invoiceObj.lines?.data?.[0]?.period?.start || invoiceObj.period_start) : null,
-      periodEnd: invoiceObj ? (invoiceObj.lines?.data?.[0]?.period?.end || invoiceObj.period_end) : null,
-      createdAtStripe: invoiceObj ? invoiceObj.created : (fullSession.created || null),
+      periodStart: invoiceObj ? toDate(invoiceObj.lines?.data?.[0]?.period?.start || invoiceObj.period_start) : null,
+      periodEnd: invoiceObj ? toDate(invoiceObj.lines?.data?.[0]?.period?.end || invoiceObj.period_end) : null,
+      createdAtStripe: invoiceObj ? toDate(invoiceObj.created) : toDate(fullSession.created || null),
       raw: invoiceObj || fullSession,
     };
 
@@ -311,7 +323,11 @@ export const finalizeCheckout = async (req, res) => {
       };
       if (planName) userUpdates.subscriptionPlan = planName;
 
-      await User.findByIdAndUpdate(user._id, userUpdates);
+        // determine subscription end date from invoice or expanded subscription
+        const endDate = invoiceObj ? paymentPayload.periodEnd : (fullSession.subscription ? toDate(fullSession.subscription.current_period_end || (fullSession.subscription.current_period && fullSession.subscription.current_period.end)) : null);
+        if (endDate) userUpdates.subscriptionEndDate = endDate;
+
+        await User.findByIdAndUpdate(user._id, userUpdates);
     }
 
     res.json({ success: true });
@@ -329,6 +345,7 @@ const handleSubscriptionDeleted = async (subscription) => {
       {
         subscriptionStatus: "canceled",
         subscriptionId: null,
+          subscriptionEndDate: null,
       }
     );
 
@@ -411,24 +428,127 @@ export const cancelSubscription = async (req, res) => {
       return res.status(400).json({ error: 'No active subscription found for user' });
     }
 
-    // Cancel the subscription immediately
-    try {
-      await stripeInstance.subscriptions.del(subscriptionId);
-    } catch (stripeErr) {
-      console.error('Stripe cancel error:', stripeErr);
-      return res.status(500).json({ error: stripeErr.message || 'Failed to cancel subscription' });
+    const { immediate } = req.body || {};
+
+    if (immediate) {
+      // Cancel immediately
+      try {
+        const canceled = await stripeInstance.subscriptions.del(subscriptionId);
+        console.log('Stripe subscription canceled immediately:', canceled.id);
+      } catch (stripeErr) {
+        console.error('Stripe immediate cancel error:', stripeErr);
+        return res.status(500).json({ error: stripeErr.message || 'Failed to cancel subscription immediately' });
+      }
+
+      // Update user record in DB
+      await User.findByIdAndUpdate(userId, {
+        subscriptionStatus: 'canceled',
+        subscriptionId: null,
+          subscriptionEndDate: null,
+        subscriptionPlan: 'Free',
+      });
+
+      return res.json({ message: 'Subscription canceled immediately' });
     }
 
-    // Update user record in DB
-    await User.findByIdAndUpdate(userId, {
-      subscriptionStatus: 'canceled',
-      subscriptionId: null,
-      subscriptionPlan: 'Free',
-    });
+    // Schedule cancellation at period end (preserve subscriptionId until it ends)
+    try {
+      const updated = await stripeInstance.subscriptions.update(subscriptionId, {
+        cancel_at_period_end: true,
+      });
+      console.log('Stripe subscription scheduled to cancel at period end:', updated.id);
 
-    return res.json({ message: 'Subscription canceled' });
+      // Update user record in DB: mark subscription as scheduled to cancel but keep subscriptionId
+      const endDate = toDate(updated.current_period_end || (updated.current_period && updated.current_period.end));
+      const updates = { subscriptionStatus: 'cancel_at_period_end' };
+      if (endDate) updates.subscriptionEndDate = endDate;
+      await User.findByIdAndUpdate(userId, updates);
+
+      return res.json({ message: 'Subscription scheduled to cancel at period end' });
+    } catch (stripeErr) {
+      console.error('Stripe cancel error:', stripeErr);
+      return res.status(500).json({ error: stripeErr.message || 'Failed to schedule subscription cancellation' });
+    }
   } catch (err) {
     console.error('Error cancelling subscription:', err);
+    return res.status(500).json({ error: err.message });
+  }
+};
+
+export const resumeSubscription = async (req, res) => {
+  try {
+    const userId = req.user && req.user._id;
+    if (!userId) return res.status(401).json({ error: 'Unauthorized' });
+
+    const user = await User.findById(userId);
+    if (!user) return res.status(404).json({ error: 'User not found' });
+
+    const subscriptionId = user.subscriptionId || null;
+    if (!subscriptionId) return res.status(400).json({ error: 'No subscription to resume' });
+
+    try {
+      const updated = await stripeInstance.subscriptions.update(subscriptionId, {
+        cancel_at_period_end: false,
+      });
+      console.log('Stripe subscription resumed:', updated.id);
+
+      const endDate = toDate(updated.current_period_end || (updated.current_period && updated.current_period.end));
+      const updates = { subscriptionStatus: 'active' };
+      if (endDate) updates.subscriptionEndDate = endDate;
+      await User.findByIdAndUpdate(userId, updates);
+
+      return res.json({ message: 'Subscription resumed' });
+    } catch (stripeErr) {
+      console.error('Stripe resume error:', stripeErr);
+      return res.status(500).json({ error: stripeErr.message || 'Failed to resume subscription' });
+    }
+  } catch (err) {
+    console.error('Error resuming subscription:', err);
+    return res.status(500).json({ error: err.message });
+  }
+};
+
+// Return the current subscription object for the authenticated user
+export const getCurrentSubscription = async (req, res) => {
+  try {
+    const userId = req.user && req.user._id;
+    if (!userId) return res.status(401).json({ error: 'Unauthorized' });
+
+    const user = await User.findById(userId);
+    if (!user) return res.status(404).json({ error: 'User not found' });
+
+    // If we have a stored subscription id, try to retrieve it directly
+    let subscription = null;
+    try {
+      if (user.subscriptionId) {
+        subscription = await stripeInstance.subscriptions.retrieve(user.subscriptionId, { expand: ['latest_invoice'] });
+      } else if (user.stripeCustomerId) {
+        const subs = await stripeInstance.subscriptions.list({ customer: user.stripeCustomerId, limit: 1 });
+        subscription = subs.data[0] || null;
+      }
+    } catch (e) {
+      console.warn('Could not retrieve Stripe subscription:', e.message || e);
+      subscription = null;
+    }
+
+    if (!subscription) {
+      return res.status(200).json({ subscription: null });
+    }
+
+    // Normalize useful fields for frontend
+    const normalized = {
+      id: subscription.id,
+      status: subscription.status,
+      cancel_at_period_end: !!subscription.cancel_at_period_end,
+      current_period_start: subscription.current_period_start || (subscription.current_period && subscription.current_period.start) || null,
+      current_period_end: subscription.current_period_end || (subscription.current_period && subscription.current_period.end) || null,
+      latest_invoice: subscription.latest_invoice || null,
+      raw: subscription,
+    };
+
+    return res.json({ subscription: normalized });
+  } catch (err) {
+    console.error('Error fetching current subscription:', err);
     return res.status(500).json({ error: err.message });
   }
 };

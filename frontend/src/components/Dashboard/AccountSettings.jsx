@@ -43,6 +43,7 @@ const AccountSettings = () => {
   const [payments, setPayments] = useState([]);
   const [paymentsLoading, setPaymentsLoading] = useState(false);
   const [paymentsError, setPaymentsError] = useState("");
+  const [subscriptionInfo, setSubscriptionInfo] = useState(null);
 
   // Clear message when switching tabs
   useEffect(() => {
@@ -179,9 +180,11 @@ const AccountSettings = () => {
 
       if (data.user) {
         const img = data.user.profileImage
-          ? USE_MOCK_API
-            ? data.user.profileImage
-            : `${API_URL}${data.user.profileImage}`
+          ? (typeof data.user.profileImage === 'string' && data.user.profileImage.startsWith('http')
+              ? data.user.profileImage
+              : API_URL
+                ? `${API_URL}${data.user.profileImage}`
+                : data.user.profileImage)
           : "";
 
         setUser(data.user);
@@ -268,6 +271,84 @@ const AccountSettings = () => {
       fetchPayments();
     }
   }, [activeTab]);
+
+  // Fetch current subscription info when viewing subscription/billing
+  useEffect(() => {
+    const fetchSubscription = async () => {
+      if (!user) return;
+      try {
+        const token = localStorage.getItem('token');
+        const res = await fetch(`${API_URL}/payment/current-subscription`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (!res.ok) {
+          // fallback to invoices
+          throw new Error('No subscription from Stripe');
+        }
+        const data = await res.json();
+        console.debug('current-subscription response:', data);
+        if (data && data.subscription) {
+          setSubscriptionInfo(data.subscription || null);
+          return;
+        }
+
+        // fallback: try to get most recent invoice to determine period end
+        const invRes = await fetch(`${API_URL}/payment/invoices`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (!invRes.ok) {
+          setSubscriptionInfo(null);
+          return;
+        }
+        const invData = await invRes.json();
+        const payments = invData.payments || [];
+        if (payments.length > 0 && (payments[0].periodEnd || payments[0].periodEnd === 0)) {
+          setSubscriptionInfo({
+            current_period_end: payments[0].periodEnd,
+            cancel_at_period_end: user.subscriptionStatus === 'cancel_at_period_end',
+          });
+          return;
+        }
+
+        setSubscriptionInfo(null);
+      } catch (e) {
+        console.error('Error fetching subscription info:', e);
+        setSubscriptionInfo(null);
+      }
+    };
+
+    if (!isAdmin && (activeTab === 'subscription' || activeTab === 'billing' || activeTab === 'subscriptions')) {
+      fetchSubscription();
+    }
+  }, [activeTab, user, isAdmin]);
+
+  const formatDate = (val) => {
+    if (!val) return '';
+    try {
+      const opts = { weekday: 'long', year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', timeZoneName: 'short' };
+      if (typeof val === 'number' || (/^\d+$/.test(String(val)))) {
+        const n = Number(val);
+        const ms = n > 1e12 ? n : n * 1000;
+        return new Date(ms).toLocaleString(undefined, opts);
+      }
+      return new Date(val).toLocaleString(undefined, opts);
+    } catch (e) {
+      return String(val);
+    }
+  };
+
+  // Robustly convert numeric epoch (seconds or ms), ISO strings, or Date objects to a Date
+  const toDate = (v) => {
+    if (!v) return null;
+    if (v instanceof Date) return v;
+    if (typeof v === 'number' || (/^\d+$/.test(String(v)))) {
+      const n = Number(v);
+      const ms = n > 1e12 ? n : n * 1000;
+      return new Date(ms);
+    }
+    const d = new Date(v);
+    return isNaN(d.getTime()) ? null : d;
+  };
 
   if (!user) return <p className="text-white dark:text-gray-900">Loading...</p>;
 
@@ -759,21 +840,40 @@ const AccountSettings = () => {
                   </div>
 
                   {/* Unsubscribe button */}
+                  {(subscriptionInfo?.current_period_end || user.subscriptionEndDate) ? (
+                    <div className="mb-3 text-sm text-yellow-300">
+                      {subscriptionInfo?.cancel_at_period_end
+                        ? `Your subscription is scheduled to end on ${formatDate(subscriptionInfo?.current_period_end || user.subscriptionEndDate)}.`
+                        : `Current billing period ends on ${formatDate(subscriptionInfo?.current_period_end || user.subscriptionEndDate)}.`}
+                    </div>
+                  ) : (user.subscriptionStatus === 'cancel_at_period_end' ? (
+                    <div className="mb-3 text-sm text-yellow-300">
+                      {user.subscriptionEndDate
+                        ? `Your subscription is scheduled to end on ${formatDate(user.subscriptionEndDate)}.`
+                        : 'Your subscription is scheduled to end at the end of the current billing period.'}
+                    </div>
+                  ) : null)}
+
                   <UnsubscribeButton
                     planName={currentPlan}
+                    subscriptionStatus={user.subscriptionStatus}
+                    subscriptionEndsAt={subscriptionInfo?.current_period_end || user.subscriptionEndDate}
                     onSuccess={(data) => {
-                      const updated = Object.assign({}, user || {}, {
-                        subscriptionStatus: "canceled",
-                        subscriptionPlan: "Free",
-                      });
-                      setUser(updated);
-                      try {
-                        localStorage.setItem("user", JSON.stringify(updated));
-                      } catch (e) {}
-                      alert(data?.message || "Subscription canceled");
-                      navigate("/dashboard/settings", {
-                        state: { activeTab: "subscriptions" },
-                      });
+                      // Refresh local user object with any changes (some endpoints update subscriptionStatus)
+                      const raw = localStorage.getItem('user');
+                      if (raw) {
+                        try {
+                          const u = JSON.parse(raw);
+                          setUser(u);
+                        } catch (e) {
+                          // fallback: set minimal user updates
+                          setUser(Object.assign({}, user || {}, { subscriptionStatus: 'cancel_at_period_end' }));
+                        }
+                      } else {
+                        setUser(Object.assign({}, user || {}, { subscriptionStatus: 'cancel_at_period_end' }));
+                      }
+                      alert(data?.message || 'Subscription update complete');
+                      navigate('/dashboard/settings', { state: { activeTab: 'subscription' } });
                     }}
                   />
                 </div>
@@ -858,7 +958,7 @@ const AccountSettings = () => {
                       ) : (
                         !isAdmin && (
                           <CheckoutButton
-                            priceId="..."
+                            priceId={billingCycle === 'monthly' ? 'price_1Sk0ju3tBDM4Uh8AID3qhu5S' : 'price_1Sk0s13tBDM4Uh8Ag7oIwytw'}
                             userId={user.id || user._id}
                             planName="Pro"
                           />
@@ -977,11 +1077,7 @@ const AccountSettings = () => {
                         </thead>
                         <tbody>
                           {payments.map((p) => {
-                            const date = p.createdAtStripe
-                              ? new Date(p.createdAtStripe * 1000)
-                              : p.createdAt
-                              ? new Date(p.createdAt)
-                              : null;
+                            const date = toDate(p.createdAtStripe || p.createdAt);
                             const amount =
                               p.amountPaid != null
                                 ? (p.amountPaid / 100).toFixed(2)
@@ -989,12 +1085,8 @@ const AccountSettings = () => {
                             const currency = (
                               p.currency || "USD"
                             ).toUpperCase();
-                            const periodStart = p.periodStart
-                              ? new Date(p.periodStart * 1000)
-                              : null;
-                            const periodEnd = p.periodEnd
-                              ? new Date(p.periodEnd * 1000)
-                              : null;
+                            const periodStart = toDate(p.periodStart);
+                            const periodEnd = toDate(p.periodEnd);
 
                             return (
                               <tr
