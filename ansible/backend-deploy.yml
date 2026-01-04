@@ -1,0 +1,31 @@
+- hosts: backend
+  become: true
+  tasks:
+    - name: Remove old backend container
+      docker_container:
+        name: backend_app
+        state: absent
+
+    - name: Pull latest backend image
+      docker_image:
+        name: yourdockerhub/backend
+        tag: latest
+        source: pull
+
+    - name: Ensure backend env file exists (Jenkins will create this)
+      file:
+        path: /home/ec2-user/backend.env
+        state: touch
+        owner: ec2-user
+        group: ec2-user
+        mode: '0600'
+
+    - name: Run backend container
+      docker_container:
+        name: backend_app
+        image: yourdockerhub/backend:latest
+        state: started
+        restart_policy: always
+        ports:
+          - "5000:5000"
+        env_file: /home/ec2-user/backend.env

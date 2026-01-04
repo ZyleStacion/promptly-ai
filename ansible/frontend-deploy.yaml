@@ -1,0 +1,31 @@
+- hosts: frontend
+  become: true
+  tasks:
+    - name: Remove old frontend container
+      docker_container:
+        name: frontend_app
+        state: absent
+
+    - name: Pull latest frontend image
+      docker_image:
+        name: yourdockerhub/frontend
+        tag: latest
+        source: pull
+
+    - name: Ensure frontend env file exists (Jenkins will create this)
+      file:
+        path: /home/ec2-user/frontend.env
+        state: touch
+        owner: ec2-user
+        group: ec2-user
+        mode: '0600'
+
+    - name: Run frontend container
+      docker_container:
+        name: frontend_app
+        image: yourdockerhub/frontend:latest
+        state: started
+        restart_policy: always
+        ports:
+          - "80:80"
+        env_file: /home/ec2-user/frontend.env
