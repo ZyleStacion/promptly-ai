@@ -8,7 +8,7 @@
 
     - name: Pull latest frontend image
       docker_image:
-        name: yourdockerhub/frontend
+        name: zylede/promptly-frontend
         tag: latest
         source: pull
 
@@ -23,7 +23,7 @@
     - name: Run frontend container
       docker_container:
         name: frontend_app
-        image: yourdockerhub/frontend:latest
+        image: zylede/promptly-frontend:latest
         state: started
         restart_policy: always
         ports:
