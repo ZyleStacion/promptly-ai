@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { API_URL } from '../../api/api';
 
 const CheckoutButton = ({ priceId, userId, planName }) => {
   const [loading, setLoading] = useState(false);
@@ -11,7 +12,7 @@ const CheckoutButton = ({ priceId, userId, planName }) => {
     try {
       const token = localStorage.getItem('token');
 
-      const response = await fetch('/payment/checkout', {
+      const response = await fetch(`${API_URL}/payment/checkout`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

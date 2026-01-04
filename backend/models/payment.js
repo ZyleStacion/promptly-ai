@@ -10,10 +10,10 @@ const PaymentSchema = new mongoose.Schema({
 	status: String,             // paid, open, failed, etc.
 	hostedInvoiceUrl: String,
 	invoicePdf: String,
-	periodStart: Number,        // epoch seconds
-	periodEnd: Number,          // epoch seconds
-	createdAtStripe: Number,    // stripe created timestamp
-	raw: Object,                // raw Stripe object (optional)
+	periodStart: Date,        // JS Date (from Stripe epoch seconds)
+	periodEnd: Date,          // JS Date (from Stripe epoch seconds)
+	createdAtStripe: Date,    // JS Date (stripe created timestamp)
+	raw: mongoose.Schema.Types.Mixed,                // raw Stripe object (optional)
 }, { timestamps: true });
 
 export default mongoose.models.Payment || mongoose.model("Payment", PaymentSchema);

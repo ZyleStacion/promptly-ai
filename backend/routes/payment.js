@@ -1,5 +1,5 @@
 import express from "express";
-import { createCheckoutSession, handleWebhook, listPaymentsForUser, finalizeCheckout, cancelSubscription } from "../controllers/paymentController.js";
+import { createCheckoutSession, handleWebhook, listPaymentsForUser, finalizeCheckout, cancelSubscription, resumeSubscription, getCurrentSubscription } from "../controllers/paymentController.js";
 import userMiddleware from "../middleware/userMiddleware.js";
 
 const router = express.Router();
@@ -18,4 +18,8 @@ router.post("/webhook", express.raw({ type: 'application/json' }), handleWebhook
 
 // Cancel subscription
 router.post("/cancel-subscription", userMiddleware, cancelSubscription);
+// Resume scheduled subscription cancellation
+router.post("/resume-subscription", userMiddleware, resumeSubscription);
+// Get current subscription for logged-in user
+router.get("/current-subscription", userMiddleware, getCurrentSubscription);
 export default router;
