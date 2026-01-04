@@ -1,6 +1,6 @@
 import React from "react";
 import { motion } from "framer-motion";
-import demoImg from "../../assets/demo.png";
+import demoImg from "../../assets/Demo.png";
 import { IoShieldCheckmarkOutline } from "react-icons/io5";
 import { LiaIndustrySolid } from "react-icons/lia";
 import { LuMousePointerClick } from "react-icons/lu";
