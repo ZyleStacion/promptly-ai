@@ -8,6 +8,7 @@ import {
   Trash2,
   Copy,
 } from "lucide-react";
+import { getImageUrl } from "../../api/api";
 
 const ModelsSection = ({
   loading,
@@ -137,7 +138,7 @@ const ModelsSection = ({
                 >
                   {bot.profilePicture ? (
                     <img
-                      src={bot.profilePicture}
+                      src={getImageUrl(bot.profilePicture)}
                       alt={bot.name}
                       className="w-full h-full object-cover"
                     />

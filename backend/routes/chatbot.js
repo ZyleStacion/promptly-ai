@@ -8,6 +8,7 @@ import {
 } from "../controllers/chatbotController.js";
 import auth from "../middleware/userMiddleware.js";
 import checkChatbotLimit from "../middleware/checkChatbotLimit.js";
+import upload from "../middleware/upload.js";
 
 const router = express.Router();
 
@@ -15,7 +16,7 @@ const router = express.Router();
 router.use(auth);
 
 // Create chatbot (plan-limited)
-router.post("/", checkChatbotLimit, createChatbot);
+router.post("/", checkChatbotLimit, upload.single("profilePicture"), createChatbot);
 
 // Get all chatbots for logged-in user
 router.get("/", getChatbots);
@@ -24,7 +25,7 @@ router.get("/", getChatbots);
 router.get("/:id", getChatbot);
 
 // Update chatbot
-router.put("/:id", updateChatbot);
+router.put("/:id", upload.single("profilePicture"), updateChatbot);
 
 // Delete chatbot
 router.delete("/:id", deleteChatbot);

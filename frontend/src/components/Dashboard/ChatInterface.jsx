@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { X, Send, Loader2 } from "lucide-react";
 import { marked } from "marked";
 import DOMPurify from "dompurify";
+import { getImageUrl } from "../../api/api";
 
 const ChatInterface = ({ chatbot, onClose, apiUrl }) => {
   const [messages, setMessages] = useState([]);
@@ -154,7 +155,7 @@ const ChatInterface = ({ chatbot, onClose, apiUrl }) => {
               >
                 {chatbot.profilePicture ? (
                   <img
-                    src={chatbot.profilePicture}
+                    src={getImageUrl(chatbot.profilePicture)}
                     alt={chatbot.name}
                     className="w-full h-full rounded-full object-cover"
                   />
@@ -206,7 +207,7 @@ const ChatInterface = ({ chatbot, onClose, apiUrl }) => {
                       >
                         {chatbot.profilePicture ? (
                           <img
-                            src={chatbot.profilePicture}
+                            src={getImageUrl(chatbot.profilePicture)}
                             alt={chatbot.name}
                             className="w-full h-full object-cover"
                           />

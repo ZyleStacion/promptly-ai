@@ -288,9 +288,18 @@ const Dashboard = () => {
         modelName: selectedModel,
         systemPrompt: systemPromptStr,
         primaryColor,
-        profilePicture: profilePreview || null,
         trainingData,
       };
+
+      // Handle profile picture
+      if (profileDeleted) {
+        // Explicitly set to empty string to delete
+        payload.profilePicture = "";
+      } else if (profilePicture) {
+        // Send File object for new upload
+        payload.profilePicture = profilePicture;
+      }
+      // If neither, don't include profilePicture (keeps existing)
 
       let response;
       if (editingChatbot) {
@@ -399,6 +408,7 @@ const Dashboard = () => {
     setWelcomeMessage(chatbot.welcomeMessage || "");
     setPrimaryColor(chatbot.primaryColor || "#3B82F6");
     setProfilePreview(chatbot.profilePicture || "");
+    setProfilePicture(null); // Reset to null - will be set if user uploads new one
     setProfileDeleted(false);
     setChatbotType(chatbot.chatbotType || "general");
     setChatbotPersonality(chatbot.personality || "friendly");
@@ -894,15 +904,15 @@ const Dashboard = () => {
           onUploadProfile={(e) => {
             const file = e.target.files?.[0];
             if (file) {
-              const reader = new FileReader();
-              reader.onloadend = () => {
-                setProfilePreview(reader.result);
-                setProfileDeleted(false);
-              };
-              reader.readAsDataURL(file);
+              // Store the actual File object for upload
+              setProfilePicture(file);
+              // Create blob URL for preview
+              setProfilePreview(URL.createObjectURL(file));
+              setProfileDeleted(false);
             }
           }}
           onDeleteProfile={() => {
+            setProfilePicture(null);
             setProfilePreview("");
             setProfileDeleted(true);
           }}

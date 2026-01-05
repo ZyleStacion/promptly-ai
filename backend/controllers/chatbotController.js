@@ -19,13 +19,28 @@ export const createChatbot = async (req, res) => {
       modelName,
       chatbotType,
       primaryColor,
-      profilePicture,
-      trainingData,
     } = req.body;
+
+    // Parse trainingData if it's a JSON string (from FormData)
+    let trainingData = req.body.trainingData || [];
+    if (typeof trainingData === 'string') {
+      try {
+        trainingData = JSON.parse(trainingData);
+      } catch (e) {
+        console.error('Failed to parse trainingData:', e);
+        trainingData = [];
+      }
+    }
 
     // Validate required fields
     if (!name) {
       return res.status(400).json({ error: "Chatbot name is required" });
+    }
+
+    // Handle profile picture upload
+    let profilePicture = null;
+    if (req.file) {
+      profilePicture = `/uploads/${req.file.filename}`;
     }
 
     const chatbot = await Chatbot.create({
@@ -39,12 +54,13 @@ export const createChatbot = async (req, res) => {
       modelName: modelName || "gemma3:1b-it-qat",
       chatbotType: chatbotType || "General AI Chatbot",
       primaryColor: primaryColor || "#3B82F6",
-      profilePicture: profilePicture || null,
-      trainingData: trainingData || [],
+      profilePicture: profilePicture,
+      trainingData: trainingData,
       status: "active",
     });
 
     return res.status(201).json({
+      success: true,
       message: "Chatbot created successfully",
       chatbot,
     });
@@ -124,6 +140,23 @@ export const updateChatbot = async (req, res) => {
       return res.status(404).json({ error: "Chatbot not found" });
     }
 
+    // Handle profile picture upload
+    if (req.file) {
+      updates.profilePicture = `/uploads/${req.file.filename}`;
+    } else if (updates.profilePicture === "") {
+      // Empty string means delete the profile picture
+      updates.profilePicture = null;
+    }
+
+    // Parse trainingData if it's a JSON string (from FormData)
+    if (updates.trainingData && typeof updates.trainingData === 'string') {
+      try {
+        updates.trainingData = JSON.parse(updates.trainingData);
+      } catch (e) {
+        console.error('Failed to parse trainingData:', e);
+      }
+    }
+
     // Update allowed fields
     const allowedFields = [
       "name",
@@ -156,6 +189,7 @@ export const updateChatbot = async (req, res) => {
     await chatbot.save();
 
     return res.status(200).json({
+      success: true,
       message: "Chatbot updated successfully",
       chatbot,
     });

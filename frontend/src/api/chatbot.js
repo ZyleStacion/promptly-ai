@@ -18,20 +18,66 @@ export async function getChatbots() {
 
 export async function createChatbot(payload) {
   const token = localStorage.getItem('token');
+  
+  // Check if payload contains a File object (profilePicture)
+  const hasFile = payload.profilePicture instanceof File;
+  
+  let body, headers;
+  if (hasFile) {
+    // Use FormData for file upload
+    const formData = new FormData();
+    Object.keys(payload).forEach(key => {
+      if (key === 'trainingData') {
+        formData.append(key, JSON.stringify(payload[key]));
+      } else if (payload[key] !== null && payload[key] !== undefined) {
+        formData.append(key, payload[key]);
+      }
+    });
+    body = formData;
+    headers = { Authorization: `Bearer ${token}` };
+  } else {
+    // Use JSON for non-file uploads
+    body = JSON.stringify(payload);
+    headers = { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` };
+  }
+  
   const res = await fetch(`${API_URL}/chatbot/`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-    body: JSON.stringify(payload),
+    headers,
+    body,
   });
   return handleResponse(res);
 }
 
 export async function updateChatbot(id, payload) {
   const token = localStorage.getItem('token');
+  
+  // Check if payload contains a File object (profilePicture)
+  const hasFile = payload.profilePicture instanceof File;
+  
+  let body, headers;
+  if (hasFile) {
+    // Use FormData for file upload
+    const formData = new FormData();
+    Object.keys(payload).forEach(key => {
+      if (key === 'trainingData') {
+        formData.append(key, JSON.stringify(payload[key]));
+      } else if (payload[key] !== null && payload[key] !== undefined) {
+        formData.append(key, payload[key]);
+      }
+    });
+    body = formData;
+    headers = { Authorization: `Bearer ${token}` };
+  } else {
+    // Use JSON for non-file uploads
+    body = JSON.stringify(payload);
+    headers = { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` };
+  }
+  
   const res = await fetch(`${API_URL}/chatbot/${id}`, {
     method: 'PUT',
-    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-    body: JSON.stringify(payload),
+    headers,
+    body,
   });
   return handleResponse(res);
 }
