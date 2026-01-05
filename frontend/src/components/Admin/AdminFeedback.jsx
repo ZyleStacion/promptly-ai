@@ -36,31 +36,31 @@ const AdminFeedback = () => {
   };
 
   return (
-    <div className="text-white">
+    <div className="text-white dark:text-gray-900">
       <h1 className="text-3xl font-bold mb-8">User Feedback</h1>
 
       <div className="space-y-6">
         {feedbacks.map((fb) => (
           <div
             key={fb._id}
-            className="bg-neutral-800 p-6 rounded-xl border border-gray-700"
+            className="bg-neutral-800 dark:bg-white p-6 rounded-xl border border-gray-700 dark:border-gray-200 shadow-sm"
           >
             {/* Header */}
             <div className="flex justify-between mb-2">
               <div>
                 <div className="flex items-center gap-2">
-                  <p className="text-sm text-gray-300">
+                  <p className="text-sm text-gray-300 dark:text-gray-700">
                     {fb.user?.email || "Deleted user"}
                   </p>
 
                   {fb.user?.isAdmin && (
-                    <span className="text-xs px-2 py-0.5 rounded-full bg-purple-600/20 text-purple-400 font-semibold">
+                    <span className="text-xs px-2 py-0.5 rounded-full bg-purple-600/20 text-purple-400 dark:text-purple-600 font-semibold">
                       ADMIN
                     </span>
                   )}
                 </div>
 
-                <p className="text-sm text-gray-400">
+                <p className="text-sm text-gray-400 dark:text-gray-600">
                   {new Date(fb.createdAt).toLocaleString()}
                 </p>
               </div>
@@ -68,8 +68,8 @@ const AdminFeedback = () => {
               <span
                 className={`px-3 py-1 rounded-full text-sm ${
                   fb.status === "open"
-                    ? "bg-red-500/20 text-red-400"
-                    : "bg-green-500/20 text-green-400"
+                    ? "bg-red-500/20 text-red-400 dark:text-red-600"
+                    : "bg-green-500/20 text-green-400 dark:text-green-600"
                 }`}
               >
                 {fb.status}
@@ -77,14 +77,16 @@ const AdminFeedback = () => {
             </div>
 
             {/* Description */}
-            <p className="mb-3 text-gray-200">{fb.description}</p>
+            <p className="mb-3 text-gray-200 dark:text-gray-700">
+              {fb.description}
+            </p>
 
             {/* Labels */}
             <div className="flex gap-2 mb-4 flex-wrap">
               {fb.labels?.map((label) => (
                 <span
                   key={label}
-                  className="px-3 py-1 bg-gray-700 rounded-full text-sm"
+                  className="px-3 py-1 bg-gray-700 dark:bg-gray-200 rounded-full text-sm text-white dark:text-gray-900"
                 >
                   {label}
                 </span>
@@ -102,9 +104,13 @@ const AdminFeedback = () => {
 
             {/* Admin reply */}
             {fb.adminReply ? (
-              <div className="bg-neutral-700 p-4 rounded">
-                <p className="font-semibold mb-1">Admin Reply</p>
-                <p>{fb.adminReply}</p>
+              <div className="bg-neutral-700 dark:bg-gray-100 p-4 rounded">
+                <p className="font-semibold mb-1 text-white dark:text-gray-900">
+                  Admin Reply
+                </p>
+                <p className="text-gray-300 dark:text-gray-700">
+                  {fb.adminReply}
+                </p>
               </div>
             ) : (
               <>
@@ -113,12 +119,12 @@ const AdminFeedback = () => {
                     <textarea
                       value={replyText}
                       onChange={(e) => setReplyText(e.target.value)}
-                      className="w-full p-3 rounded bg-gray-900 border border-gray-700 mb-3"
+                      className="w-full p-3 rounded bg-gray-900 dark:bg-white border border-gray-700 dark:border-gray-300 mb-3 text-white dark:text-gray-900"
                       placeholder="Type your reply..."
                     />
                     <button
                       onClick={() => sendReply(fb._id)}
-                      className="bg-indigo-600 px-4 py-2 rounded hover:bg-indigo-700"
+                      className="bg-indigo-600 px-4 py-2 rounded hover:bg-indigo-700 text-white"
                     >
                       Send Reply
                     </button>
@@ -126,7 +132,7 @@ const AdminFeedback = () => {
                 ) : (
                   <button
                     onClick={() => setActiveId(fb._id)}
-                    className="text-indigo-400 hover:underline"
+                    className="text-indigo-400 dark:text-indigo-600 hover:underline"
                   >
                     Reply
                   </button>

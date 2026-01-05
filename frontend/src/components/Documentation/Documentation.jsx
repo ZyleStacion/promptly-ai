@@ -66,22 +66,24 @@ const Documentation = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-900">
+    <div className="min-h-screen bg-gray-900 dark:bg-gray-50">
       {/* Top Navigation */}
-      <nav className="bg-neutral-900 border-b border-gray-800 px-6 py-4 sticky top-0 z-50">
+      <nav className="bg-neutral-900 dark:bg-white border-b border-gray-800 dark:border-gray-200 px-6 py-4 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-4">
             <button
               onClick={() => navigate(-1)}
-              className="text-gray-400 hover:text-white transition flex items-center gap-2"
+              className="text-gray-400 dark:text-gray-600 hover:text-white dark:hover:text-gray-900 transition flex items-center gap-2"
             >
               <FiArrowLeft className="text-xl" />
               <span className="hidden md:inline">Back</span>
             </button>
             <div className="flex items-center gap-2">
               <LuBrain className="text-3xl bg-gradient-to-r from-blue-600 to-violet-600 text-white rounded-lg p-1" />
-              <h1 className="text-xl font-bold text-white">Promptly AI</h1>
-              <span className="text-gray-400 hidden md:inline">
+              <h1 className="text-xl font-bold text-white dark:text-gray-900">
+                Promptly AI
+              </h1>
+              <span className="text-gray-400 dark:text-gray-600 hidden md:inline">
                 | Documentation
               </span>
             </div>
@@ -89,7 +91,7 @@ const Documentation = () => {
           <div className="flex items-center gap-3">
             <button
               onClick={() => setIsTocOpen(!isTocOpen)}
-              className="lg:hidden text-gray-400 hover:text-white transition p-2"
+              className="lg:hidden text-gray-400 dark:text-gray-600 hover:text-white dark:hover:text-gray-900 transition p-2"
               title="Table of Contents"
             >
               <FiBook className="text-2xl" />
@@ -111,8 +113,8 @@ const Documentation = () => {
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
           {/* Sidebar Navigation - Desktop */}
           <aside className="hidden lg:block lg:col-span-1">
-            <div className="sticky top-24 bg-neutral-800 rounded-xl border border-gray-700 p-4">
-              <h2 className="text-white font-semibold mb-4 flex items-center gap-2">
+            <div className="sticky top-24 bg-neutral-800 dark:bg-white rounded-xl border border-gray-700 dark:border-gray-200 p-4 shadow-sm">
+              <h2 className="text-white dark:text-gray-900 font-semibold mb-4 flex items-center gap-2">
                 <FiBook /> Table of Contents
               </h2>
               <nav className="space-y-1">
@@ -123,7 +125,7 @@ const Documentation = () => {
                     className={`w-full text-left px-3 py-2 rounded-lg transition flex items-center gap-2 text-sm ${
                       activeSection === section.id
                         ? "bg-blue-600 text-white"
-                        : "text-gray-400 hover:bg-neutral-700 hover:text-white"
+                        : "text-gray-400 dark:text-gray-700 hover:bg-neutral-700 dark:hover:bg-gray-100 hover:text-white dark:hover:text-gray-900"
                     }`}
                   >
                     {section.icon}
@@ -147,15 +149,15 @@ const Documentation = () => {
                   exit={{ opacity: 0, y: -20 }}
                   transition={{ duration: 0.2 }}
                   onClick={(e) => e.stopPropagation()}
-                  className="bg-neutral-800 rounded-xl border border-gray-700 p-4 mx-4 max-w-md w-full max-h-[70vh] overflow-y-auto"
+                  className="bg-neutral-800 dark:bg-white rounded-xl border border-gray-700 dark:border-gray-200 p-4 mx-4 max-w-md w-full max-h-[70vh] overflow-y-auto shadow-xl"
                 >
                   <div className="flex items-center justify-between mb-4">
-                    <h2 className="text-white font-semibold flex items-center gap-2">
+                    <h2 className="text-white dark:text-gray-900 font-semibold flex items-center gap-2">
                       <FiBook /> Table of Contents
                     </h2>
                     <button
                       onClick={() => setIsTocOpen(false)}
-                      className="text-gray-400 hover:text-white transition"
+                      className="text-gray-400 dark:text-gray-600 hover:text-white dark:hover:text-gray-900 transition"
                     >
                       <FiArrowLeft className="text-xl" />
                     </button>
@@ -171,7 +173,7 @@ const Documentation = () => {
                         className={`w-full text-left px-3 py-2 rounded-lg transition flex items-center gap-2 text-sm ${
                           activeSection === section.id
                             ? "bg-blue-600 text-white"
-                            : "text-gray-400 hover:bg-neutral-700 hover:text-white"
+                            : "text-gray-400 dark:text-gray-700 hover:bg-neutral-700 dark:hover:bg-gray-100 hover:text-white dark:hover:text-gray-900"
                         }`}
                       >
                         {section.icon}
@@ -193,13 +195,13 @@ const Documentation = () => {
               transition={{ duration: 0.5 }}
               className="text-center"
             >
-              <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">
+              <h1 className="text-4xl md:text-5xl font-bold text-white dark:text-gray-900 mb-4">
                 What is Promptly AI?
               </h1>
-              <p className="text-xl text-gray-400 max-w-3xl mx-auto">
+              <p className="text-xl text-gray-400 dark:text-gray-700 max-w-3xl mx-auto">
                 Simple, efficient AI provisioning. No code required.
               </p>
-              <p className="text-lg text-gray-500 mt-4 max-w-3xl mx-auto">
+              <p className="text-lg text-gray-500 dark:text-gray-600 mt-4 max-w-3xl mx-auto">
                 Our mission is to provide a no-code solution for small to medium
                 businesses with the power to seamlessly implement AI tools in
                 their online platforms.
@@ -212,38 +214,38 @@ const Documentation = () => {
               title="Getting Started"
               activeSection={activeSection}
             >
-              <h3 className="text-white font-semibold text-xl mb-4">
+              <h3 className="text-white dark:text-gray-900 font-semibold text-xl mb-4">
                 Use Cases
               </h3>
-              <p className="text-gray-300 mb-6">
+              <p className="text-gray-300 dark:text-gray-700 mb-6">
                 Promptly currently offers three types of chatbots for your
                 business:
               </p>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                <div className="bg-neutral-700/50 rounded-lg p-5 border border-gray-600">
-                  <h4 className="text-white font-semibold mb-2">
+                <div className="bg-neutral-700/50 dark:bg-gray-100 rounded-lg p-5 border border-gray-600 dark:border-gray-200">
+                  <h4 className="text-white dark:text-gray-900 font-semibold mb-2">
                     Customer Support
                   </h4>
-                  <p className="text-gray-400 text-sm">
+                  <p className="text-gray-400 dark:text-gray-700 text-sm">
                     Give customers instant feedback. Our AI models can function
                     as a customer service agent or help them streamline support.
                   </p>
                 </div>
-                <div className="bg-neutral-700/50 rounded-lg p-5 border border-gray-600">
-                  <h4 className="text-white font-semibold mb-2">
+                <div className="bg-neutral-700/50 dark:bg-gray-100 rounded-lg p-5 border border-gray-600 dark:border-gray-200">
+                  <h4 className="text-white dark:text-gray-900 font-semibold mb-2">
                     Sales Assistant
                   </h4>
-                  <p className="text-gray-400 text-sm">
+                  <p className="text-gray-400 dark:text-gray-700 text-sm">
                     Help your customers choose the perfect product for their
                     needs. Our sales assistant agents replace in-house sales
                     staff in your virtual platforms.
                   </p>
                 </div>
-                <div className="bg-neutral-700/50 rounded-lg p-5 border border-gray-600">
-                  <h4 className="text-white font-semibold mb-2">
+                <div className="bg-neutral-700/50 dark:bg-gray-100 rounded-lg p-5 border border-gray-600 dark:border-gray-200">
+                  <h4 className="text-white dark:text-gray-900 font-semibold mb-2">
                     General Purpose
                   </h4>
-                  <p className="text-gray-400 text-sm">
+                  <p className="text-gray-400 dark:text-gray-700 text-sm">
                     Not sure what exactly you need from our model? General
                     purpose fits any type of generic scenario and can be fine
                     tuned later on in the creation stage!
@@ -251,22 +253,22 @@ const Documentation = () => {
                 </div>
               </div>
 
-              <h3 className="text-white font-semibold text-xl mb-4">
+              <h3 className="text-white dark:text-gray-900 font-semibold text-xl mb-4">
                 Why not Use ChatGPT?
               </h3>
-              <p className="text-gray-300 mb-4">
+              <p className="text-gray-300 dark:text-gray-700 mb-4">
                 At Promptly, we believe that users are the ones who get to
                 decide how their data is used. We are committed to providing
                 local deployment solutions, and none of your business data is
                 stored on our servers.
               </p>
-              <p className="text-gray-300 mb-6">
+              <p className="text-gray-300 dark:text-gray-700 mb-6">
                 We operate based on an{" "}
                 <a
                   href="https://bsg.world/glossary/opt-in"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-blue-400 hover:text-blue-300 underline"
+                  className="text-blue-400 dark:text-blue-600 hover:text-blue-300 dark:hover:text-blue-700 underline"
                 >
                   opt-in
                 </a>{" "}
@@ -274,10 +276,10 @@ const Documentation = () => {
                 is only used once during chatbot model training.
               </p>
 
-              <h3 className="text-white font-semibold text-xl mb-4 mt-8">
+              <h3 className="text-white dark:text-gray-900 font-semibold text-xl mb-4 mt-8">
                 Prerequisites
               </h3>
-              <p className="text-gray-300 mb-4">
+              <p className="text-gray-300 dark:text-gray-700 mb-4">
                 Promptly AI users are required to create an account before model
                 creation. Promptly recommends at least 50 rows of data to ensure
                 accurate chatbot responses.
@@ -339,21 +341,21 @@ const Documentation = () => {
               title="Upload Data"
               activeSection={activeSection}
             >
-              <p className="text-gray-300 mb-4">
+              <p className="text-gray-300 dark:text-gray-700 mb-4">
                 The quality of your AI model depends on the data you provide.
                 Here's how to upload and manage your training data:
               </p>
-              <h3 className="text-white font-semibold text-lg mb-3">
+              <h3 className="text-white dark:text-gray-900 font-semibold text-lg mb-3">
                 Supported Formats
               </h3>
-              <ul className="list-disc list-inside text-gray-300 space-y-2 mb-6">
+              <ul className="list-disc list-inside text-gray-300 dark:text-gray-700 space-y-2 mb-6">
                 <li>Text files (.txt)</li>
                 <li>PDF documents (.pdf)</li>
                 <li>Word documents (.doc, .docx)</li>
                 <li>Markdown files (.md)</li>
                 <li>CSV files (.csv)</li>
               </ul>
-              <h3 className="text-white font-semibold text-lg mb-3">
+              <h3 className="text-white dark:text-gray-900 font-semibold text-lg mb-3">
                 Upload Process
               </h3>
               <div className="space-y-4">
@@ -372,8 +374,8 @@ const Documentation = () => {
                   and prepare them for training.
                 </Step>
               </div>
-              <div className="bg-yellow-900/20 border border-yellow-600 rounded-lg p-4 mt-6">
-                <p className="text-yellow-200 text-sm">
+              <div className="bg-yellow-900/20 dark:bg-yellow-50 border border-yellow-600 dark:border-yellow-300 rounded-lg p-4 mt-6">
+                <p className="text-yellow-200 dark:text-yellow-900 text-sm">
                   <strong>Tip:</strong> For best results, provide clear,
                   well-organized data. Remove any irrelevant information that
                   might confuse the model.
@@ -387,11 +389,11 @@ const Documentation = () => {
               title="Train Your Model"
               activeSection={activeSection}
             >
-              <p className="text-gray-300 mb-4">
+              <p className="text-gray-300 dark:text-gray-700 mb-4">
                 Once you've uploaded your data, you're ready to train your AI
                 model.
               </p>
-              <h3 className="text-white font-semibold text-lg mb-3">
+              <h3 className="text-white dark:text-gray-900 font-semibold text-lg mb-3">
                 Training Process
               </h3>
               <div className="space-y-4 mb-6">
@@ -414,11 +416,11 @@ const Documentation = () => {
                   interface to ensure it meets your needs.
                 </Step>
               </div>
-              <div className="bg-blue-900/20 border border-blue-600 rounded-lg p-4">
-                <h4 className="text-blue-200 font-semibold mb-2">
+              <div className="bg-blue-900/20 dark:bg-blue-50 border border-blue-600 dark:border-blue-300 rounded-lg p-4">
+                <h4 className="text-blue-200 dark:text-blue-900 font-semibold mb-2">
                   Available Models (Powered by Ollama)
                 </h4>
-                <ul className="text-blue-200 text-sm space-y-1">
+                <ul className="text-blue-200 dark:text-blue-900 text-sm space-y-1">
                   <li>
                     • <strong>Llama 2:</strong> Great for general-purpose tasks
                   </li>
@@ -442,11 +444,11 @@ const Documentation = () => {
               title="Download & Deploy"
               activeSection={activeSection}
             >
-              <p className="text-gray-300 mb-4">
+              <p className="text-gray-300 dark:text-gray-700 mb-4">
                 After training your model, you can download it for local
                 deployment and integration into your own systems.
               </p>
-              <h3 className="text-white font-semibold text-lg mb-3">
+              <h3 className="text-white dark:text-gray-900 font-semibold text-lg mb-3">
                 Download Your Model
               </h3>
               <div className="space-y-4 mb-6">
@@ -461,7 +463,7 @@ const Documentation = () => {
                   and documentation.
                 </Step>
               </div>
-              <h3 className="text-white font-semibold text-lg mb-3">
+              <h3 className="text-white dark:text-gray-900 font-semibold text-lg mb-3">
                 Deployment Options
               </h3>
               <div className="space-y-4">
@@ -486,7 +488,7 @@ const Documentation = () => {
               title="Data Security & Privacy"
               activeSection={activeSection}
             >
-              <p className="text-gray-300 mb-4">
+              <p className="text-gray-300 dark:text-gray-700 mb-4">
                 For SMBs, data security is paramount. We take your business data
                 and privacy seriously. Here's how we protect your information:
               </p>
@@ -524,10 +526,10 @@ const Documentation = () => {
               title="Best Practices"
               activeSection={activeSection}
             >
-              <h3 className="text-white font-semibold text-lg mb-3">
+              <h3 className="text-white dark:text-gray-900 font-semibold text-lg mb-3">
                 Data Preparation
               </h3>
-              <ul className="list-disc list-inside text-gray-300 space-y-2 mb-6">
+              <ul className="list-disc list-inside text-gray-300 dark:text-gray-700 space-y-2 mb-6">
                 <li>
                   Clean your data before uploading - remove duplicates and
                   irrelevant content
@@ -541,10 +543,10 @@ const Documentation = () => {
                 </li>
                 <li>Use clear, consistent formatting across all documents</li>
               </ul>
-              <h3 className="text-white font-semibold text-lg mb-3">
+              <h3 className="text-white dark:text-gray-900 font-semibold text-lg mb-3">
                 Model Training
               </h3>
-              <ul className="list-disc list-inside text-gray-300 space-y-2 mb-6">
+              <ul className="list-disc list-inside text-gray-300 dark:text-gray-700 space-y-2 mb-6">
                 <li>
                   Start with a smaller dataset to test and iterate quickly
                 </li>
@@ -559,10 +561,10 @@ const Documentation = () => {
                   up-to-date
                 </li>
               </ul>
-              <h3 className="text-white font-semibold text-lg mb-3">
+              <h3 className="text-white dark:text-gray-900 font-semibold text-lg mb-3">
                 Production Use
               </h3>
-              <ul className="list-disc list-inside text-gray-300 space-y-2">
+              <ul className="list-disc list-inside text-gray-300 dark:text-gray-700 space-y-2">
                 <li>Implement rate limiting to prevent API abuse</li>
                 <li>Monitor model performance and user feedback</li>
                 <li>
@@ -651,11 +653,13 @@ const Section = ({ id, title, children, activeSection }) => (
     viewport={{ once: true }}
     className={`rounded-xl border p-6 md:p-8 transition-all duration-300 ${
       activeSection === id
-        ? "bg-blue-900/30 border-blue-600 shadow-lg shadow-blue-600/20"
-        : "bg-neutral-800 border-gray-700"
+        ? "bg-blue-900/30 dark:bg-blue-50 border-blue-600 dark:border-blue-300 shadow-lg shadow-blue-600/20 dark:shadow-none"
+        : "bg-neutral-800 dark:bg-white border-gray-700 dark:border-gray-200"
     }`}
   >
-    <h2 className="text-2xl md:text-3xl font-bold text-white mb-6">{title}</h2>
+    <h2 className="text-2xl md:text-3xl font-bold text-white dark:text-gray-900 mb-6">
+      {title}
+    </h2>
     {children}
   </motion.section>
 );
@@ -666,52 +670,60 @@ const Step = ({ number, title, children }) => (
       {number}
     </div>
     <div className="flex-1">
-      <h4 className="text-white font-semibold mb-1">{title}</h4>
-      <p className="text-gray-400 text-sm">{children}</p>
+      <h4 className="text-white dark:text-gray-900 font-semibold mb-1">
+        {title}
+      </h4>
+      <p className="text-gray-400 dark:text-gray-700 text-sm">{children}</p>
     </div>
   </div>
 );
 
 const FeatureCard = ({ icon, title, description }) => (
-  <div className="bg-neutral-700/50 rounded-lg p-4 border border-gray-600">
-    <div className="text-blue-400 text-2xl mb-2">{icon}</div>
-    <h4 className="text-white font-semibold mb-2">{title}</h4>
-    <p className="text-gray-400 text-sm">{description}</p>
+  <div className="bg-gray-100 dark:bg-neutral-700/50 rounded-lg p-4 border border-gray-200 dark:border-gray-600">
+    <div className="text-blue-600 dark:text-blue-400 text-2xl mb-2">{icon}</div>
+    <h4 className="text-gray-900 dark:text-white font-semibold mb-2">
+      {title}
+    </h4>
+    <p className="text-gray-700 dark:text-gray-400 text-sm">{description}</p>
   </div>
 );
 
 const SecurityFeature = ({ title, description }) => (
   <div className="flex gap-3">
-    <FiCheckCircle className="text-green-400 text-xl flex-shrink-0 mt-1" />
+    <FiCheckCircle className="text-green-400 dark:text-green-600 text-xl flex-shrink-0 mt-1" />
     <div>
-      <h4 className="text-white font-semibold mb-1">{title}</h4>
-      <p className="text-gray-400 text-sm">{description}</p>
+      <h4 className="text-white dark:text-gray-900 font-semibold mb-1">
+        {title}
+      </h4>
+      <p className="text-gray-400 dark:text-gray-700 text-sm">{description}</p>
     </div>
   </div>
 );
 
 const DeploymentOption = ({ title, description }) => (
-  <div className="bg-neutral-700/50 rounded-lg p-4 border border-gray-600">
-    <h4 className="text-white font-semibold mb-2">{title}</h4>
-    <p className="text-gray-400 text-sm">{description}</p>
+  <div className="bg-neutral-700/50 dark:bg-gray-100 rounded-lg p-4 border border-gray-600 dark:border-gray-200">
+    <h4 className="text-white dark:text-gray-900 font-semibold mb-2">
+      {title}
+    </h4>
+    <p className="text-gray-400 dark:text-gray-700 text-sm">{description}</p>
   </div>
 );
 
 const CodeBlock = ({ code }) => (
-  <div className="bg-neutral-900 rounded-lg p-4 border border-gray-700 overflow-x-auto">
-    <pre className="text-sm text-gray-300">
+  <div className="bg-neutral-900 dark:bg-gray-100 rounded-lg p-4 border border-gray-700 dark:border-gray-200 overflow-x-auto">
+    <pre className="text-sm text-gray-300 dark:text-gray-800">
       <code>{code}</code>
     </pre>
   </div>
 );
 
 const FAQ = ({ question, answer }) => (
-  <div className="bg-neutral-700/50 rounded-lg p-4 border border-gray-600">
-    <h4 className="text-white font-semibold mb-2 flex items-start gap-2">
-      <FiHelpCircle className="text-blue-400 flex-shrink-0 mt-1" />
+  <div className="bg-neutral-700/50 dark:bg-gray-100 rounded-lg p-4 border border-gray-600 dark:border-gray-200">
+    <h4 className="text-white dark:text-gray-900 font-semibold mb-2 flex items-start gap-2">
+      <FiHelpCircle className="text-blue-400 dark:text-blue-600 flex-shrink-0 mt-1" />
       {question}
     </h4>
-    <p className="text-gray-400 text-sm ml-7">{answer}</p>
+    <p className="text-gray-400 dark:text-gray-700 text-sm ml-7">{answer}</p>
   </div>
 );
 

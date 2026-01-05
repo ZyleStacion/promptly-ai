@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { API_URL } from '../../api/api';
+import { API_URL } from "../../api/api";
 
 const UserManagement = () => {
   const [users, setUsers] = useState([]);
@@ -51,12 +51,14 @@ const UserManagement = () => {
 
   return (
     <div>
-      <h1 className="text-3xl font-bold mb-6">User Management</h1>
+      <h1 className="text-3xl font-bold mb-6 text-white dark:text-gray-900">
+        User Management
+      </h1>
 
-      <div className="bg-neutral-800 border border-gray-700 rounded-xl overflow-visible">
+      <div className="bg-neutral-800 dark:bg-white border border-gray-700 dark:border-gray-200 rounded-xl overflow-visible shadow-sm">
         <table className="w-full text-left">
-          <thead className="bg-neutral-900">
-            <tr>
+          <thead className="bg-neutral-900 dark:bg-gray-50">
+            <tr className="text-white dark:text-gray-900">
               <th className="p-3">Username</th>
               <th className="p-3">Email</th>
               <th className="p-3">Role</th>
@@ -66,7 +68,10 @@ const UserManagement = () => {
 
           <tbody>
             {users.map((u) => (
-              <tr key={u._id} className="border-t border-gray-700">
+              <tr
+                key={u._id}
+                className="border-t border-gray-700 dark:border-gray-200 text-white dark:text-gray-900"
+              >
                 <td className="p-3">{u.username}</td>
                 <td className="p-3">{u.email}</td>
                 <td className="p-3">
@@ -75,7 +80,9 @@ const UserManagement = () => {
                       Admin
                     </span>
                   ) : (
-                    <span className="text-blue-300">User</span>
+                    <span className="text-blue-300 dark:text-blue-600">
+                      User
+                    </span>
                   )}
                 </td>
 
@@ -84,7 +91,7 @@ const UserManagement = () => {
                     onClick={() =>
                       setOpenMenuId(openMenuId === u._id ? null : u._id)
                     }
-                    className="text-gray-400 hover:text-white text-xl"
+                    className="text-gray-400 dark:text-gray-600 hover:text-white dark:hover:text-gray-900 text-xl"
                   >
                     ⋮
                   </button>
@@ -97,14 +104,14 @@ const UserManagement = () => {
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: 10 }}
                         transition={{ duration: 0.2 }}
-                        className="absolute right-0 top-full mt-2 bg-neutral-700 border border-gray-600 rounded-lg shadow-lg z-50 min-w-[150px]"
+                        className="absolute right-0 top-full mt-2 bg-neutral-700 dark:bg-white border border-gray-600 dark:border-gray-200 rounded-lg shadow-lg z-50 min-w-[150px] text-white dark:text-gray-900"
                       >
                         <button
                           onClick={() => {
                             toggleAdmin(u._id);
                             setOpenMenuId(null);
                           }}
-                          className="w-full text-left px-4 py-2 hover:bg-neutral-600 rounded-t-lg"
+                          className="w-full text-left px-4 py-2 hover:bg-neutral-600 dark:hover:bg-gray-100 rounded-t-lg"
                         >
                           {u.isAdmin ? "Remove Admin" : "Make Admin"}
                         </button>
@@ -114,7 +121,7 @@ const UserManagement = () => {
                             deleteUser(u._id);
                             setOpenMenuId(null);
                           }}
-                          className="w-full text-left px-4 py-2 hover:bg-neutral-600 rounded-b-lg text-red-400"
+                          className="w-full text-left px-4 py-2 hover:bg-neutral-600 dark:hover:bg-gray-100 rounded-b-lg text-red-400 dark:text-red-600"
                         >
                           Delete
                         </button>

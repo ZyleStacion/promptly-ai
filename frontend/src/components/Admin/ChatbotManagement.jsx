@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { API_URL } from '../../api/api';
+import { API_URL } from "../../api/api";
 
 const ChatbotManagement = () => {
   const [chatbots, setChatbots] = useState([]);
@@ -50,12 +50,14 @@ const ChatbotManagement = () => {
 
   return (
     <div>
-      <h1 className="text-3xl font-bold mb-6">Chatbot Management</h1>
+      <h1 className="text-3xl font-bold mb-6 text-white dark:text-gray-900">
+        Chatbot Management
+      </h1>
 
-      <div className="bg-neutral-800 border border-gray-700 rounded-xl overflow-visible">
+      <div className="bg-neutral-800 dark:bg-white border border-gray-700 dark:border-gray-200 rounded-xl overflow-visible shadow-sm">
         <table className="w-full text-left">
-          <thead className="bg-neutral-900">
-            <tr>
+          <thead className="bg-neutral-900 dark:bg-gray-50">
+            <tr className="text-white dark:text-gray-900">
               <th className="p-3">Name</th>
               <th className="p-3">Description</th>
               <th className="p-3">Owner</th>
@@ -69,7 +71,7 @@ const ChatbotManagement = () => {
               <tr>
                 <td
                   colSpan="5"
-                  className="p-6 text-center text-gray-400"
+                  className="p-6 text-center text-gray-400 dark:text-gray-600"
                 >
                   No chatbots created yet
                 </td>
@@ -77,20 +79,23 @@ const ChatbotManagement = () => {
             )}
 
             {chatbots.map((bot) => (
-              <tr key={bot._id} className="border-t border-gray-700">
-                <td className="p-3 font-medium text-indigo-400">
+              <tr
+                key={bot._id}
+                className="border-t border-gray-700 dark:border-gray-200"
+              >
+                <td className="p-3 font-medium text-indigo-400 dark:text-indigo-600">
                   {bot.name}
                 </td>
 
-                <td className="p-3 text-gray-300">
+                <td className="p-3 text-gray-300 dark:text-gray-700">
                   {bot.description || "—"}
                 </td>
 
-                <td className="p-3 text-gray-400">
+                <td className="p-3 text-gray-400 dark:text-gray-600">
                   {bot.ownerEmail || "Unknown"}
                 </td>
 
-                <td className="p-3 text-gray-400">
+                <td className="p-3 text-gray-400 dark:text-gray-600">
                   {bot.createdAt
                     ? new Date(bot.createdAt).toLocaleDateString()
                     : "—"}
@@ -99,11 +104,9 @@ const ChatbotManagement = () => {
                 <td className="p-3 relative">
                   <button
                     onClick={() =>
-                      setOpenMenuId(
-                        openMenuId === bot._id ? null : bot._id
-                      )
+                      setOpenMenuId(openMenuId === bot._id ? null : bot._id)
                     }
-                    className="text-gray-400 hover:text-white text-xl"
+                    className="text-gray-400 dark:text-gray-600 hover:text-white dark:hover:text-gray-900 text-xl"
                   >
                     ⋮
                   </button>
@@ -111,21 +114,19 @@ const ChatbotManagement = () => {
                   <AnimatePresence>
                     {openMenuId === bot._id && (
                       <motion.div
-                        ref={(el) =>
-                          (menuRefs.current[bot._id] = el)
-                        }
+                        ref={(el) => (menuRefs.current[bot._id] = el)}
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: 10 }}
                         transition={{ duration: 0.15 }}
-                        className="absolute right-0 top-full mt-2 bg-neutral-700 border border-gray-600 rounded-lg shadow-lg z-50 min-w-[160px]"
+                        className="absolute right-0 top-full mt-2 bg-neutral-700 dark:bg-white border border-gray-600 dark:border-gray-200 rounded-lg shadow-lg z-50 min-w-[160px]"
                       >
                         <button
                           onClick={() => {
                             deleteChatbot(bot._id);
                             setOpenMenuId(null);
                           }}
-                          className="w-full text-left px-4 py-2 hover:bg-neutral-600 rounded-lg text-red-400"
+                          className="w-full text-left px-4 py-2 hover:bg-neutral-600 dark:hover:bg-gray-100 rounded-lg text-red-400 dark:text-red-600"
                         >
                           Delete Chatbot
                         </button>

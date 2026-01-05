@@ -7,7 +7,7 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from "recharts";
-import { API_URL } from '../../api/api';
+import { API_URL } from "../../api/api";
 
 const AdminDashboard = () => {
   const [stats, setStats] = useState(null);
@@ -34,21 +34,26 @@ const AdminDashboard = () => {
   }, []);
 
   if (error)
-    return <p className="text-red-400">Failed to load dashboard data</p>;
+    return (
+      <p className="text-red-400 dark:text-red-600">
+        Failed to load dashboard data
+      </p>
+    );
 
   if (!stats)
-    return <p className="text-white">Loading dashboard...</p>;
+    return (
+      <p className="text-white dark:text-gray-900">Loading dashboard...</p>
+    );
 
-  const hasSignupData =
-    stats.dailySignups?.some((d) => d.count > 0);
+  const hasSignupData = stats.dailySignups?.some((d) => d.count > 0);
 
-  const hasChatbotActivity =
-    stats.dailyChatbots?.some((d) => d.count > 0);
-  const hasTransactionActivity =
-    stats.dailyTransactions?.some((d) => d.count > 0);
+  const hasChatbotActivity = stats.dailyChatbots?.some((d) => d.count > 0);
+  const hasTransactionActivity = stats.dailyTransactions?.some(
+    (d) => d.count > 0
+  );
 
   return (
-    <div className="text-white">
+    <div className="text-white dark:text-gray-900">
       <h1 className="text-3xl font-bold mb-8">Admin Dashboard</h1>
 
       {/* ================= KPIs ================= */}
@@ -56,11 +61,7 @@ const AdminDashboard = () => {
         <StatCard label="Total Users" value={stats.totalUsers} />
         <StatCard label="Admin Accounts" value={stats.totalAdmins} />
         <StatCard label="Total Chatbots" value={stats.totalChatbots} />
-        <StatCard
-          label="Total Transactions"
-          value={stats.totalTransactions}
-        />
-
+        <StatCard label="Total Transactions" value={stats.totalTransactions} />
       </div>
 
       {/* ================= USER SIGNUPS ================= */}
@@ -128,7 +129,6 @@ const AdminDashboard = () => {
           <Placeholder message="No transactions yet" />
         )}
       </Section>
-
     </div>
   );
 };
@@ -138,15 +138,16 @@ export default AdminDashboard;
 /* ======================= COMPONENTS ======================= */
 
 const StatCard = ({ label, value, positive }) => (
-  <div className="bg-neutral-800 p-6 rounded-xl border border-gray-700">
-    <p className="text-gray-400 text-sm mb-1">{label}</p>
+  <div className="bg-neutral-800 dark:bg-white p-6 rounded-xl border border-gray-700 dark:border-gray-200 shadow-sm">
+    <p className="text-gray-400 dark:text-gray-600 text-sm mb-1">{label}</p>
     <p
-      className={`text-4xl font-bold ${positive === undefined
-        ? "text-white"
-        : positive
-          ? "text-green-400"
-          : "text-red-400"
-        }`}
+      className={`text-4xl font-bold ${
+        positive === undefined
+          ? "text-white dark:text-gray-900"
+          : positive
+          ? "text-green-400 dark:text-green-600"
+          : "text-red-400 dark:text-red-600"
+      }`}
     >
       {value ?? 0}
     </p>
@@ -154,14 +155,16 @@ const StatCard = ({ label, value, positive }) => (
 );
 
 const Section = ({ title, children }) => (
-  <div className="bg-neutral-800 p-6 rounded-xl border border-gray-700 mb-12">
-    <h2 className="text-xl font-semibold mb-4">{title}</h2>
+  <div className="bg-neutral-800 dark:bg-white p-6 rounded-xl border border-gray-700 dark:border-gray-200 mb-12 shadow-sm">
+    <h2 className="text-xl font-semibold mb-4 text-white dark:text-gray-900">
+      {title}
+    </h2>
     {children}
   </div>
 );
 
 const Placeholder = ({ message }) => (
-  <div className="py-12 text-center text-gray-400 text-lg">
+  <div className="py-12 text-center text-gray-400 dark:text-gray-600 text-lg">
     {message}
   </div>
 );
