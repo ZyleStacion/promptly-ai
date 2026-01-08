@@ -35,15 +35,15 @@ const IntegrationDemo = () => {
             </h2>
             <div className="bg-gray-900 rounded p-4 overflow-x-auto text-sm">
               <pre className="text-gray-300">
-{`<!-- Add to your HTML file -->
-<div data-promptly-chatbot-id="YOUR_CHATBOT_ID"></div>
-<script>
-  window.PROMPTLY_API_URL = 
-    'http://localhost:3000';
-</script>
-<script src=
-  "http://localhost:5173/promptly-widget.js">
-</script>`}
+              {`<!-- Add to your HTML file -->
+              <div data-promptly-chatbot-id="YOUR_CHATBOT_ID"></div>
+              <script>
+                window.PROMPTLY_API_URL = 
+                  'http://13.216.200.51:5000';
+              </script>
+              <script src=
+                "http://52.21.46.81/promptly-widget.js">
+              </script>`}
               </pre>
             </div>
             <p className="text-gray-400 text-xs mt-3">

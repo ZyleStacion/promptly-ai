@@ -57,7 +57,7 @@ const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log("=======================================");
   console.log("🚀 Promptly AI Backend Server Started!");
-  console.log(`🌐 URL: http://localhost:${PORT}`);
+  console.log(`🌐 URL: http://13.216.200.51:5000`);
   console.log(`📦 ENV: ${process.env.NODE_ENV || "development"}`);
   console.log("=======================================");
 });

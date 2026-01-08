@@ -13,7 +13,7 @@ async function getChatbotId() {
     
     if (chatbots.length === 0) {
       console.log('❌ No chatbots found in database.');
-      console.log('Please create a chatbot first through the dashboard at http://localhost:5173');
+      console.log('Please create a chatbot first through the dashboard at http://13.216.200.51.nip.io:5000');
     } else {
       console.log('\n📋 Available Chatbots:\n');
       chatbots.forEach((bot, i) => {

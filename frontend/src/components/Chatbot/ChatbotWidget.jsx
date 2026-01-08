@@ -17,7 +17,7 @@ import { API_URL } from '../../api/api';
 const ChatbotWidget = ({ 
   chatbotId = '6957fd16615a6c30d9d3238f',
   apiUrl = API_URL,
-  widgetScript = 'http://localhost:5173/promptly-widget.js'
+  widgetScript = 'http://52.21.46.81//promptly-widget.js'
 }) => {
   const containerRef = useRef(null);
 
