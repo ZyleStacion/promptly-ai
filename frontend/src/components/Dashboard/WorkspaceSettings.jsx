@@ -2,9 +2,9 @@ import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { Copy } from "lucide-react";
+import { API_URL } from '../../api/api';
 
 const WorkspaceSettings = () => {
-  const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:3000";
   const user = JSON.parse(localStorage.getItem("user") || "{}");
   const isAdmin = user?.isAdmin === true;
 
@@ -76,7 +76,7 @@ const WorkspaceSettings = () => {
     const loadModels = async () => {
       try {
         setLoadingModels(true);
-        const res = await fetch(`${apiUrl}/chat/models`);
+        const res = await fetch(`${API_URL}/chat/models`);
         const data = await res.json();
         if (data.success && data.models) {
           setAvailableModels(data.models);

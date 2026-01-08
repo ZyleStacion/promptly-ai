@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
+import { API_URL } from '../../api/api';
 
 const CHATBOT_LIMITS = {
   Basic: 1,
@@ -14,7 +15,7 @@ const UsageSection = ({ chatbots = [], user }) => {
   useEffect(() => {
     const loadUsage = async () => {
       try {
-        const res = await fetch("http://localhost:3000/usage/me", {
+        const res = await fetch(`${API_URL}/usage/me`, {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`,
           },

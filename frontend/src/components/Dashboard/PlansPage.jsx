@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import CheckoutButton from '../Payment/CheckoutButton';
 import UnsubscribeButton from '../Payment/UnsubscribeButton';
+import { API_URL } from '../../api/api';
 
 const BillingPage = ({ userId }) => {
   const navigate = useNavigate();
@@ -22,7 +23,6 @@ const BillingPage = ({ userId }) => {
       try {
         const token = localStorage.getItem('token');
         if (!token) return;
-        const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
         const res = await fetch(`${API_URL}/user/me`, {
           headers: { Authorization: `Bearer ${token}` },
         });

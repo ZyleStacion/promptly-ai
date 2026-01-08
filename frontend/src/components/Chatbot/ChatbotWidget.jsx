@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react';
+import { API_URL } from '../../api/api';
 
 /**
  * ChatbotWidget Component
@@ -15,7 +16,7 @@ import { useEffect, useRef } from 'react';
  */
 const ChatbotWidget = ({ 
   chatbotId = '6957fd16615a6c30d9d3238f',
-  apiUrl = 'http://localhost:3000',
+  apiUrl = API_URL,
   widgetScript = 'http://localhost:5173/promptly-widget.js'
 }) => {
   const containerRef = useRef(null);
