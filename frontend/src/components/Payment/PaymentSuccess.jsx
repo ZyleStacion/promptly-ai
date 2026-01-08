@@ -13,7 +13,7 @@ const PaymentSuccess = () => {
         if (sessionId) {
           const token = localStorage.getItem("token");
 
-          await fetch("/payment/finalize", {
+          await fetch(`${import.meta.env.VITE_API_URL}/payment/finalize`, {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
