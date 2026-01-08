@@ -82,7 +82,7 @@ export const forgotPassword = async (req, res) => {
     await user.save();
 
     // Use .env frontend url
-    const resetLink = `http://localhost:5173/reset-password/${token}`;
+    const resetLink = `${process.env.FRONTEND_URL}/reset-password/${token}`;
 
     const transporter = nodemailer.createTransport({
       service: "gmail",
