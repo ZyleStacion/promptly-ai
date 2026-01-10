@@ -295,7 +295,7 @@ const ModelsSection = ({
                   {`<!-- Promptly Chatbot Widget -->
 <div data-promptly-chatbot-id="${showEmbedCode}"></div>
 <script>
-  globalThis.PROMPTLY_API_URL = '${globalThis.location.protocol}//${globalThis.location.hostname}:5000';
+  globalThis.PROMPTLY_API_URL = 'http://13.216.200.51.nip.io:5000';
   // Adjust :3000 to your backend port if different
 </script>
 <script src="${globalThis.location.protocol}//${globalThis.location.hostname}:5173/promptly-widget.js"></script>`}
