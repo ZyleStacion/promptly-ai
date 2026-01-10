@@ -981,7 +981,10 @@ const Dashboard = () => {
                 modelName: selectedModel,
                 systemPrompt: systemPromptStr,
                 primaryColor,
-                profilePicture: profileDeleted ? null : profilePreview || null,
+                // Send File when newly uploaded; send empty string to delete; otherwise omit (keep existing)
+                profilePicture: profileDeleted
+                  ? ""
+                  : (profilePicture instanceof File ? profilePicture : undefined),
                 trainingData: editingTrainingData,
               };
               const response = await api.updateChatbot(
