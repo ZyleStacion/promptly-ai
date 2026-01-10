@@ -59,6 +59,31 @@ const ModelsSection = ({
     }
   };
 
+  // safe clipboard copy: prefer Clipboard API, fallback to execCommand
+  async function copyToClipboard(text) {
+    try {
+      if (navigator && navigator.clipboard && navigator.clipboard.writeText) {
+        return await navigator.clipboard.writeText(text);
+      }
+    } catch (e) {
+      // fall through to legacy fallback
+    }
+
+    const ta = document.createElement("textarea");
+    ta.value = text;
+    ta.setAttribute("readonly", "");
+    ta.style.position = "absolute";
+    ta.style.left = "-9999px";
+    document.body.appendChild(ta);
+    ta.select();
+    try {
+      const ok = document.execCommand("copy");
+      if (!ok) throw new Error("execCommand failed");
+    } finally {
+      document.body.removeChild(ta);
+    }
+  }
+
   return (
     <div>
       <motion.div
@@ -303,10 +328,15 @@ const ModelsSection = ({
               </div>
               <div className="flex gap-3">
                 <button
-                  onClick={() => {
+                  onClick={async () => {
                     const code = `<!-- Promptly Chatbot Widget -->\n<div data-promptly-chatbot-id="${showEmbedCode}"></div>\n<script>\n  globalThis.PROMPTLY_API_URL = '${globalThis.location.protocol}//${globalThis.location.hostname}:3000';\n  // Adjust :3000 to your backend port if different\n</script>\n<script src="${globalThis.location.protocol}//${globalThis.location.hostname}:5173/promptly-widget.js"></script>`;
-                    navigator.clipboard.writeText(code);
-                    alert("Embed code copied to clipboard!");
+                    try {
+                      await copyToClipboard(code);
+                      alert("Embed code copied to clipboard!");
+                    } catch (err) {
+                      console.error('Copy failed:', err);
+                      alert("Copy failed — please copy the code manually.");
+                    }
                   }}
                   className="flex-1 px-4 py-2 bg-gradient-to-r from-blue-600 to-violet-600 rounded-lg hover:opacity-90 transition flex items-center gap-2"
                 >
