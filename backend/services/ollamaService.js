@@ -2,7 +2,7 @@ import axios from 'axios';
 
 // Use your EC2 public IP and port 11434
 const ollamaApi = axios.create({
-  baseURL: process.env.OLLAMA_API_URL, // e.g., http://<EC2_PUBLIC_IP>:11434
+  baseURL: 'http://52.54.14.252:11434', // e.g., http://<EC2_PUBLIC_IP>:11434
   timeout: 30000, // 30 seconds
 });
 
