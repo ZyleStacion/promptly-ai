@@ -5,6 +5,8 @@ import { useNavigate, Link } from "react-router-dom";
 import { registerUser } from "../../api/auth";
 import { API_URL } from '../../api/api';
 
+const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID || "582169665986-bp69kpn7rpl0bd78u1s3k7g5l150ea30.apps.googleusercontent.com";
+
 const SignUp = () => {
   const [formData, setFormData] = useState({
     fullName: "",
@@ -24,10 +26,13 @@ const SignUp = () => {
 
   // ---------------- GOOGLE SIGNUP ----------------
   useEffect(() => {
-    if (!window.google) return;
+    if (!window.google || !GOOGLE_CLIENT_ID) {
+      console.error("Google client ID missing; cannot initialize Google signup.");
+      return;
+    }
 
     window.google.accounts.id.initialize({
-      client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID,
+      client_id: GOOGLE_CLIENT_ID,
       callback: async (response) => {
         const res = await fetch(`${API_URL}/auth/google`, {
           method: "POST",
