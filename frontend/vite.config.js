@@ -8,7 +8,7 @@ export default defineConfig({
     port: 5173,
     proxy: {
       '/payment': {
-        target: 'http://localhost:3000',
+        target: 'http://13.216.200.51.nip.io:5000',
         changeOrigin: true,
         secure: false,
       },

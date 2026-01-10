@@ -4,7 +4,7 @@ const { useState, createElement: h } = React;
 const ReactDOM = window.ReactDOM;
 
 // API Configuration - your backend server
-const DEFAULT_API_URL = "http://localhost:3000/chat/public";
+const DEFAULT_API_URL = "http://13.216.200.51.nip.io:5000/chat/public";
 
 const Chat = ({ apiUrl }) => {
   const [messages, setMessages] = useState([]);

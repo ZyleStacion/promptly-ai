@@ -4,7 +4,7 @@
 (function () {
   "use strict";
 
-  const API_BASE = globalThis.PROMPTLY_API_URL || "http://localhost:3000";
+  const API_BASE = globalThis.PROMPTLY_API_URL || "http://13.216.200.51.nip.io:5000";
 
   // Widget styles
   const styles = `

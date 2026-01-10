@@ -19,11 +19,11 @@
     <div class="container">
       <header>
         <h1>Promptly Chat Widget Demo</h1>
-        <p>This page mounts the embeddable chatbot via a data attribute. Make sure your backend runs on http://localhost:3000.</p>
+        <p>This page mounts the embeddable chatbot via a data attribute. Make sure your backend runs on http://13.216.200.51.nip.io:5000.</p>
       </header>
 
       <!-- Auto-mount widget -->
-      <div data-chat data-api-url="http://localhost:3000/chat/public"></div>
+      <div data-chat data-api-url="http://13.216.200.51.nip.io:5000/chat/public"></div>
 
       <hr />
 
@@ -33,7 +33,7 @@
         window.addEventListener('DOMContentLoaded', () => {
           const el = document.getElementById('manual');
           if (window.PromptlyChatWidget) {
-            window.PromptlyChatWidget.render(el, { apiUrl: 'http://localhost:3000/chat/public' });
+            window.PromptlyChatWidget.render(el, { apiUrl: 'http://13.216.200.51.nip.io:5000/chat/public' });
           }
         });
       </script>

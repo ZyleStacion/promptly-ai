@@ -2,7 +2,7 @@ import axios from 'axios';
 import Chatbot from '../models/chatbot.js';
 import mongoose from 'mongoose';
 
-const OLLAMA_BASE = process.env.OLLAMA_API_URL || 'http://localhost:11434';
+const OLLAMA_BASE = process.env.OLLAMA_API_URL || 'http://52.54.14.252:11434';
 const OLLAMA_MODEL = process.env.OLLAMA_MODEL || 'gemma3:1b-it-qat';
 
 async function publicChat(req, res) {

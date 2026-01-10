@@ -1011,7 +1011,7 @@ const Dashboard = () => {
         <ChatInterface
           chatbot={selectedChatbot}
           onClose={handleCloseChatInterface}
-          apiUrl={import.meta.env.VITE_API_URL || "http://localhost:3000"}
+          apiUrl={import.meta.env.VITE_API_URL || "http://13.216.200.51.nip.io:5000"}
         />
       )}
       <UpgradeModal
