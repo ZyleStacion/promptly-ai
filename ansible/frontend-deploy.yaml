@@ -11,6 +11,7 @@
         name: zylede/promptly-frontend
         tag: latest
         source: pull
+        force_source: true
 
     - name: Ensure frontend env file exists (Jenkins will create this)
       file:
