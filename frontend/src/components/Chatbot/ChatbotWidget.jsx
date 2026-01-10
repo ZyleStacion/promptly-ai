@@ -11,17 +11,22 @@ import { API_URL } from '../../api/api';
  * 
  * Props:
  * - chatbotId: string (required) - The ID of your chatbot
- * - apiUrl: string (optional) - Backend API URL (default: http://localhost:3000)
- * - widgetScript: string (optional) - Widget script URL (default: http://localhost:5173/promptly-widget.js)
+ * - apiUrl: string (optional) - Backend API URL (default comes from env)
+ * - widgetScript: string (optional) - Widget script URL (default: production CDN)
  */
 const ChatbotWidget = ({ 
-  chatbotId = '6957fd16615a6c30d9d3238f',
+  chatbotId,
   apiUrl = API_URL,
-  widgetScript = 'http://52.21.46.81/promptly-widget.js'
+  widgetScript = 'http://52.21.46.81.nip.io/promptly-widget.js'
 }) => {
   const containerRef = useRef(null);
 
   useEffect(() => {
+    if (!chatbotId) {
+      console.error('❌ ChatbotWidget: chatbotId is required');
+      return;
+    }
+
     // Set global API URL
     window.PROMPTLY_API_URL = apiUrl;
 
