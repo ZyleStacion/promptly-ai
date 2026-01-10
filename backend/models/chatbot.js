@@ -12,7 +12,10 @@ const ChatbotSchema = new mongoose.Schema({
 
   // Customization
   primaryColor: { type: String, default: "#3B82F6" },
-  profilePicture: { type: String, default: null },
+  profilePicture: {
+    data: { type: String, default: null }, // Base64 encoded image
+    mimeType: { type: String, default: null } // image/jpeg, image/png, etc.
+  },
   status: { type: String, enum: ["active", "inactive"], default: "active" },
 
   // AI Configuration

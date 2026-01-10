@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { FileText, Edit3, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import TextSnippetModal from "./TextSnippetModal";
-import { getImageUrl } from "../../api/api";
+import { getImageUrl, API_URL } from "../../api/api";
 
 const EditChatbotModal = ({
   isOpen,
@@ -136,7 +136,13 @@ const EditChatbotModal = ({
                     <div className="w-16 h-16 rounded-full bg-neutral-700 border border-gray-600 overflow-hidden flex items-center justify-center">
                       {profilePreview ? (
                         <img
-                          src={profilePreview.startsWith('blob:') ? profilePreview : getImageUrl(profilePreview)}
+                          src={
+                            profilePreview.startsWith('blob:')
+                              ? profilePreview
+                              : profilePreview.startsWith('data:')
+                              ? `${API_URL}/chat/picture/${profilePreview.split(':')[1]}`
+                              : profilePreview
+                          }
                           alt="Preview"
                           className="w-full h-full object-cover"
                         />

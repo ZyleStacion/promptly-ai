@@ -299,7 +299,7 @@
             <div class="promptly-chat-avatar" style="background: rgba(255,255,255,0.2); overflow: hidden;">
               ${
                 this.chatbot?.profilePicture
-                  ? `<img src="${this.chatbot.profilePicture}" alt="${this.chatbot.name}" style="width: 100%; height: 100%; object-fit: cover;">`
+                  ? `<img src="${API_BASE}/chat/picture/${this.chatbotId}" alt="${this.chatbot.name}" style="width: 100%; height: 100%; object-fit: cover;">`
                   : this.chatbot?.name?.charAt(0) || "🤖"
               }
             </div>

@@ -9,11 +9,14 @@ export function getImageUrl(imagePath) {
     return imagePath;
   }
   
-  // If it starts with /uploads/, prepend the API URL
-  if (imagePath.startsWith('/uploads/')) {
+  // For MongoDB stored images (profilePicture with data & mimeType)
+  // Don't prepend URL - use as-is since it's now stored in MongoDB
+  // The image will be served via /chat/picture/:chatbotId endpoint
+  if (imagePath === '/uploads/' || imagePath?.includes('/uploads/')) {
+    // Legacy support for old /uploads/ path (if migrating from filesystem)
     return `${API_URL}${imagePath}`;
   }
   
-  // Otherwise, assume it needs /uploads/ prefix
-  return `${API_URL}/uploads/${imagePath}`;
+  // Otherwise return as-is
+  return imagePath;
 }

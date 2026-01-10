@@ -1,4 +1,5 @@
 import Chatbot from "../models/chatbot.js";
+import { fileToBase64 } from "../middleware/upload.js";
 
 // CREATE CHATBOT
 export const createChatbot = async (req, res) => {
@@ -37,10 +38,10 @@ export const createChatbot = async (req, res) => {
       return res.status(400).json({ error: "Chatbot name is required" });
     }
 
-    // Handle profile picture upload
+    // Handle profile picture upload - store in MongoDB as base64
     let profilePicture = null;
     if (req.file) {
-      profilePicture = `/uploads/${req.file.filename}`;
+      profilePicture = fileToBase64(req.file);
     }
 
     const chatbot = await Chatbot.create({
@@ -140,9 +141,9 @@ export const updateChatbot = async (req, res) => {
       return res.status(404).json({ error: "Chatbot not found" });
     }
 
-    // Handle profile picture upload
+    // Handle profile picture upload - store in MongoDB as base64
     if (req.file) {
-      updates.profilePicture = `/uploads/${req.file.filename}`;
+      updates.profilePicture = fileToBase64(req.file);
     } else if (updates.profilePicture === "") {
       // Empty string means delete the profile picture
       updates.profilePicture = null;

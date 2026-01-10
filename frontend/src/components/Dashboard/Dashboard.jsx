@@ -407,7 +407,8 @@ const Dashboard = () => {
     setDescription(chatbot.description || "");
     setWelcomeMessage(chatbot.welcomeMessage || "");
     setPrimaryColor(chatbot.primaryColor || "#3B82F6");
-    setProfilePreview(chatbot.profilePicture || "");
+    // For profile picture from MongoDB, store the chatbot ID for preview
+    setProfilePreview(chatbot.profilePicture ? `data:${chatbot._id}` : "");
     setProfilePicture(null); // Reset to null - will be set if user uploads new one
     setProfileDeleted(false);
     setChatbotType(chatbot.chatbotType || "general");
@@ -772,7 +773,13 @@ const Dashboard = () => {
                         <div className="w-16 h-16 rounded-full bg-neutral-700 dark:bg-gray-100 border border-gray-600 dark:border-gray-300 overflow-hidden flex items-center justify-center">
                           {profilePreview ? (
                             <img
-                              src={profilePreview}
+                              src={
+                                profilePreview.startsWith('blob:')
+                                  ? profilePreview
+                                  : profilePreview.startsWith('data:')
+                                  ? `${API_URL}/chat/picture/${profilePreview.split(':')[1]}`
+                                  : profilePreview
+                              }
                               alt="Preview"
                               className="w-full h-full object-cover"
                             />

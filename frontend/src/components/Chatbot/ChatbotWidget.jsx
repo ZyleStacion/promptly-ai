@@ -4,15 +4,23 @@ import { API_URL } from '../../api/api';
 /**
  * ChatbotWidget Component
  * 
- * Reusable component to embed Promptly chatbot in React applications
+ * Reusable component to embed Promptly chatbot in React applications.
+ * The widget will fetch chatbot config (including profile picture) from the backend
+ * and display it in an embedded chat interface.
  * 
  * Usage:
  * <ChatbotWidget chatbotId="YOUR_CHATBOT_ID" />
  * 
  * Props:
  * - chatbotId: string (required) - The ID of your chatbot
- * - apiUrl: string (optional) - Backend API URL (default comes from env)
+ * - apiUrl: string (optional) - Backend API URL (default: from env VITE_API_URL)
  * - widgetScript: string (optional) - Widget script URL (default: production CDN)
+ * 
+ * Features:
+ * - Profile pictures stored in MongoDB (served via /chat/picture/:id)
+ * - Automatic widget initialization
+ * - Proper error handling and logging
+ * - Multiple widget support on same page
  */
 const ChatbotWidget = ({ 
   chatbotId,
