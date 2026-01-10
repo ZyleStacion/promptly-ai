@@ -14,7 +14,7 @@ async function sendMessage(model, prompt) {
     });
     return response.data.response; // Ollama returns JSON { response: "..." }
   } catch (err) {
-    console.error('Ollama API error:', err.message);
+    console.error('Ollama API error:', err.message, 'status:', err.response?.status, 'body:', err.response?.data);
     throw err;
   }
 }
