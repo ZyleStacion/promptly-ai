@@ -1,4 +1,4 @@
-export const API_URL = import.meta.env.VITE_API_URL;
+export const API_URL = import.meta.env.VITE_API_URL || 'http://13.216.200.51.nip.io:5000';
 
 // Helper function to get full image URL
 export function getImageUrl(imagePath) {

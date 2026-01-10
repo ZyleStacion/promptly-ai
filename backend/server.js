@@ -60,12 +60,13 @@ app.get("/", (req, res) => {
 });
 
 // Server Listener
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log("=======================================");
   console.log("🚀 Promptly AI Backend Server Started!");
-  console.log(`🌐 URL: http://13.216.200.51:5000`);
-  console.log(`🚀 Ollama AI Server Running at ${process.env.OLLAMA_API_URL}`);
-  console.log(`📦 ENV: ${process.env.NODE_ENV || "development"}`);
+  console.log(`🌐 Backend URL: http://13.216.200.51.nip.io:${PORT}`);
+  console.log(`🎨 Frontend URL: ${process.env.FRONTEND_URL || 'http://52.21.46.81.nip.io'}`);
+  console.log(`🤖 Ollama Server: ${process.env.OLLAMA_API_URL || 'http://52.54.14.252:11434'}`);
+  console.log(`📦 Environment: ${process.env.NODE_ENV || "development"}`);
   console.log("=======================================");
 });
