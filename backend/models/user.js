@@ -9,9 +9,9 @@ const UserSchema = new mongoose.Schema({
   resetTokenExpire: { type: Date },
 
   profileImage: {
-    type: String,
-    default: "/uploads/default-avatar.png"
-},
+    data: { type: String, default: null }, // Base64 encoded image
+    mimeType: { type: String, default: null } // image/jpeg, image/png, etc.
+  },
   
   isAdmin: { type: Boolean, default: false },   
   createdAt: { type: Date, default: Date.now },

@@ -7,9 +7,13 @@ import {
   updateUserInfo,
   changePassword,
   deleteAccount,
+  getUserProfileImage,
 } from "../controllers/userController.js";
 
 const router = express.Router();
+
+// Public route for profile images
+router.get("/picture/:id", getUserProfileImage);
 
 // Normal user routes
 router.get("/me", auth, getUser);

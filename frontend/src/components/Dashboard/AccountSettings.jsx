@@ -98,8 +98,9 @@ const AccountSettings = () => {
         setPhone(u.phone || "");
         setBusinessName(u.businessName || "");
 
-        // existing db image
-        const fullImg = u.profileImage ? `${API_URL}/${u.profileImage}` : "";
+        // Check if user has profile image in new MongoDB format
+        const hasImage = u.profileImage && typeof u.profileImage === 'object' && u.profileImage.data;
+        const fullImg = hasImage ? `${API_URL}/user/picture/${u._id}` : "";
 
         setProfileImage(fullImg);
         setPreviewImage(fullImg);
@@ -179,13 +180,9 @@ const AccountSettings = () => {
       setMessage(data.message);
 
       if (data.user) {
-        const img = data.user.profileImage
-          ? (typeof data.user.profileImage === 'string' && data.user.profileImage.startsWith('http')
-              ? data.user.profileImage
-              : API_URL
-                ? `${API_URL}${data.user.profileImage}`
-                : data.user.profileImage)
-          : "";
+        // Check if user has profile image in new MongoDB format
+        const hasImage = data.user.profileImage && typeof data.user.profileImage === 'object' && data.user.profileImage.data;
+        const img = hasImage ? `${API_URL}/user/picture/${data.user._id}` : "";
 
         setUser(data.user);
         setPreviewImage(img); // update live image

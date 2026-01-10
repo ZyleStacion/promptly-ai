@@ -62,10 +62,10 @@ const DashboardNavbar = ({ onFeedbackClick, onMenuClick }) => {
 
   const profileSrc = (() => {
     try {
-      if (!user || !user.profileImage) return null;
-      if (String(user.profileImage).startsWith("http"))
-        return user.profileImage;
-      return `${API_URL}${user.profileImage}`;
+      if (!user) return null;
+      // Check if user has profile image in new MongoDB format
+      const hasImage = user.profileImage && typeof user.profileImage === 'object' && user.profileImage.data;
+      return hasImage ? `${API_URL}/user/picture/${user._id}` : null;
     } catch (e) {
       return null;
     }
