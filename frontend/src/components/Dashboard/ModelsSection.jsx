@@ -8,7 +8,7 @@ import {
   Trash2,
   Copy,
 } from "lucide-react";
-import { getImageUrl } from "../../api/api";
+import { API_URL } from "../../api/api";
 
 const ModelsSection = ({
   loading,
@@ -161,9 +161,9 @@ const ModelsSection = ({
                     )}, ${withAlpha(bot.primaryColor || "#3B82F6", 0.6)})`,
                   }}
                 >
-                  {bot.profilePicture ? (
+                  {bot.profilePicture && bot.profilePicture.data ? (
                     <img
-                      src={getImageUrl(bot.profilePicture)}
+                      src={`${API_URL}/chat/picture/${bot._id}`}
                       alt={bot.name}
                       className="w-full h-full object-cover"
                     />
