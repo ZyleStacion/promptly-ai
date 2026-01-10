@@ -145,6 +145,10 @@ const EditChatbotModal = ({
                           }
                           alt="Preview"
                           className="w-full h-full object-cover"
+                          onError={(e) => {
+                            e.target.style.display = 'none';
+                            e.target.parentElement.innerHTML = '<span class="text-gray-500 text-xs">No image</span>';
+                          }}
                         />
                       ) : (
                         <span className="text-gray-500 text-xs">No image</span>

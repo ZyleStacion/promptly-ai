@@ -408,7 +408,7 @@ const Dashboard = () => {
     setWelcomeMessage(chatbot.welcomeMessage || "");
     setPrimaryColor(chatbot.primaryColor || "#3B82F6");
     // For profile picture from MongoDB, store the chatbot ID for preview
-    setProfilePreview(chatbot.profilePicture ? `data:${chatbot._id}` : "");
+    setProfilePreview(chatbot.profilePicture && typeof chatbot.profilePicture === 'object' && chatbot.profilePicture.data ? `data:${chatbot._id}` : "");
     setProfilePicture(null); // Reset to null - will be set if user uploads new one
     setProfileDeleted(false);
     setChatbotType(chatbot.chatbotType || "general");
@@ -782,6 +782,10 @@ const Dashboard = () => {
                               }
                               alt="Preview"
                               className="w-full h-full object-cover"
+                              onError={(e) => {
+                                e.target.style.display = 'none';
+                                e.target.parentElement.innerHTML = '<span class="text-gray-500 dark:text-gray-400 text-xs">No image</span>';
+                              }}
                             />
                           ) : (
                             <span className="text-gray-500 dark:text-gray-400 text-xs">
@@ -819,6 +823,11 @@ const Dashboard = () => {
                             src={profilePreview}
                             alt="Chatbot"
                             className="w-full h-full rounded-full object-cover"
+                            onError={(e) => {
+                              e.target.style.display = 'none';
+                              const initial = chatbotName ? chatbotName.charAt(0).toUpperCase() : '?';
+                              e.target.parentElement.innerHTML = `<span class="text-white text-xl font-bold">${initial}</span>`;
+                            }}
                           />
                         ) : (
                           <span className="text-white">

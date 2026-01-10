@@ -153,11 +153,15 @@ const ChatInterface = ({ chatbot, onClose, apiUrl }) => {
                 className="w-12 h-12 rounded-full flex items-center justify-center text-xl font-bold text-white"
                 style={{ backgroundColor: chatbot.primaryColor }}
               >
-                {chatbot.profilePicture ? (
+                {chatbot.profilePicture && typeof chatbot.profilePicture === 'object' && chatbot.profilePicture.data ? (
                   <img
                     src={`${API_URL}/chat/picture/${chatbot._id}`}
                     alt={chatbot.name}
                     className="w-full h-full rounded-full object-cover"
+                    onError={(e) => {
+                      e.target.style.display = 'none';
+                      e.target.parentElement.innerHTML = `<span class="text-xl font-bold text-white">${chatbot.name.charAt(0).toUpperCase()}</span>`;
+                    }}
                   />
                 ) : (
                   <span>{chatbot.name.charAt(0).toUpperCase()}</span>
@@ -205,11 +209,15 @@ const ChatInterface = ({ chatbot, onClose, apiUrl }) => {
                         className="w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold text-white overflow-hidden"
                         style={{ backgroundColor: chatbot.primaryColor }}
                       >
-                        {chatbot.profilePicture ? (
+                        {chatbot.profilePicture && typeof chatbot.profilePicture === 'object' && chatbot.profilePicture.data ? (
                           <img
                             src={`${API_URL}/chat/picture/${chatbot._id}`}
                             alt={chatbot.name}
                             className="w-full h-full object-cover"
+                            onError={(e) => {
+                              e.target.style.display = 'none';
+                              e.target.parentElement.innerHTML = `<span class="text-xs font-bold text-white">${chatbot.name.charAt(0).toUpperCase()}</span>`;
+                            }}
                           />
                         ) : (
                           chatbot.name.charAt(0).toUpperCase()

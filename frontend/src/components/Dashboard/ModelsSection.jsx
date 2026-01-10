@@ -161,11 +161,15 @@ const ModelsSection = ({
                     )}, ${withAlpha(bot.primaryColor || "#3B82F6", 0.6)})`,
                   }}
                 >
-                  {bot.profilePicture && bot.profilePicture.data ? (
+                  {bot.profilePicture && typeof bot.profilePicture === 'object' && bot.profilePicture.data ? (
                     <img
                       src={`${API_URL}/chat/picture/${bot._id}`}
                       alt={bot.name}
                       className="w-full h-full object-cover"
+                      onError={(e) => {
+                        e.target.style.display = 'none';
+                        e.target.parentElement.innerHTML = `<span class="text-4xl font-bold text-white">${bot.name.charAt(0)}</span>`;
+                      }}
                     />
                   ) : (
                     <span className="text-4xl font-bold text-white">
