@@ -22,7 +22,14 @@ dotenv.config();
 const app = express();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-app.use(cors());
+
+// Configure CORS
+app.use(cors({
+  origin: [process.env.FRONTEND_URL, 'http://localhost:5173'],
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
 
 // Mount webhook route with raw body parser BEFORE the global json parser
 app.post('/payment/webhook', express.raw({ type: 'application/json' }), handleWebhook);
