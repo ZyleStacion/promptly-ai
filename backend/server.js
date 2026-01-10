@@ -28,7 +28,8 @@ const allowedOrigins = [
   'http://52.21.46.81.nip.io',
   'http://localhost:5173',
   'http://127.0.0.1:5173',
-  process.env.FRONTEND_URL
+  process.env.FRONTEND_URL,
+  'http://13.216.200.51:5000'
 ].filter(Boolean);
 
 app.use(cors({
