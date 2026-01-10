@@ -58,6 +58,7 @@ app.listen(PORT, () => {
   console.log("=======================================");
   console.log("🚀 Promptly AI Backend Server Started!");
   console.log(`🌐 URL: http://13.216.200.51:5000`);
+  console.log(`🚀 Ollama AI Server Running at ${process.env.OLLAMA_API_URL}`);
   console.log(`📦 ENV: ${process.env.NODE_ENV || "development"}`);
   console.log("=======================================");
 });
