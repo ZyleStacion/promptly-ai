@@ -1,8 +1,6 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
-import { Copy } from "lucide-react";
-import { API_URL } from '../../api/api';
 
 const WorkspaceSettings = () => {
   const user = JSON.parse(localStorage.getItem("user") || "{}");
@@ -23,110 +21,7 @@ const WorkspaceSettings = () => {
     },
   ].filter(Boolean);
 
-  const [availableModels, setAvailableModels] = useState([]);
-  const [loadingModels, setLoadingModels] = useState(false);
-
-  // Creation defaults
-  const [defaultModel, setDefaultModel] = useState("");
-  const [temperature, setTemperature] = useState(0.2);
-  const [maxTokens, setMaxTokens] = useState(1024);
-  const [streamingDefault, setStreamingDefault] = useState(true);
-  const [markdownDefault, setMarkdownDefault] = useState(true);
-
-  // Personality & prompts
-  const [personality, setPersonality] = useState("friendly");
-  const [systemPrompt, setSystemPrompt] = useState(
-    "You are a helpful assistant."
-  );
-  const [welcomeMessage, setWelcomeMessage] = useState(
-    "Hi! How can I help you today?"
-  );
-
-  // Training & indexing
-  const [maxFileSizeMB, setMaxFileSizeMB] = useState(5);
-  const [allowedTypes, setAllowedTypes] = useState(".txt,.md");
-  const [chunkSize, setChunkSize] = useState(800);
-  const [chunkOverlap, setChunkOverlap] = useState(200);
-
-  // Enabled models
-  const [enabledModels, setEnabledModels] = useState([]);
-
-  useEffect(() => {
-    const saved = JSON.parse(localStorage.getItem("workspaceSettings") || "{}");
-    if (saved.defaultModel) setDefaultModel(saved.defaultModel);
-    if (saved.temperature !== undefined) setTemperature(saved.temperature);
-    if (saved.maxTokens !== undefined) setMaxTokens(saved.maxTokens);
-    if (saved.streamingDefault !== undefined)
-      setStreamingDefault(saved.streamingDefault);
-    if (saved.markdownDefault !== undefined)
-      setMarkdownDefault(saved.markdownDefault);
-    if (saved.personality) setPersonality(saved.personality);
-    if (saved.systemPrompt) setSystemPrompt(saved.systemPrompt);
-    if (saved.welcomeMessage) setWelcomeMessage(saved.welcomeMessage);
-    if (saved.maxFileSizeMB !== undefined)
-      setMaxFileSizeMB(saved.maxFileSizeMB);
-    if (saved.allowedTypes) setAllowedTypes(saved.allowedTypes);
-    if (saved.chunkSize !== undefined) setChunkSize(saved.chunkSize);
-    if (saved.chunkOverlap !== undefined) setChunkOverlap(saved.chunkOverlap);
-    if (Array.isArray(saved.enabledModels))
-      setEnabledModels(saved.enabledModels);
-  }, []);
-
-  useEffect(() => {
-    const loadModels = async () => {
-      try {
-        setLoadingModels(true);
-        const res = await fetch(`${API_URL}/chat/models`);
-        const data = await res.json();
-        if (data.success && data.models) {
-          setAvailableModels(data.models);
-          if (!defaultModel && data.models.length > 0) {
-            setDefaultModel(data.models[0].name);
-          }
-          if (enabledModels.length === 0) {
-            setEnabledModels(data.models.map((m) => m.name));
-          }
-        }
-      } catch (e) {
-        console.error("Failed to load models:", e);
-      } finally {
-        setLoadingModels(false);
-      }
-    };
-    loadModels();
-  }, []);
-
-  const saveSettings = () => {
-    const payload = {
-      defaultModel,
-      temperature,
-      maxTokens,
-      streamingDefault,
-      markdownDefault,
-      personality,
-      systemPrompt,
-      welcomeMessage,
-      maxFileSizeMB,
-      allowedTypes,
-      chunkSize,
-      chunkOverlap,
-      enabledModels,
-    };
-    localStorage.setItem("workspaceSettings", JSON.stringify(payload));
-    alert("Workspace model creation settings saved.");
-  };
-
-  const exportSettings = () => {
-    const text = localStorage.getItem("workspaceSettings") || "{}";
-    navigator.clipboard.writeText(text);
-    alert("Settings JSON copied to clipboard.");
-  };
-
-  const toggleModel = (name) => {
-    setEnabledModels((prev) =>
-      prev.includes(name) ? prev.filter((n) => n !== name) : [...prev, name]
-    );
-  };
+  const MODEL_BLOCKLIST = ["gemma3:1b-it-qat", "gemma3:1b", "gemma3:4b"];
 
   return (
     <div>
