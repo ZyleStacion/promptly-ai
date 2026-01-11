@@ -1,6 +1,7 @@
 // controllers/userController.js
 import User from "../models/user.js";
 import bcrypt from "bcryptjs";
+import { fileToBase64 } from "../middleware/upload.js";
 
 // GET CURRENT USER
 export const getUser = async (req, res) => {
@@ -19,7 +20,7 @@ export const updateUserInfo = async (req, res) => {
     let profileImage = req.user.profileImage;
 
     if (req.file) {
-      profileImage = `/uploads/${req.file.filename}`;
+      profileImage = fileToBase64(req.file);
     }
 
     const updatedUser = await User.findByIdAndUpdate(
@@ -67,16 +68,38 @@ export const uploadProfileImage = async (req, res) => {
     if (!req.file)
       return res.status(400).json({ message: "No file uploaded" });
 
-    const imageUrl = `/uploads/${req.file.filename}`;
+    const profileImage = fileToBase64(req.file);
 
-    await User.findByIdAndUpdate(req.user._id, { profileImage: imageUrl });
+    await User.findByIdAndUpdate(req.user._id, { profileImage });
 
     return res.json({
       message: "Profile image uploaded",
-      profileImage: imageUrl,
+      success: true,
     });
 
   } catch (err) {
     return res.status(500).json({ error: err.message });
+  }
+};
+
+// GET USER PROFILE IMAGE (PUBLIC)
+export const getUserProfileImage = async (req, res) => {
+  try {
+    const { id } = req.params;
+    
+    const user = await User.findById(id).select('profileImage');
+    
+    if (!user || !user.profileImage || !user.profileImage.data) {
+      return res.status(404).json({ error: 'Profile image not found' });
+    }
+    
+    // Decode base64 and send image
+    const imageBuffer = Buffer.from(user.profileImage.data, 'base64');
+    res.set('Content-Type', user.profileImage.mimeType || 'image/png');
+    res.send(imageBuffer);
+    
+  } catch (err) {
+    console.error('Error serving user profile image:', err);
+    return res.status(500).json({ error: 'Server error' });
   }
 };

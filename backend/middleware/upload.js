@@ -7,16 +7,8 @@ import { fileURLToPath } from "url";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Storage configuration
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, "uploads/"); // Folder where images go
-  },
-  filename: function (req, file, cb) {
-    const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
-    cb(null, uniqueSuffix + path.extname(file.originalname));
-  },
-});
+// Use memory storage for MongoDB uploads (no disk writes)
+const storage = multer.memoryStorage();
 
 // Only accept images
 const fileFilter = (req, file, cb) => {
@@ -25,6 +17,21 @@ const fileFilter = (req, file, cb) => {
   else cb(new Error("Only JPG/PNG images allowed"), false);
 };
 
-const upload = multer({ storage, fileFilter });
+const upload = multer({ 
+  storage, 
+  fileFilter,
+  limits: { fileSize: 5 * 1024 * 1024 } // 5MB max
+});
+
+// Helper to convert file to base64 for MongoDB storage
+export function fileToBase64(file) {
+  if (!file) return null;
+  const buffer = file.buffer;
+  const base64 = buffer.toString('base64');
+  return {
+    data: base64,
+    mimeType: file.mimetype
+  };
+}
 
 export default upload;

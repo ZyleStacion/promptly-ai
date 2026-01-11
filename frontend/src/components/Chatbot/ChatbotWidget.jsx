@@ -4,24 +4,37 @@ import { API_URL } from '../../api/api';
 /**
  * ChatbotWidget Component
  * 
- * Reusable component to embed Promptly chatbot in React applications
+ * Reusable component to embed Promptly chatbot in React applications.
+ * The widget will fetch chatbot config (including profile picture) from the backend
+ * and display it in an embedded chat interface.
  * 
  * Usage:
  * <ChatbotWidget chatbotId="YOUR_CHATBOT_ID" />
  * 
  * Props:
  * - chatbotId: string (required) - The ID of your chatbot
- * - apiUrl: string (optional) - Backend API URL (default: http://localhost:3000)
- * - widgetScript: string (optional) - Widget script URL (default: http://localhost:5173/promptly-widget.js)
+ * - apiUrl: string (optional) - Backend API URL (default: from env VITE_API_URL)
+ * - widgetScript: string (optional) - Widget script URL (default: production CDN)
+ * 
+ * Features:
+ * - Profile pictures stored in MongoDB (served via /chat/picture/:id)
+ * - Automatic widget initialization
+ * - Proper error handling and logging
+ * - Multiple widget support on same page
  */
 const ChatbotWidget = ({ 
-  chatbotId = '6957fd16615a6c30d9d3238f',
+  chatbotId,
   apiUrl = API_URL,
-  widgetScript = 'http://52.21.46.81/promptly-widget.js'
+  widgetScript = 'http://52.21.46.81.nip.io/promptly-widget.js'
 }) => {
   const containerRef = useRef(null);
 
   useEffect(() => {
+    if (!chatbotId) {
+      console.error('❌ ChatbotWidget: chatbotId is required');
+      return;
+    }
+
     // Set global API URL
     window.PROMPTLY_API_URL = apiUrl;
 
