@@ -321,9 +321,8 @@ const ModelsSection = ({
 <div data-promptly-chatbot-id="${showEmbedCode}"></div>
 <script>
   globalThis.PROMPTLY_API_URL = 'http://13.216.200.51.nip.io:5000';
-  // Adjust :3000 to your backend port if different
 </script>
-<script src="${globalThis.location.protocol}//${globalThis.location.hostname}:5173/promptly-widget.js"></script>`}
+<script src="${globalThis.location.protocol}//${globalThis.location.hostname}/promptly-widget.js"></script>`}
                 </pre>
               </div>
               <div className="flex gap-3">
